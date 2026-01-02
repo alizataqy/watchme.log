@@ -1,11 +1,14 @@
-import { useState } from 'react';
-import { Film, Clock, Eye, Search as SearchIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Film, Clock, Eye, Search as SearchIcon, LogOut, User } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/SearchBar';
 import { ShowCard } from '@/components/ShowCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useShowStorage } from '@/hooks/useShowStorage';
+import { useAuth } from '@/hooks/useAuth';
 import { SearchResult, Show, TrackedShow } from '@/types/show';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,16 +19,28 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('search');
   
   const { toast } = useToast();
+  const { user, isLoading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  
   const {
     watchlist,
     watched,
+    watchedEpisodes,
     isLoading,
     addShow,
     removeShow,
     updateShowStatus,
+    toggleEpisode,
     isInList,
     getShowStatus,
+    getShowDbId,
   } = useShowStorage();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSearch = async (query: string) => {
     if (!query) {
@@ -43,7 +58,6 @@ const Index = () => {
       );
       const data: SearchResult[] = await response.json();
       
-      // Fetch next episode info for each show
       const showsWithEpisodes = await Promise.all(
         data.map(async (result) => {
           try {
@@ -71,12 +85,10 @@ const Index = () => {
   };
 
   const handleAddToWatchlist = (show: Show) => {
-    const trackedShow: TrackedShow = {
+    addShow({
       ...show,
-      addedAt: new Date().toISOString(),
       status: 'watchlist',
-    };
-    addShow(trackedShow);
+    });
     toast({
       title: 'Ditambahkan ke Watchlist',
       description: `${show.name} berhasil ditambahkan.`,
@@ -87,12 +99,10 @@ const Index = () => {
     if (isInList(show.id)) {
       updateShowStatus(show.id, 'watched');
     } else {
-      const trackedShow: TrackedShow = {
+      addShow({
         ...show,
-        addedAt: new Date().toISOString(),
         status: 'watched',
-      };
-      addShow(trackedShow);
+      });
     }
     toast({
       title: 'Ditandai Sudah Ditonton',
@@ -116,7 +126,16 @@ const Index = () => {
     });
   };
 
-  if (isLoading) {
+  const handleToggleEpisode = (showId: number, season: number, episode: number, name: string, airdate: string) => {
+    toggleEpisode(showId, season, episode, name, airdate);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
@@ -124,16 +143,31 @@ const Index = () => {
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container py-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Film className="h-5 w-5 text-primary-foreground" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Film className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-bold text-gradient">WatchTracker</h1>
             </div>
-            <h1 className="text-xl font-bold text-gradient">WatchTracker</h1>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <User className="h-3 w-3" />
+                <span className="hidden sm:inline truncate max-w-[120px]">{user.email}</span>
+              </div>
+              <Button size="sm" variant="ghost" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <SearchBar onSearch={handleSearch} isLoading={isSearching} />
         </div>
@@ -203,8 +237,13 @@ const Index = () => {
                     show={show}
                     isInList={true}
                     currentStatus="watchlist"
+                    watchedEpisodes={watchedEpisodes[show.dbId!] || []}
+                    showEpisodeTracking={true}
                     onMarkWatched={() => handleMarkWatched(show)}
                     onRemove={() => handleRemove(show)}
+                    onToggleEpisode={(season, episode, name, airdate) => 
+                      handleToggleEpisode(show.id, season, episode, name, airdate)
+                    }
                   />
                 ))}
               </div>
@@ -222,8 +261,13 @@ const Index = () => {
                     show={show}
                     isInList={true}
                     currentStatus="watched"
+                    watchedEpisodes={watchedEpisodes[show.dbId!] || []}
+                    showEpisodeTracking={true}
                     onAddToWatchlist={() => handleMoveToWatchlist(show)}
                     onRemove={() => handleRemove(show)}
+                    onToggleEpisode={(season, episode, name, airdate) => 
+                      handleToggleEpisode(show.id, season, episode, name, airdate)
+                    }
                   />
                 ))}
               </div>

@@ -1,5 +1,6 @@
 export interface Show {
   id: number;
+  dbId?: string;
   name: string;
   image: {
     medium?: string;
@@ -29,6 +30,7 @@ export interface SearchResult {
 }
 
 export interface TrackedShow extends Show {
+  dbId?: string;
   addedAt: string;
   status: 'watchlist' | 'watched';
   notes?: string;
