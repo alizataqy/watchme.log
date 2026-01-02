@@ -14,7 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tracked_shows: {
+        Row: {
+          created_at: string
+          ended: string | null
+          genres: string[] | null
+          id: string
+          image_url: string | null
+          name: string
+          premiered: string | null
+          rating: number | null
+          show_id: number
+          status: string | null
+          summary: string | null
+          track_status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended?: string | null
+          genres?: string[] | null
+          id?: string
+          image_url?: string | null
+          name: string
+          premiered?: string | null
+          rating?: number | null
+          show_id: number
+          status?: string | null
+          summary?: string | null
+          track_status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended?: string | null
+          genres?: string[] | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          premiered?: string | null
+          rating?: number | null
+          show_id?: number
+          status?: string | null
+          summary?: string | null
+          track_status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watched_episodes: {
+        Row: {
+          airdate: string | null
+          episode: number
+          episode_name: string | null
+          id: string
+          season: number
+          tracked_show_id: string
+          user_id: string
+          watched_at: string
+        }
+        Insert: {
+          airdate?: string | null
+          episode: number
+          episode_name?: string | null
+          id?: string
+          season: number
+          tracked_show_id: string
+          user_id: string
+          watched_at?: string
+        }
+        Update: {
+          airdate?: string | null
+          episode?: number
+          episode_name?: string | null
+          id?: string
+          season?: number
+          tracked_show_id?: string
+          user_id?: string
+          watched_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watched_episodes_tracked_show_id_fkey"
+            columns: ["tracked_show_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
