@@ -18,7 +18,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  
+
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -52,8 +52,8 @@ const Auth = () => {
     if (error) {
       toast({
         title: 'Gagal Masuk',
-        description: error.message === 'Invalid login credentials' 
-          ? 'Email atau password salah' 
+        description: error.message === 'Invalid login credentials'
+          ? 'Email atau password salah'
           : error.message,
         variant: 'destructive',
       });
@@ -98,10 +98,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-4 glow-primary">
-            <Film className="h-8 w-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold text-gradient">WatchTracker</h1>
+          <h1 className="text-2xl font-bold text-gradient">TrackerWatch</h1>
           <p className="text-muted-foreground text-sm mt-2">
             Track film & series favoritmu
           </p>

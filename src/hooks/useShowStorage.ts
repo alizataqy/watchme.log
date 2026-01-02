@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { TrackedShow } from '@/types/show';
+import { TrackedShow, TrackedShowRow } from '@/types/show';
 
 export function useShowStorage() {
   const { user } = useAuth();
@@ -21,11 +21,12 @@ export function useShowStorage() {
       const { data: trackedShows, error: showsError } = await supabase
         .from('tracked_shows')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (showsError) throw showsError;
 
-      const mapped: TrackedShow[] = (trackedShows || []).map((s) => ({
+      const mapped: TrackedShow[] = (trackedShows || []).map((s: TrackedShowRow) => ({
         id: s.show_id,
         dbId: s.id,
         name: s.name,
@@ -36,7 +37,8 @@ export function useShowStorage() {
         rating: { average: s.rating ? Number(s.rating) : null },
         summary: s.summary,
         addedAt: s.created_at,
-        status: s.track_status as 'watchlist' | 'watched',
+        status: s.track_status as 'watchlist' | 'watched' | 'watching',
+        source: s.source,
       }));
 
       setShows(mapped);
@@ -71,7 +73,7 @@ export function useShowStorage() {
     fetchShows();
   }, [fetchShows]);
 
-  const addShow = async (show: Omit<TrackedShow, 'addedAt'> & { status: 'watchlist' | 'watched' }) => {
+  const addShow = async (show: Omit<TrackedShow, 'addedAt'> & { status: 'watchlist' | 'watched' | 'watching' }) => {
     if (!user) return;
 
     try {
@@ -87,19 +89,21 @@ export function useShowStorage() {
         rating: show.rating?.average,
         summary: show.summary,
         track_status: show.status,
+        source: show.source || 'tvmaze',
       });
 
       if (error) throw error;
       await fetchShows();
     } catch (error) {
       console.error('Error adding show:', error);
+      throw error;
     }
   };
 
-  const removeShow = async (showId: number) => {
+  const removeShow = async (showId: number, source: string = 'tvmaze') => {
     if (!user) return;
 
-    const show = shows.find((s) => s.id === showId);
+    const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
     if (!show?.dbId) return;
 
     try {
@@ -115,10 +119,10 @@ export function useShowStorage() {
     }
   };
 
-  const updateShowStatus = async (showId: number, status: 'watchlist' | 'watched') => {
+  const updateShowStatus = async (showId: number, status: 'watchlist' | 'watched' | 'watching', source: string = 'tvmaze') => {
     if (!user) return;
 
-    const show = shows.find((s) => s.id === showId);
+    const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
     if (!show?.dbId) return;
 
     try {
@@ -131,6 +135,7 @@ export function useShowStorage() {
       await fetchShows();
     } catch (error) {
       console.error('Error updating show status:', error);
+      throw error;
     }
   };
 
@@ -139,11 +144,12 @@ export function useShowStorage() {
     season: number,
     episode: number,
     episodeName: string,
-    airdate: string
+    airdate: string,
+    source: string = 'tvmaze'
   ) => {
     if (!user) return;
 
-    const show = shows.find((s) => s.id === showId);
+    const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
     if (!show?.dbId) return;
 
     const showEpisodes = watchedEpisodes[show.dbId] || [];
@@ -180,17 +186,24 @@ export function useShowStorage() {
     }
   };
 
-  const isInList = (showId: number) => shows.some((s) => s.id === showId);
-  const getShowStatus = (showId: number) => shows.find((s) => s.id === showId)?.status;
-  const getShowDbId = (showId: number) => shows.find((s) => s.id === showId)?.dbId;
+  const isInList = (showId: number, source: string = 'tvmaze') =>
+    shows.some((s) => s.id === showId && (s.source || 'tvmaze') === source);
+
+  const getShowStatus = (showId: number, source: string = 'tvmaze') =>
+    shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source)?.status;
+
+  const getShowDbId = (showId: number, source: string = 'tvmaze') =>
+    shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source)?.dbId;
 
   const watchlist = shows.filter((s) => s.status === 'watchlist');
   const watched = shows.filter((s) => s.status === 'watched');
+  const watching = shows.filter((s) => s.status === 'watching');
 
   return {
     shows,
     watchlist,
     watched,
+    watching,
     watchedEpisodes,
     isLoading,
     addShow,

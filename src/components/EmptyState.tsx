@@ -1,25 +1,35 @@
-import { Film, Search, Clock, Eye } from 'lucide-react';
+import { Search, Clock, Eye, CheckCircle, Calendar } from 'lucide-react';
 
 interface EmptyStateProps {
-  type: 'search' | 'watchlist' | 'watched';
+  type: 'search' | 'watchlist' | 'watched' | 'watching' | 'upcoming';
 }
 
 export function EmptyState({ type }: EmptyStateProps) {
   const content = {
     search: {
       icon: Search,
-      title: 'Cari Film atau Series',
-      description: 'Gunakan kotak pencarian untuk menemukan film atau series yang ingin kamu tracking.',
+      title: 'Mulai Pencarian',
+      description: 'Cari film atau serial TV favorit Anda untuk mulai tracking.',
+    },
+    watching: {
+      icon: Eye,
+      title: 'Tidak Ada yang Sedang Ditonton',
+      description: 'Mulai tonton sesuatu dari watchlist Anda!',
     },
     watchlist: {
       icon: Clock,
       title: 'Watchlist Kosong',
-      description: 'Belum ada film atau series yang ingin kamu tonton. Cari dan tambahkan sekarang!',
+      description: 'Belum ada film atau serial yang ingin ditonton.',
     },
     watched: {
-      icon: Eye,
-      title: 'Belum Ada yang Ditonton',
-      description: 'Tandai film atau series yang sudah kamu tonton.',
+      icon: CheckCircle,
+      title: 'Belum Ada yang Selesai',
+      description: 'Selesaikan episode atau film pertama Anda untuk melihatnya di sini.',
+    },
+    upcoming: {
+      icon: Calendar,
+      title: 'Tidak Ada Jadwal Tayang',
+      description: 'Semua film/serial dalam list Anda belum memiliki jadwal tayang baru, atau sudah tayang semua.',
     },
   };
 

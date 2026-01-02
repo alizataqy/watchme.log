@@ -14,10 +14,19 @@ export interface Show {
     average: number | null;
   };
   summary: string | null;
+  source?: 'tvmaze' | 'tmdb';
   _embedded?: {
     nextepisode?: {
       name: string;
       airdate: string;
+      airstamp: string;
+      season: number;
+      number: number;
+    };
+    previousepisode?: {
+      name: string;
+      airdate: string;
+      airstamp: string;
       season: number;
       number: number;
     };
@@ -32,6 +41,22 @@ export interface SearchResult {
 export interface TrackedShow extends Show {
   dbId?: string;
   addedAt: string;
-  status: 'watchlist' | 'watched';
+  status: 'watchlist' | 'watched' | 'watching';
   notes?: string;
+}
+
+export interface TrackedShowRow {
+  id: string;
+  user_id: string;
+  show_id: number;
+  name: string;
+  image_url: string | null;
+  premiered: string | null;
+  ended: string | null;
+  genres: string[] | null;
+  rating: number | null;
+  summary: string | null;
+  created_at: string;
+  track_status: string;
+  source?: 'tvmaze' | 'tmdb';
 }
