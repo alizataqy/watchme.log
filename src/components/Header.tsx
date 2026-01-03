@@ -27,7 +27,7 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
             <div className="container py-4">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-bold text-gradient">TrackerWatch</h1>
+                        <h1 className="text-xl font-bold text-gradient">Tracker Watch</h1>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">

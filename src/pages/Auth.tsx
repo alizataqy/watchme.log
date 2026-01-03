@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { ModeToggle } from '@/components/ModeToggle';
+import SEO from '@/components/SEO';
 
 const authSchema = z.object({
   email: z.string().email('Email tidak valid'),
@@ -96,13 +97,17 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
+      <SEO
+        title="Login / Register"
+        description="Masuk atau daftar ke WatchTracker untuk mulai melacak film dan serial TV favoritmu secara gratis."
+      />
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <h1 className="text-2xl font-bold text-gradient">TrackerWatch</h1>
+          <h1 className="text-2xl font-bold text-gradient">Tracker Watch</h1>
           <p className="text-muted-foreground text-sm mt-2">
             Track film & series favoritmu
           </p>

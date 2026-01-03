@@ -16,6 +16,7 @@ import { getShowDetails, getRecommendedSeries } from '@/services/tvmaze';
 import { isAfter, parseISO } from 'date-fns';
 import { Calendar } from 'lucide-react';
 import { MobileNav } from '@/components/MobileNav';
+import SEO from '@/components/SEO';
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -351,6 +352,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Home"
+        description="Pantau progres nonton film dan serial TV kamu dengan WatchTracker."
+      />
       {/* Header */}
       <Header
         onSearch={handleSearch}
