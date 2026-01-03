@@ -1,3 +1,4 @@
+import { Link, useNavigate } from 'react-router-dom';
 import { Show, TrackedShow } from '@/types/show';
 import { Calendar, Star, Plus, Check, Eye, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,6 +55,7 @@ export function ShowCard({
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
   const [showEpisodes, setShowEpisodes] = useState(false);
+  const navigate = useNavigate();
 
   const imageUrl = show.image?.medium || show.image?.original;
   const nextEpisode = show._embedded?.nextepisode;
@@ -70,7 +72,22 @@ export function ShowCard({
     return watchedEpisodes.some(ep => ep.season === season && ep.episode === episode);
   };
 
-  const loadEpisodes = async () => {
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking buttons, dialogs, or episode selectors
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('button') ||
+      target.closest('[role="dialog"]') ||
+      target.closest('.episode-item') ||
+      target.closest('.alert-dialog-trigger')
+    ) {
+      return;
+    }
+    navigate(`/show/${show.id}?source=${show.source || 'tvmaze'}`);
+  };
+
+  const loadEpisodes = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (episodes.length > 0) {
       setShowEpisodes(!showEpisodes);
       return;
@@ -80,18 +97,20 @@ export function ShowCard({
 
     setIsLoadingEpisodes(true);
     try {
-      const response = await fetch(`https://api.tvmaze.com/shows/${show.id}/episodes`);
-      const data = await response.json();
-      setEpisodes(data.map((ep: Episode) => ({
-        season: ep.season,
-        number: ep.number,
-        name: ep.name,
-        airdate: ep.airdate,
-      })));
-      setShowEpisodes(true);
+      fetch(`https://api.tvmaze.com/shows/${show.id}/episodes`)
+        .then(res => res.json())
+        .then(data => {
+          setEpisodes(data.map((ep: Episode) => ({
+            season: ep.season,
+            number: ep.number,
+            name: ep.name,
+            airdate: ep.airdate,
+          })));
+          setShowEpisodes(true);
+        })
+        .finally(() => setIsLoadingEpisodes(false));
     } catch (error) {
       console.error('Failed to load episodes:', error);
-    } finally {
       setIsLoadingEpisodes(false);
     }
   };
@@ -119,7 +138,10 @@ export function ShowCard({
   const totalEpisodes = episodes.length;
 
   return (
-    <div className="glass-card rounded-lg overflow-hidden animate-fade-in hover:border-primary/50 transition-all duration-300 group">
+    <div
+      onClick={handleCardClick}
+      className="glass-card rounded-lg overflow-hidden animate-fade-in hover:border-primary/50 transition-all duration-300 group cursor-pointer"
+    >
       <div className="flex gap-3 p-3">
         {/* Poster */}
         <div className="relative w-20 h-28 flex-shrink-0 rounded-md overflow-hidden bg-secondary">
@@ -144,7 +166,7 @@ export function ShowCard({
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col">
-          <h3 className="font-semibold text-sm truncate">{show.name}</h3>
+          <h3 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">{show.name}</h3>
 
           <div className="flex flex-wrap gap-1 mt-1">
             {show.genres?.slice(0, 2).map((genre) => (
@@ -248,7 +270,7 @@ export function ShowCard({
                 size="sm"
                 variant="secondary"
                 className="flex-1 h-8 text-xs"
-                onClick={onAddToWatchlist}
+                onClick={(e) => { e.stopPropagation(); onAddToWatchlist?.(); }}
               >
                 <Plus className="h-3 w-3 mr-1" />
                 Watchlist
@@ -257,7 +279,14 @@ export function ShowCard({
                 size="sm"
                 variant="default"
                 className="flex-1 h-8 text-xs"
-                onClick={isMovie ? onMarkWatched : onMarkWatching}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isMovie) {
+                    onMarkWatched?.();
+                  } else {
+                    onMarkWatching?.();
+                  }
+                }}
               >
                 {isMovie ? (
                   <>
@@ -294,16 +323,16 @@ export function ShowCard({
               {currentStatus === 'watchlist' && (
                 isMovie ? (
                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                    <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
                       <Button
                         size="sm"
-                        className="flex-1 h-8 text-xs"
+                        className="flex-1 h-8 text-xs alert-dialog-trigger"
                       >
                         <Check className="h-3 w-3 mr-1" />
                         Selesai
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Konfirmasi Selesai</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -312,7 +341,7 @@ export function ShowCard({
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={onMarkWatched}>Ya, Selesai</AlertDialogAction>
+                        <AlertDialogAction onClick={(e) => { e.stopPropagation(); onMarkWatched?.(); }}>Ya, Selesai</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -320,7 +349,7 @@ export function ShowCard({
                   <Button
                     size="sm"
                     className="flex-1 h-8 text-xs"
-                    onClick={onMarkWatching}
+                    onClick={(e) => { e.stopPropagation(); onMarkWatching?.(); }}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     Nonton
@@ -330,16 +359,16 @@ export function ShowCard({
 
               {currentStatus === 'watching' && (
                 <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                  <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
                     <Button
                       size="sm"
-                      className="flex-1 h-8 text-xs"
+                      className="flex-1 h-8 text-xs alert-dialog-trigger"
                     >
                       <Check className="h-3 w-3 mr-1" />
                       Selesai
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Konfirmasi Selesai</AlertDialogTitle>
                       <AlertDialogDescription>
@@ -349,7 +378,7 @@ export function ShowCard({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction onClick={onMarkWatched}>Ya, Semua Selesai</AlertDialogAction>
+                      <AlertDialogAction onClick={(e) => { e.stopPropagation(); onMarkWatched?.(); }}>Ya, Semua Selesai</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -360,7 +389,7 @@ export function ShowCard({
                   size="sm"
                   variant="secondary"
                   className="flex-1 h-8 text-xs"
-                  onClick={onMarkWatching}
+                  onClick={(e) => { e.stopPropagation(); onMarkWatching?.(); }}
                 >
                   <Eye className="h-3 w-3 mr-1" />
                   Nonton Lagi
@@ -371,7 +400,7 @@ export function ShowCard({
                 size="sm"
                 variant="destructive"
                 className="h-8 text-xs px-3"
-                onClick={onRemove}
+                onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
               >
                 Hapus
               </Button>
@@ -384,7 +413,7 @@ export function ShowCard({
 
       {/* Episode List */}
       {showEpisodes && episodes.length > 0 && (
-        <div className="px-3 pb-3 max-h-64 overflow-y-auto scrollbar-hide">
+        <div className="px-3 pb-3 max-h-64 overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
           {Object.entries(episodesBySeason).map(([season, eps]) => (
             <div key={season} className="mb-3">
               <h4 className="text-xs font-semibold text-muted-foreground mb-2">
@@ -398,9 +427,12 @@ export function ShowCard({
                   return (
                     <div
                       key={`${ep.season}-${ep.number}`}
-                      onClick={() => !isFuture && onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isFuture) onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
+                      }}
                       className={`
-                        aspect-square rounded flex items-center justify-center text-sm font-bold transition-all
+                        episode-item aspect-square rounded flex items-center justify-center text-sm font-bold transition-all
                         ${isFuture
                           ? "bg-muted text-gray-200 text-muted-foreground/30 cursor-not-allowed opacity-50 grayscale pointer-events-none"
                           : "cursor-pointer"

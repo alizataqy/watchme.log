@@ -14,6 +14,29 @@ export interface Show {
     average: number | null;
   };
   summary: string | null;
+  officialSite?: string | null;
+  runtime?: number | null;
+  type?: string | null;
+  network?: {
+    id: number;
+    name: string;
+    country: {
+      name: string;
+      code: string;
+      timezone: string;
+    } | null;
+    officialSite: string | null;
+  } | null;
+  webChannel?: {
+    id: number;
+    name: string;
+    country: {
+      name: string;
+      code: string;
+      timezone: string;
+    } | null;
+    officialSite: string | null;
+  } | null;
   source?: 'tvmaze' | 'tmdb';
   _embedded?: {
     nextepisode?: {
@@ -30,6 +53,13 @@ export interface Show {
       season: number;
       number: number;
     };
+    cast?: Array<{
+      person: {
+        name: string;
+        image: { medium?: string; original?: string } | null;
+      };
+      character: string;
+    }>;
   };
 }
 

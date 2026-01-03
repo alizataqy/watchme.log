@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Clock, Eye, Search as SearchIcon, CheckCircle, Star } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
@@ -22,7 +22,6 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [activeTab, setActiveTab] = useState('search');
   const [searchType, setSearchType] = useState<'series' | 'movie'>('series');
   const [upcomingShows, setUpcomingShows] = useState<Show[]>([]);
   const [recentlyAired, setRecentlyAired] = useState<Show[]>([]);
@@ -34,7 +33,16 @@ const Index = () => {
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
+
+  const queryTab = searchParams.get('tab');
+  const [activeTab, setActiveTabState] = useState(queryTab || 'search');
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    setSearchParams({ tab });
+  };
 
   const {
     watchlist,
@@ -59,7 +67,11 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const handleSearch = async (query: string) => {
+  const searchRequestId = useRef(0);
+  const recommendationsRequestId = useRef(0);
+
+  const handleSearch = useCallback(async (query: string) => {
+    const requestId = ++searchRequestId.current;
     setLocalQuery(query);
 
     if (activeTab !== 'search') {
@@ -79,9 +91,11 @@ const Index = () => {
         const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
         const data = await response.json();
 
+        if (requestId !== searchRequestId.current) return;
+
         // Fetch episodes for first few results to show next episode info
         const showsWithEpisodes = await Promise.all(
-          data.slice(0, 5).map(async (result: SearchResult) => {
+          data.slice(0, 5).map(async (result: { show: Show }) => {
             try {
               const showRes = await fetch(`https://api.tvmaze.com/shows/${result.show.id}?embed=nextepisode`);
               const showData = await showRes.json();
@@ -94,47 +108,69 @@ const Index = () => {
             }
           })
         );
+
+        if (requestId !== searchRequestId.current) return;
+
         // Add rest of results
         const remaining = data.slice(5).map((r: SearchResult) => ({ ...r, show: { ...r.show, source: 'tvmaze' } }));
-
         setSearchResults([...showsWithEpisodes, ...remaining]);
       } else {
         const results = await searchMovies(query);
+        if (requestId !== searchRequestId.current) return;
         setSearchResults(results);
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Gagal mencari. Coba lagi nanti.',
-        variant: 'destructive',
-      });
+      if (requestId === searchRequestId.current) {
+        toast({
+          title: 'Error',
+          description: 'Gagal mencari. Coba lagi nanti.',
+          variant: 'destructive',
+        });
+      }
     } finally {
-      setIsSearching(false);
+      if (requestId === searchRequestId.current) {
+        setIsSearching(false);
+      }
     }
-  };
+  }, [activeTab, searchType, toast]);
 
   const fetchRecommendations = useCallback(async () => {
+    const requestId = ++recommendationsRequestId.current;
     setIsLoadingRecs(true);
     try {
       if (searchType === 'series') {
         const results = await getRecommendedSeries();
+        if (requestId !== recommendationsRequestId.current) return;
         setRecommendations(results);
       } else {
         const results = await getTrendingMovies();
+        if (requestId !== recommendationsRequestId.current) return;
         setRecommendations(results);
       }
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     } finally {
-      setIsLoadingRecs(false);
+      if (requestId === recommendationsRequestId.current) {
+        setIsLoadingRecs(false);
+      }
     }
   }, [searchType]);
 
+  // Consolidate search and recommendation triggers
   useEffect(() => {
-    if (activeTab === 'search' && !hasSearched) {
+    if (activeTab !== 'search') return;
+
+    if (hasSearched && localQuery) {
+      handleSearch(localQuery);
+    } else if (!hasSearched) {
       fetchRecommendations();
     }
-  }, [activeTab, hasSearched, fetchRecommendations]);
+    // We only want to re-run this when the search type or recommended-source changes
+    // or when we first land on/return to the search tab.
+    // Adding handleSearch/fetchRecommendations to deps is safe as they are memoized.
+    // hasSearched/localQuery are omitted to avoid double-triggering during a normal search.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchType, activeTab, fetchRecommendations, handleSearch]);
 
   const handleAddToWatchlist = (show: Show) => {
     addShow({
