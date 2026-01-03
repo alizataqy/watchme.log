@@ -105,7 +105,7 @@ const Detail = () => {
     return (
         <div className="min-h-screen bg-background pb-32">
             {/* Header Branding */}
-            <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center pointer-events-none">
+            <div className="absolute top-0  right-0 z-20 p-4 flex justify-between items-center pointer-events-none">
                 <Link to="/" className="pointer-events-auto">
                     <h1 className="text-xl font-bold text-gradient">Tracker Watch</h1>
                 </Link>
