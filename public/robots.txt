@@ -13,4 +13,5 @@ Allow: /
 User-agent: *
 Allow: /
 
+Disallow: /sitemap_new.xml
 Sitemap: https://tracker-watch.vercel.app/sitemap.xml
