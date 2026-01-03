@@ -3,6 +3,7 @@ import { User, LogOut, Film } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { ModeToggle } from "./ModeToggle";
 
 interface HeaderProps {
     onSearch: (query: string) => void;
@@ -33,6 +34,7 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                             <User className="h-5 w-5" />
                             <span className="hidden sm:inline truncate max-w-[120px]">{user?.email}</span>
                         </div>
+                        <ModeToggle />
                         <Button size="sm" variant="ghost" onClick={handleSignOut}>
                             <LogOut className="h-5 w-5" />
                         </Button>

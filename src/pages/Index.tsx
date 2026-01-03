@@ -45,6 +45,7 @@ const Index = () => {
     removeShow,
     updateShowStatus,
     toggleEpisode,
+    markAllEpisodesAsWatched,
     isInList,
     getShowStatus,
     getShowDbId,
@@ -145,19 +146,31 @@ const Index = () => {
     });
   };
 
-  const handleMarkWatched = (show: Show) => {
-    if (isInList(show.id, show.source)) {
-      updateShowStatus(show.id, 'watched', show.source);
-    } else {
-      addShow({
-        ...show,
-        status: 'watched',
+  const handleMarkWatched = async (show: Show) => {
+    try {
+      if (isInList(show.id, show.source)) {
+        await markAllEpisodesAsWatched(show.id, show.source);
+      } else {
+        await addShow({
+          ...show,
+          status: 'watched',
+        });
+        // If it's a new show being marked as watched directly, also mark all episodes
+        if (show.source === 'tvmaze') {
+          await markAllEpisodesAsWatched(show.id, show.source);
+        }
+      }
+      toast({
+        title: 'Ditandai Sudah Ditonton',
+        description: `${show.name} ditandai sudah ditonton.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Gagal Memperbarui',
+        description: 'Terjadi kesalahan saat menandai sudah ditonton.',
+        variant: 'destructive',
       });
     }
-    toast({
-      title: 'Ditandai Sudah Ditonton',
-      description: `${show.name} ditandai sudah ditonton.`,
-    });
   };
 
   const handleRemove = (show: Show) => {
@@ -418,7 +431,7 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="upcoming" className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />
-                <span>Upcoming</span>
+                <span>Up Coming</span>
                 {upcomingShows.length > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {upcomingShows.length}
@@ -503,7 +516,7 @@ const Index = () => {
                   <div className="space-y-3">
                     <h2 className="text-sm font-semibold text-primary px-1 flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      Upcoming
+                      Up Coming
                     </h2>
                     {upcomingShows.map((show) => (
                       <ShowCard

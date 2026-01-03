@@ -17,7 +17,7 @@ export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
         { id: 'search', icon: Search, label: 'Search' },
         { id: 'watchlist', icon: Clock, label: 'Watchlist', count: counts.watchlist },
         { id: 'watching', icon: Eye, label: 'Watching', count: counts.watching },
-        { id: 'upcoming', icon: Calendar, label: 'Coming', count: counts.upcoming },
+        { id: 'upcoming', icon: Calendar, label: 'Up Coming', count: counts.upcoming },
         { id: 'watched', icon: CheckCircle, label: 'Watched', count: counts.watched },
     ];
 

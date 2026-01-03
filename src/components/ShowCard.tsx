@@ -5,6 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { format, parseISO, isAfter, differenceInDays, formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useState, useEffect } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Episode {
   season: number;
@@ -251,7 +262,7 @@ export function ShowCard({
                 {isMovie ? (
                   <>
                     <Check className="h-3 w-3 mr-1" />
-                    Sudah Tonton
+                    Sudah Nonton
                   </>
                 ) : (
                   <>
@@ -281,34 +292,67 @@ export function ShowCard({
               )}
 
               {currentStatus === 'watchlist' && (
-                <Button
-                  size="sm"
-                  className="flex-1 h-8 text-xs"
-                  onClick={isMovie ? onMarkWatched : onMarkWatching}
-                >
-                  {isMovie ? (
-                    <>
-                      <Check className="h-3 w-3 mr-1" />
-                      Selesai
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="h-3 w-3 mr-1" />
-                      Nonton
-                    </>
-                  )}
-                </Button>
+                isMovie ? (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        className="flex-1 h-8 text-xs"
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Selesai
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Konfirmasi Selesai</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Apakah Anda yakin ingin menandai film <strong>{show.name}</strong> sebagai sudah ditonton?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction onClick={onMarkWatched}>Ya, Selesai</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="flex-1 h-8 text-xs"
+                    onClick={onMarkWatching}
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Nonton
+                  </Button>
+                )
               )}
 
               {currentStatus === 'watching' && (
-                <Button
-                  size="sm"
-                  className="flex-1 h-8 text-xs"
-                  onClick={onMarkWatched}
-                >
-                  <Check className="h-3 w-3 mr-1" />
-                  Selesai
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="flex-1 h-8 text-xs"
+                    >
+                      <Check className="h-3 w-3 mr-1" />
+                      Selesai
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Konfirmasi Selesai</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Apakah Anda yakin sudah selesai menonton <strong>{show.name}</strong>?
+                        Ini akan secara otomatis menandai <strong>semua episode</strong> sebagai sudah ditonton.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction onClick={onMarkWatched}>Ya, Semua Selesai</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
 
               {currentStatus === 'watched' && (
@@ -319,7 +363,7 @@ export function ShowCard({
                   onClick={onMarkWatching}
                 >
                   <Eye className="h-3 w-3 mr-1" />
-                  Tonton Lagi
+                  Nonton Lagi
                 </Button>
               )}
 
@@ -335,9 +379,6 @@ export function ShowCard({
           )}
         </div>
       ) : (
-        // Simplified Action for Upcoming View (Just Reminder text already shown above, maybe simple Remove/Check link?)
-        // User said "dibuat reminder saja", but user might still want to remove it?
-        // Let's keep it clean as requested.
         null
       )}
 
@@ -365,8 +406,8 @@ export function ShowCard({
                           : "cursor-pointer"
                         }
                         ${!isFuture && (watched
-                          ? "bg-primary text-gray-800 hover:bg-primary/90 shadow-md"
-                          : "bg-secondary text-gray-200 hover:bg-secondary/80"
+                          ? "bg-primary text-gray-200 dark:text-gray-800 hover:bg-primary/90 shadow-md"
+                          : "bg-secondary text-gray-800 dark:text-gray-200 hover:bg-secondary/80"
                         )}
                       `}
                       title={isFuture ? `Tayang: ${ep.airdate}` : ep.name}

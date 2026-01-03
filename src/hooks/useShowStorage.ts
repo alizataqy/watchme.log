@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { TrackedShow, TrackedShowRow } from '@/types/show';
+import { isAfter, parseISO } from 'date-fns';
 
 export function useShowStorage() {
   const { user } = useAuth();
@@ -139,6 +140,53 @@ export function useShowStorage() {
     }
   };
 
+  const markAllEpisodesAsWatched = async (showId: number, source: string = 'tvmaze') => {
+    if (!user) return;
+
+    const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
+    if (!show?.dbId) return;
+
+    try {
+      // Update status first
+      await updateShowStatus(showId, 'watched', source);
+
+      // If it's a series, fetch and mark all episodes
+      if (source === 'tvmaze') {
+        const response = await fetch(`https://api.tvmaze.com/shows/${showId}/episodes`);
+        const data = await response.json();
+
+        const episodesToInsert = data
+          .filter((ep: { airdate: string }) => ep.airdate && !isAfter(parseISO(ep.airdate), new Date())) // Only mark aired episodes
+          .map((ep: { season: number; number: number; name: string; airdate: string }) => ({
+            user_id: user.id,
+            tracked_show_id: show.dbId,
+            season: ep.season,
+            episode: ep.number,
+            episode_name: ep.name,
+            airdate: ep.airdate,
+          }));
+
+        if (episodesToInsert.length > 0) {
+          // Use upsert to avoid duplicate errors
+          const { error } = await supabase
+            .from('watched_episodes')
+            .upsert(episodesToInsert, {
+              onConflict: 'user_id,tracked_show_id,season,episode'
+            });
+
+          if (error) {
+            console.error('Error batch inserting episodes:', error);
+          }
+        }
+      }
+
+      await fetchShows();
+    } catch (error) {
+      console.error('Error marking all as watched:', error);
+      throw error;
+    }
+  };
+
   const toggleEpisode = async (
     showId: number,
     season: number,
@@ -210,6 +258,7 @@ export function useShowStorage() {
     removeShow,
     updateShowStatus,
     toggleEpisode,
+    markAllEpisodesAsWatched,
     isInList,
     getShowStatus,
     getShowDbId,
