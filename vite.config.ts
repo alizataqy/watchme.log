@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     allowedHosts: [
-        '67aadebeb64f.ngrok-free.app'
+      'watchme-log.vercel.app'
     ]
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
@@ -17,5 +17,8 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
   },
 }));

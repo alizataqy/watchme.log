@@ -43,14 +43,14 @@ const Profile = () => {
 
         if (error) {
             toast({
-                title: "Gagal memperbarui profil",
+                title: "Gagal memperbarui profile",
                 description: error.message,
                 variant: "destructive",
             });
         } else {
             toast({
-                title: "Profil diperbarui",
-                description: "Informasi profil Anda telah berhasil diperbarui.",
+                title: "Profile diperbarui",
+                description: "Informasi profile Anda telah berhasil diperbarui.",
             });
         }
     };
@@ -107,7 +107,7 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <SEO title="Edit Profil" description="Atur profil WatchMe.log Anda." />
+            <SEO title="Edit Profil" description="Atur profile WatchMe.log Anda." />
 
             <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
                 <div className="container py-4 flex items-center gap-4">
