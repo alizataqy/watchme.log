@@ -46,10 +46,6 @@ export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
                                     </span>
                                 )}
 
-                                {/* Active Indicator Dot */}
-                                {isActive && (
-                                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full animate-fade-in" />
-                                )}
                             </div>
                             <span className={cn(
                                 "text-[10px] font-medium transition-opacity duration-300",
@@ -60,7 +56,7 @@ export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
 
                             {/* Active Background Glow */}
                             {isActive && (
-                                <div className="absolute inset-0 bg-primary/5 rounded-xl blur-sm -z-10" />
+                                <div className="absolute inset-0 bg-primary/15 dark:bg-primary/5 rounded-sm" />
                             )}
                         </button>
                     );

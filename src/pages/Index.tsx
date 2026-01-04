@@ -414,45 +414,16 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {isMobile ? (
             // Mobile Bottom Navigation Tabs
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border px-4 py-2">
-              <TabsList className="w-full grid grid-cols-5 h-auto bg-transparent p-0 gap-1">
-                <TabsTrigger
-                  value="search"
-                  className="flex flex-col items-center gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg py-2 h-auto"
-                >
-                  <SearchIcon className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Search</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="watchlist"
-                  className="flex flex-col items-center gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg py-2 h-auto"
-                >
-                  <Clock className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Watchlist</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="watching"
-                  className="flex flex-col items-center gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg py-2 h-auto"
-                >
-                  <Eye className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Watching</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="upcoming"
-                  className="flex flex-col items-center gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg py-2 h-auto"
-                >
-                  <Calendar className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Coming</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="watched"
-                  className="flex flex-col items-center gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg py-2 h-auto"
-                >
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Watched</span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            <MobileNav
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              counts={{
+                watching: watching.length,
+                watchlist: watchlist.length,
+                upcoming: upcomingShows.length,
+                watched: watched.length
+              }}
+            />
           ) : (
             // Desktop Tabs
             <TabsList className="w-full grid grid-cols-5 mb-8">
