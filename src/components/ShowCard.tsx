@@ -115,6 +115,28 @@ export function ShowCard({
     }
   };
 
+  // Auto-load episodes for progress tracking
+  useEffect(() => {
+    if (showEpisodeTracking && !isMovie && episodes.length === 0) {
+      setIsLoadingEpisodes(true);
+      fetch(`https://api.tvmaze.com/shows/${show.id}/episodes`)
+        .then(res => res.json())
+        .then(data => {
+          setEpisodes(data.map((ep: Episode) => ({
+            season: ep.season,
+            number: ep.number,
+            name: ep.name,
+            airdate: ep.airdate,
+          })));
+        })
+        .catch(error => {
+          console.error('Failed to load episodes:', error);
+        })
+        .finally(() => setIsLoadingEpisodes(false));
+    }
+  }, [showEpisodeTracking, isMovie, show.id, episodes.length]);
+
+
   // Auto-mark as watched when all episodes are watched
   useEffect(() => {
     if (
@@ -248,8 +270,8 @@ export function ShowCard({
           )}
 
           {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-            <div className="mt-1 text-xs text-muted-foreground">
-              Progress: {watchedCount}/{totalEpisodes} episode
+            <div className="mt-1 text-xs p-2 mr-5 absolute right-0">
+              {watchedCount}/{totalEpisodes}
             </div>
           )}
 
@@ -416,14 +438,54 @@ export function ShowCard({
         <div className="px-3 pb-3 max-h-64 overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
           {Object.entries(episodesBySeason).map(([season, eps]) => (
             <div key={season} className="mb-3">
-              <h4 className="text-xs font-semibold text-muted-foreground mb-2">
-                Season {season}
-              </h4>
+              <div className="flex justify-between">
+                {(() => {
+                  // Calculate if all watchable episodes are watched (for visual feedback)
+                  const watchableEpisodes = eps.filter((ep) => {
+                    const isFuture = ep.airdate && isAfter(parseISO(ep.airdate), new Date());
+                    return !isFuture;
+                  });
+                  const allWatched = watchableEpisodes.every((ep) =>
+                    isEpisodeWatched(ep.season, ep.number)
+                  );
+
+                  return (
+                    <Button
+                      size="sm"
+                      variant={allWatched ? "default" : "outline"}
+                      className="h-8 text-xs px-3 mb-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        // Toggle: if all watched, uncheck all; otherwise check all
+                        if (allWatched) {
+                          // Uncheck all watchable episodes
+                          watchableEpisodes.forEach((ep) => {
+                            onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
+                          });
+                        } else {
+                          // Check all unwatched episodes
+                          watchableEpisodes.forEach((ep) => {
+                            const watched = isEpisodeWatched(ep.season, ep.number);
+                            if (!watched) {
+                              onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      <Check />
+                    </Button>
+                  );
+                })()}
+                <h4 className="text-xs font-semibold text-muted-foreground mb-2">
+                  Season {season}
+                </h4>
+              </div>
               <div className="grid grid-cols-5 sm:grid-cols-8 gap-1">
                 {eps.map((ep) => {
                   const watched = isEpisodeWatched(ep.season, ep.number);
                   const isFuture = ep.airdate && isAfter(parseISO(ep.airdate), new Date());
-
                   return (
                     <div
                       key={`${ep.season}-${ep.number}`}
@@ -444,6 +506,7 @@ export function ShowCard({
                       `}
                       title={isFuture ? `Tayang: ${ep.airdate}` : ep.name}
                     >
+
                       {ep.number}
                     </div>
                   );
