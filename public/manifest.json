@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "WatchTracker",
+  "name": "WatchMe.log",
   "version": "1.0.0",
   "description": "Track film dan series yang sudah ditonton atau mau ditonton",
   "icons": {
@@ -16,5 +16,7 @@
       "128": "icons/icon128.png"
     }
   },
-  "permissions": ["storage"]
+  "permissions": [
+    "storage"
+  ]
 }

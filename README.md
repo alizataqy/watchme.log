@@ -1,1 +1,1 @@
-https://tracker-watch.vercel.app/
+https://watchme-log.vercel.app/

@@ -27,15 +27,22 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
             <div className="container py-4">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-bold text-gradient">Tracker Watch</h1>
+                        <h1 className="text-xl font-bold text-gradient">WatchMe.log</h1>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <User className="h-5 w-5" />
-                            <span className="hidden sm:inline truncate max-w-[120px]">{user?.email}</span>
-                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="flex items-center gap-2 px-2 hover:bg-secondary/80 h-9"
+                            onClick={() => navigate('/profile')}
+                        >
+                            <User className="h-4 w-4 text-primary" />
+                            <span className="hidden sm:inline truncate max-w-[120px] text-xs text-muted-foreground">
+                                {user?.user_metadata?.full_name || user?.email}
+                            </span>
+                        </Button>
                         <ModeToggle />
-                        <Button size="sm" variant="ghost" onClick={handleSignOut}>
+                        <Button size="sm" variant="ghost" onClick={handleSignOut} title="Keluar">
                             <LogOut className="h-5 w-5" />
                         </Button>
                     </div>

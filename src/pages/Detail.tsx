@@ -107,7 +107,7 @@ const Detail = () => {
             {/* Header Branding */}
             <div className="absolute top-0  right-0 z-20 p-4 flex justify-between items-center pointer-events-none">
                 <Link to="/" className="pointer-events-auto">
-                    <h1 className="text-xl font-bold text-gradient">Tracker Watch</h1>
+                    <h1 className="text-xl font-bold text-gradient">WatchMe.log</h1>
                 </Link>
             </div>
 

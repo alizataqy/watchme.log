@@ -13,9 +13,9 @@ const SEO = ({
     description,
     keywords,
     image = "/placeholder.svg",
-    url = "https://tracker-watch.vercel.app/"
+    url = "https://watchme-log.vercel.app/"
 }: SEOProps) => {
-    const siteTitle = "Tracker Watch";
+    const siteTitle = "WatchMe.log";
     const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
     const defaultDescription = "Simpan dan pantau progress nonton film serta series TV favoritmu. Dapatkan notifikasi episode terbaru.";
 

@@ -362,10 +362,18 @@ const Index = () => {
   }, [shows]);
 
   useEffect(() => {
-    if (activeTab === 'upcoming') {
+    // Jalankan fetch jika tab aktif adalah 'upcoming'
+    // ATAU jika data shows ada tetapi kita belum pernah memuat data upcoming (untuk badge)
+    const shouldFetch = activeTab === 'upcoming' ||
+      (shows.length > 0 && !loadingUpcoming && upcomingShows.length === 0 && recentlyAired.length === 0);
+
+    if (shouldFetch && !loadingUpcoming) {
       fetchUpcoming();
     }
-  }, [activeTab, fetchUpcoming]);
+    // We intentionally omit loadingUpcoming and data lengths from dependencies to prevent infinite loops.
+    // The effect should only re-run when the tab changes or the source shows list changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, fetchUpcoming, shows.length]);
 
   if (authLoading || isLoading) {
     return (
@@ -390,7 +398,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Home"
-        description="Pantau progres nonton film dan serial TV kamu dengan WatchTracker."
+        description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log."
       />
       {/* Header */}
       <Header
@@ -465,7 +473,7 @@ const Index = () => {
                 <Eye className="h-4 w-4" />
                 <span>Watching</span>
                 {watching.length > 0 && (
-                  <span className="bg-success/20 text-success text-xs px-1.5 rounded-full">
+                  <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {watching.length}
                   </span>
                 )}
@@ -483,7 +491,7 @@ const Index = () => {
                 <CheckCircle className="h-4 w-4" />
                 <span>Watched</span>
                 {watched.length > 0 && (
-                  <span className="bg-success/20 text-success text-xs px-1.5 rounded-full">
+                  <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {watched.length}
                   </span>
                 )}

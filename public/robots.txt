@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tracker-watch.vercel.app/sitemap.xml
+Sitemap: https://watchme-log.vercel.app/sitemap.xml
