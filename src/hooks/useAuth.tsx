@@ -107,10 +107,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithOAuth = async (provider: 'google' | 'github') => {
+    // Ensure the redirect URL ends with a slash if needed, or matches Supabase config
+    const siteUrl = window.location.origin.endsWith('/')
+      ? window.location.origin
+      : `${window.location.origin}/`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: siteUrl,
       },
     });
     return { error };
