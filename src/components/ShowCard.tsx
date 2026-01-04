@@ -35,6 +35,7 @@ interface ShowCardProps {
   onMarkWatching?: () => void;
   onRemove?: () => void;
   onToggleEpisode?: (season: number, episode: number, episodeName: string, airdate: string) => void;
+  onToggleSeasonBulk?: (episodes: { season: number; episode: number; episodeName: string; airdate: string }[], allWatched: boolean) => void;
   showEpisodeTracking?: boolean;
   isUpcomingView?: boolean;
 }
@@ -49,6 +50,7 @@ export function ShowCard({
   onMarkWatching,
   onRemove,
   onToggleEpisode,
+  onToggleSeasonBulk,
   showEpisodeTracking = false,
   isUpcomingView = false,
 }: ShowCardProps) {
@@ -457,20 +459,39 @@ export function ShowCard({
                       onClick={(e) => {
                         e.stopPropagation();
 
-                        // Toggle: if all watched, uncheck all; otherwise check all
-                        if (allWatched) {
-                          // Uncheck all watchable episodes
-                          watchableEpisodes.forEach((ep) => {
-                            onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
-                          });
+                        // Use bulk handler if available (for better performance and single toast)
+                        if (onToggleSeasonBulk) {
+                          const episodesToToggle = allWatched
+                            ? watchableEpisodes.map(ep => ({
+                              season: ep.season,
+                              episode: ep.number,
+                              episodeName: ep.name,
+                              airdate: ep.airdate
+                            }))
+                            : watchableEpisodes
+                              .filter(ep => !isEpisodeWatched(ep.season, ep.number))
+                              .map(ep => ({
+                                season: ep.season,
+                                episode: ep.number,
+                                episodeName: ep.name,
+                                airdate: ep.airdate
+                              }));
+
+                          onToggleSeasonBulk(episodesToToggle, allWatched);
                         } else {
-                          // Check all unwatched episodes
-                          watchableEpisodes.forEach((ep) => {
-                            const watched = isEpisodeWatched(ep.season, ep.number);
-                            if (!watched) {
+                          // Fallback to individual toggles
+                          if (allWatched) {
+                            watchableEpisodes.forEach((ep) => {
                               onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
-                            }
-                          });
+                            });
+                          } else {
+                            watchableEpisodes.forEach((ep) => {
+                              const watched = isEpisodeWatched(ep.season, ep.number);
+                              if (!watched) {
+                                onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
+                              }
+                            });
+                          }
                         }
                       }}
                     >

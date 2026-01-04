@@ -194,7 +194,8 @@ export function useShowStorage() {
     episode: number,
     episodeName: string,
     airdate: string,
-    source: string = 'tvmaze'
+    source: string = 'tvmaze',
+    silent: boolean = false // Don't refresh if in bulk mode
   ) => {
     if (!user) return;
 
@@ -229,9 +230,62 @@ export function useShowStorage() {
 
         if (error) throw error;
       }
-      await fetchShows();
+      if (!silent) {
+        await fetchShows();
+      }
     } catch (error) {
       console.error('Error toggling episode:', error);
+    }
+  };
+
+  const toggleEpisodesBulk = async (
+    showId: number,
+    episodes: { season: number; episode: number; episodeName: string; airdate: string }[],
+    source: string = 'tvmaze'
+  ) => {
+    if (!user || episodes.length === 0) return;
+
+    const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
+    if (!show?.dbId) return;
+
+    try {
+      // Process all episodes silently
+      for (const ep of episodes) {
+        await toggleEpisode(
+          showId,
+          ep.season,
+          ep.episode,
+          ep.episodeName,
+          ep.airdate,
+          source,
+          true // silent mode
+        );
+      }
+
+      // Refresh once at the end
+      await fetchShows();
+    } catch (error) {
+      console.error('Error toggling episodes in bulk:', error);
+    }
+  };
+
+  const resetWatchedEpisodes = async (showId: number, source: string = 'tvmaze') => {
+    if (!user) return;
+
+    const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
+    if (!show?.dbId) return;
+
+    try {
+      const { error } = await supabase
+        .from('watched_episodes')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('tracked_show_id', show.dbId);
+
+      if (error) throw error;
+      await fetchShows();
+    } catch (error) {
+      console.error('Error resetting watched episodes:', error);
     }
   };
 
@@ -259,6 +313,8 @@ export function useShowStorage() {
     removeShow,
     updateShowStatus,
     toggleEpisode,
+    toggleEpisodesBulk,
+    resetWatchedEpisodes,
     markAllEpisodesAsWatched,
     isInList,
     getShowStatus,

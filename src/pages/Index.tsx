@@ -55,6 +55,8 @@ const Index = () => {
     removeShow,
     updateShowStatus,
     toggleEpisode,
+    toggleEpisodesBulk,
+    resetWatchedEpisodes,
     markAllEpisodesAsWatched,
     isInList,
     getShowStatus,
@@ -229,7 +231,13 @@ const Index = () => {
 
   const handleMarkWatching = async (show: Show) => {
     try {
+      const currentStatus = getShowStatus(show.id, show.source);
+
       if (isInList(show.id, show.source)) {
+        // If moving from watched to watching, reset episodes
+        if (currentStatus === 'watched' && show.source === 'tvmaze') {
+          await resetWatchedEpisodes(show.id, show.source);
+        }
         await updateShowStatus(show.id, 'watching', show.source);
       } else {
         await addShow({
@@ -239,7 +247,7 @@ const Index = () => {
       }
       toast({
         title: 'Sedang Ditonton',
-        description: `${show.name} ditambahkan ke daftar sedang ditonton.`,
+        description: `${show.name} ditambahkan ke daftar sedang ditonton.${currentStatus === 'watched' ? ' Episode direset.' : ''}`,
       });
       setActiveTab('watching');
     } catch (error) {
@@ -265,6 +273,36 @@ const Index = () => {
       }
     }
     toggleEpisode(showId, season, episode, name, airdate, source);
+  };
+
+  const handleToggleSeasonBulk = async (
+    showId: number,
+    episodes: { season: number; episode: number; episodeName: string; airdate: string }[],
+    allWatched: boolean,
+    source: string = 'tvmaze'
+  ) => {
+    const status = getShowStatus(showId, source);
+
+    // Update show status if needed (only for first episode being watched from watchlist)
+    if (status === 'watchlist' && !allWatched) {
+      try {
+        await updateShowStatus(showId, 'watching', source);
+      } catch (error) {
+        console.error('Error updating status during bulk toggle:', error);
+      }
+    }
+
+    // Toggle all episodes in bulk
+    await toggleEpisodesBulk(showId, episodes, source);
+
+    // Show single toast
+    const seasonNumber = episodes[0]?.season;
+    toast({
+      title: allWatched ? 'Season Di-uncheck' : 'Season Selesai',
+      description: allWatched
+        ? `Season ${seasonNumber} ditandai belum ditonton.`
+        : `Season ${seasonNumber} berhasil ditandai sudah ditonton!`,
+    });
   };
 
   const fetchUpcoming = useCallback(async () => {
@@ -603,6 +641,9 @@ const Index = () => {
                     onToggleEpisode={(season, episode, name, airdate) =>
                       handleToggleEpisode(show.id, season, episode, name, airdate, show.source)
                     }
+                    onToggleSeasonBulk={(episodes, allWatched) =>
+                      handleToggleSeasonBulk(show.id, episodes, allWatched, show.source)
+                    }
                   />
                 ))}
               </div>
@@ -633,6 +674,9 @@ const Index = () => {
                     onToggleEpisode={(season, episode, name, airdate) =>
                       handleToggleEpisode(show.id, season, episode, name, airdate, show.source)
                     }
+                    onToggleSeasonBulk={(episodes, allWatched) =>
+                      handleToggleSeasonBulk(show.id, episodes, allWatched, show.source)
+                    }
                   />
                 ))}
               </div>
@@ -662,6 +706,9 @@ const Index = () => {
                     onRemove={() => handleRemove(show)}
                     onToggleEpisode={(season, episode, name, airdate) =>
                       handleToggleEpisode(show.id, season, episode, name, airdate, show.source)
+                    }
+                    onToggleSeasonBulk={(episodes, allWatched) =>
+                      handleToggleSeasonBulk(show.id, episodes, allWatched, show.source)
                     }
                   />
                 ))}
