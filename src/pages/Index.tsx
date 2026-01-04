@@ -176,7 +176,7 @@ const Index = () => {
   const handleAddToWatchlist = (show: Show) => {
     addShow({
       ...show,
-      status: 'watchlist',
+      trackStatus: 'watchlist',
     });
     toast({
       title: 'Ditambahkan ke Watchlist',
@@ -191,7 +191,7 @@ const Index = () => {
       } else {
         await addShow({
           ...show,
-          status: 'watched',
+          trackStatus: 'watched',
         });
         // If it's a new show being marked as watched directly, also mark all episodes
         if (show.source === 'tvmaze') {
@@ -234,7 +234,7 @@ const Index = () => {
       } else {
         await addShow({
           ...show,
-          status: 'watching',
+          trackStatus: 'watching',
         });
       }
       toast({

@@ -114,7 +114,7 @@ const Profile = () => {
                     <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <h1 className="text-xl font-bold text-gradient">Edit Profil</h1>
+                    <h1 className="text-xl font-bold text-gradient">Edit Profile</h1>
                 </div>
             </header>
 

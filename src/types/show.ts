@@ -8,7 +8,7 @@ export interface Show {
   } | null;
   premiered: string | null;
   ended: string | null;
-  status: string;
+  status?: string | null;  // Production status from API
   genres: string[];
   rating: {
     average: number | null;
@@ -71,7 +71,7 @@ export interface SearchResult {
 export interface TrackedShow extends Show {
   dbId?: string;
   addedAt: string;
-  status: 'watchlist' | 'watched' | 'watching';
+  trackStatus: 'watchlist' | 'watched' | 'watching';  // User's tracking status
   notes?: string;
 }
 
@@ -83,10 +83,11 @@ export interface TrackedShowRow {
   image_url: string | null;
   premiered: string | null;
   ended: string | null;
+  status: string | null;  // Production status from database
   genres: string[] | null;
   rating: number | null;
   summary: string | null;
   created_at: string;
-  track_status: string;
+  track_status: string;  // User's tracking status from database
   source?: 'tvmaze' | 'tmdb';
 }

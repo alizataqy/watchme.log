@@ -80,8 +80,9 @@ const Detail = () => {
     const handleAddClick = () => {
         addShow({
             ...show,
-            status: "watchlist",
-            source: source as 'tvmaze' | 'tmdb'
+            trackStatus: 'watchlist',
+            source: source as 'tvmaze' | 'tmdb',
+            status: show.status,
         });
         toast({
             title: "Berhasil",

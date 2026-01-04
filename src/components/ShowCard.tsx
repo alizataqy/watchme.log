@@ -28,7 +28,7 @@ interface Episode {
 interface ShowCardProps {
   show: Show | TrackedShow;
   isInList?: boolean;
-  currentStatus?: 'watchlist' | 'watched' | 'watching';
+  currentStatus?: string;
   watchedEpisodes?: { season: number; episode: number }[];
   onAddToWatchlist?: () => void;
   onMarkWatched?: () => void;

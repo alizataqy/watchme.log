@@ -34,11 +34,12 @@ export function useShowStorage() {
         image: s.image_url ? { medium: s.image_url, original: s.image_url } : null,
         premiered: s.premiered,
         ended: s.ended,
+        productionStatus: s.status as 'Running' | 'Ended' | 'In Development' | 'Canceled' | null,
         genres: s.genres || [],
         rating: { average: s.rating ? Number(s.rating) : null },
         summary: s.summary,
         addedAt: s.created_at,
-        status: s.track_status as 'watchlist' | 'watched' | 'watching',
+        trackStatus: s.track_status as 'watchlist' | 'watched' | 'watching',  // User's tracking status
         source: s.source,
       }));
 
@@ -74,7 +75,7 @@ export function useShowStorage() {
     fetchShows();
   }, [fetchShows]);
 
-  const addShow = async (show: Omit<TrackedShow, 'addedAt'> & { status: 'watchlist' | 'watched' | 'watching' }) => {
+  const addShow = async (show: Omit<TrackedShow, 'addedAt'>) => {
     if (!user) return;
 
     try {
@@ -85,11 +86,11 @@ export function useShowStorage() {
         image_url: show.image?.medium || show.image?.original || null,
         premiered: show.premiered,
         ended: show.ended,
-        status: show.status,
+        status: show.status || null,  // Show production status from API (Running/Ended/In Development/Canceled)
         genres: show.genres,
         rating: show.rating?.average,
         summary: show.summary,
-        track_status: show.status,
+        track_status: show.trackStatus,  // User's tracking status: watchlist/watching/watched
         source: show.source || 'tvmaze',
       });
 
@@ -238,14 +239,14 @@ export function useShowStorage() {
     shows.some((s) => s.id === showId && (s.source || 'tvmaze') === source);
 
   const getShowStatus = (showId: number, source: string = 'tvmaze') =>
-    shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source)?.status;
+    shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source)?.trackStatus;
 
   const getShowDbId = (showId: number, source: string = 'tvmaze') =>
     shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source)?.dbId;
 
-  const watchlist = shows.filter((s) => s.status === 'watchlist');
-  const watched = shows.filter((s) => s.status === 'watched');
-  const watching = shows.filter((s) => s.status === 'watching');
+  const watchlist = shows.filter((s) => s.trackStatus === 'watchlist');
+  const watched = shows.filter((s) => s.trackStatus === 'watched');
+  const watching = shows.filter((s) => s.trackStatus === 'watching');
 
   return {
     shows,
