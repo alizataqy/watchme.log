@@ -17,6 +17,7 @@ import { isAfter, parseISO } from 'date-fns';
 import { Calendar } from 'lucide-react';
 import { MobileNav } from '@/components/MobileNav';
 import SEO from '@/components/SEO';
+import { useFuzzySearch } from '@/hooks/useFuzzySearch';
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -375,6 +376,13 @@ const Index = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, fetchUpcoming, shows.length]);
 
+  // Use fuzzy search for local tabs instead of simple includes()
+  // Must be called before any early returns (React Hooks rules)
+  const filteredWatching = useFuzzySearch(watching, localQuery);
+  const filteredWatchlist = useFuzzySearch(watchlist, localQuery);
+  const filteredWatched = useFuzzySearch(watched, localQuery);
+  const filteredUpcoming = useFuzzySearch(upcomingShows, localQuery);
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -386,13 +394,6 @@ const Index = () => {
   if (!user) {
     return null;
   }
-
-  const queryFilter = (s: Show) => s.name.toLowerCase().includes(localQuery.toLowerCase());
-
-  const filteredWatching = watching.filter(queryFilter);
-  const filteredWatchlist = watchlist.filter(queryFilter);
-  const filteredWatched = watched.filter(queryFilter);
-  const filteredUpcoming = upcomingShows.filter(queryFilter);
 
   return (
     <div className="min-h-screen bg-background">
