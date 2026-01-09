@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
+import SEO from "@/components/SEO";
 
 
 const Detail = () => {
@@ -107,6 +108,11 @@ const Detail = () => {
 
     return (
         <div className="min-h-screen bg-background pb-32">
+            <SEO
+                title={show.name}
+                description={show.summary ? stripHtml(show.summary).substring(0, 160) : `Informasi detail tentang ${show.name}`}
+                image={show.image?.original || show.image?.medium}
+            />
             {/* Header Branding */}
             <div className="fixed top-0 left-0 right-0 z-50 p-4 flex items-center justify-between pointer-events-none">
                 <Button

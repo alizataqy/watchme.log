@@ -343,8 +343,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Home"
-        description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log."
+        title="Daftar Tontonan Movie & TV Series"
+        description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
       />
       {/* Header */}
       <Header
