@@ -18,7 +18,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 // Show browser notification
-export function showBrowserNotification(
+export async function showBrowserNotification(
     title: string,
     options?: {
         body?: string;
@@ -28,18 +28,30 @@ export function showBrowserNotification(
         data?: unknown;
         requireInteraction?: boolean;
     }
-): Notification | null {
+): Promise<Notification | null> {
     if (Notification.permission !== 'granted') {
-        console.log('Notification permission belum diberikan');
         return null;
     }
 
+    const notificationOptions: NotificationOptions & { vibrate?: number[] } = {
+        icon: '/android-chrome-192x192.png',
+        badge: '/favicon-32x32.png',
+        vibrate: [100, 50, 100],
+        ...options,
+    };
+
     try {
-        const notification = new Notification(title, {
-            icon: '/icon-192x192.png',
-            badge: '/icon-72x72.png',
-            ...options,
-        });
+        // Coba gunakan Service Worker jika tersedia (Wajib untuk mobile)
+        if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.ready;
+            if (registration) {
+                await registration.showNotification(title, notificationOptions);
+                return null; // Return null karena tidak menggunakan constructor Notification
+            }
+        }
+
+        // Fallback untuk desktop browser biasa
+        const notification = new Notification(title, notificationOptions);
 
         // Handle click notification
         notification.onclick = () => {

@@ -190,7 +190,14 @@ export function ShowCard({
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col">
-          <h3 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">{show.name}</h3>
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors leading-tight">{show.name}</h3>
+            {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
+              <div className="text-xs font-medium text-muted-foreground whitespace-nowrap pt-0.5">
+                {watchedCount}/{totalEpisodes}
+              </div>
+            )}
+          </div>
 
           <div className="flex flex-wrap gap-1 mt-1">
             {show.genres?.slice(0, 2).map((genre) => (
@@ -271,11 +278,7 @@ export function ShowCard({
             </div>
           )}
 
-          {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-            <div className="mt-5 flex text-xs p-2 mr-5 absolute right-0">
-              {watchedCount}/{totalEpisodes}
-            </div>
-          )}
+
 
           {show.summary && !nextEpisode && !showEpisodeTracking && !isUpcomingView && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, User as UserIcon, Lock, ArrowLeft } from "lucide-react";
+import { Loader2, User as UserIcon, Lock, ArrowLeft, Bell } from "lucide-react";
 import SEO from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useShowStorage } from '@/hooks/useShowStorage';
 import { Show } from "@/types/show";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
+import { showBrowserNotification } from "@/services/browserNotification";
 
 
 const Profile = () => {
@@ -42,7 +43,7 @@ const Profile = () => {
         watched,
     } = useShowStorage();
 
-    
+
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -228,6 +229,40 @@ const Profile = () => {
                                 </Button>
                             </CardFooter>
                         </form>
+                    </Card>
+
+                    {/* Test Notification Section */}
+                    <Card className="glass-card border-none shadow-xl bg-primary/5">
+                        <CardHeader>
+                            <CardTitle className="text-xl flex items-center gap-2">
+                                <Bell className="h-5 w-5 text-primary" />
+                                Test Notifikasi
+                            </CardTitle>
+                            <CardDescription>
+                                Pastikan sistem notifikasi bekerja di device Anda.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground mb-4">
+                                Klik tombol di bawah untuk mengirim notifikasi percobaan. Jika tidak muncul, pastikan Anda telah memberikan izin notifikasi di browser.
+                            </p>
+                            <Button
+                                onClick={() => {
+                                    showBrowserNotification("Halo! Ini Notif Percobaan", {
+                                        body: "Sistem notifikasi WatchMe.log sudah aktif di device Anda.",
+                                        tag: "test-notification",
+                                    });
+                                    toast({
+                                        title: "Notifikasi Dikirim",
+                                        description: "Cek bar notifikasi device Anda.",
+                                    });
+                                }}
+                                variant="outline"
+                                className="w-full"
+                            >
+                                Kirim Notifikasi Test
+                            </Button>
+                        </CardContent>
                     </Card>
                 </div>
             </main>

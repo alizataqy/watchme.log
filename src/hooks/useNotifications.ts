@@ -88,7 +88,7 @@ export function useNotifications() {
                         ? `S${notif.episodeInfo.season}E${notif.episodeInfo.episode} - ${notif.message}`
                         : notif.message;
 
-                    showBrowserNotification(title, {
+                    await showBrowserNotification(title, {
                         body,
                         tag: notif.uniqueKey,
                         requireInteraction: false,
@@ -111,7 +111,7 @@ export function useNotifications() {
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
-    }, [getShows, lastWatchedDates, notifications, permissionGranted, user]);
+    }, [getShows, lastWatchedDates, permissionGranted, user]);
 
     const markAsRead = useCallback((notificationId: string) => {
         setNotifications((prev) =>
