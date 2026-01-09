@@ -265,34 +265,6 @@ const Auth = () => {
             </Button>
           </div>
         </div>
-
-        {/* SEO Content Section */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Track Everything</h2>
-            <p className="text-muted-foreground text-sm">
-              Pantau progress nonton series dan film favoritmu dalam satu aplikasi. Jangan lewatkan satu episode pun.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Get Notified</h2>
-            <p className="text-muted-foreground text-sm">
-              Dapatkan notifikasi langsung saat episode terbaru dari series yang kamu tonton mulai tayang.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Sync Everywhere</h2>
-            <p className="text-muted-foreground text-sm">
-              Akses daftar tontonanmu dari mana saja. Tersedia dalam format Web App yang ringan dan responsif.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Free Forever</h2>
-            <p className="text-muted-foreground text-sm">
-              Layanan pelacak film kami sepenuhnya gratis untuk digunakan. Simpan sebanyak mungkin acara yang kamu mau.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
