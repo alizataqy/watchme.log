@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useShowStorage } from '@/hooks/useShowStorage';
 import { Show } from "@/types/show";
+import { useUpcomingShows } from "@/hooks/useUpcomingShows";
 
 
 const Profile = () => {
@@ -29,7 +30,8 @@ const Profile = () => {
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
     const [activeTab, setActiveTabState] = useState('profile');
-    const [upcomingShows, setUpcomingShows] = useState<Show[]>([]);
+
+    const { upcomingShows } = useUpcomingShows();
 
     const setActiveTab = (tab: string) => {
         navigate(`/?tab=${tab}`);
@@ -39,6 +41,8 @@ const Profile = () => {
         watching,
         watched,
     } = useShowStorage();
+
+    
 
     useEffect(() => {
         if (!authLoading && !user) {

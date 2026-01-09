@@ -12,12 +12,12 @@ import { SearchResult, Show, TrackedShow } from '@/types/show';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { searchMovies, getTrendingMovies } from '@/services/tmdb';
-import { getShowDetails, getRecommendedSeries } from '@/services/tvmaze';
-import { isAfter, parseISO } from 'date-fns';
+import { getRecommendedSeries } from '@/services/tvmaze';
 import { Calendar } from 'lucide-react';
 import { MobileNav } from '@/components/MobileNav';
 import SEO from '@/components/SEO';
 import { useFuzzySearch } from '@/hooks/useFuzzySearch';
+import { useUpcomingShows } from '@/hooks/useUpcomingShows';
 import {
   Dialog,
   DialogContent,
@@ -34,9 +34,6 @@ const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchType, setSearchType] = useState<'series' | 'movie'>('series');
-  const [upcomingShows, setUpcomingShows] = useState<Show[]>([]);
-  const [recentlyAired, setRecentlyAired] = useState<Show[]>([]);
-  const [loadingUpcoming, setLoadingUpcoming] = useState(false);
   const [recommendations, setRecommendations] = useState<SearchResult[]>([]);
   const [isLoadingRecs, setIsLoadingRecs] = useState(false);
   const [localQuery, setLocalQuery] = useState('');
@@ -322,114 +319,7 @@ const Index = () => {
     });
   };
 
-  const fetchUpcoming = useCallback(async () => {
-    // Prevent fetch if no shows
-    if (shows.length === 0) {
-      setUpcomingShows([]);
-      setRecentlyAired([]);
-      return;
-    }
-
-    setLoadingUpcoming(true);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const tenDaysAgo = new Date(today);
-    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-
-    // Combine all unique tracking shows (in case duplicates exist, though DB prevents it usually)
-    // Actually 'shows' from hook contains everything, use that instead of combining watched/watchlist manually
-    const candidates = await Promise.all(
-      shows.map(async (show) => {
-        // 1. Movie Check
-        if (show.source === 'tmdb') {
-          if (show.premiered && isAfter(parseISO(show.premiered), tenDaysAgo)) {
-            return show;
-          }
-          return null;
-        }
-
-        // 2. Series Check
-        if (show.source === 'tvmaze' || !show.source) { // Default tvmaze
-          const freshData = await getShowDetails(show.id);
-          if (!freshData) return null;
-
-          // Check for upcoming episode
-          if (freshData._embedded?.nextepisode) {
-            const airdate = parseISO(freshData._embedded.nextepisode.airdate);
-            if (isAfter(airdate, tenDaysAgo)) {
-              return { ...freshData, source: 'tvmaze' as const, dbId: show.dbId } as Show;
-            }
-          }
-
-          // Check for recently aired episode if no nextepisode or if nextepisode is far away
-          if (freshData._embedded?.previousepisode) {
-            const airdate = parseISO(freshData._embedded.previousepisode.airdate);
-            if (isAfter(airdate, tenDaysAgo)) {
-              return { ...freshData, source: 'tvmaze' as const, dbId: show.dbId } as Show;
-            }
-          }
-
-          return null;
-        }
-        return null;
-      })
-    );
-
-    const upcoming = candidates.filter((s): s is Show => {
-      if (!s) return false;
-      const airDateStr = s.source === 'tmdb'
-        ? s.premiered
-        : s._embedded?.nextepisode?.airdate;
-
-      if (!airDateStr) return false;
-      return !isAfter(today, parseISO(airDateStr));
-    }).sort((a, b) => {
-      const getDate = (item: Show) => {
-        if (item.source === 'tmdb') return item.premiered || '9999-12-31';
-        return item._embedded?.nextepisode?.airdate || '9999-12-31';
-      };
-      return new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime();
-    });
-
-    const recent = candidates.filter((s): s is Show => {
-      if (!s) return false;
-      // If it's already in upcoming, don't put it in recent (prevent duplicates)
-      const isUpcoming = upcoming.some(u => u.id === s.id && u.source === s.source);
-      if (isUpcoming) return false;
-
-      const airDateStr = s.source === 'tmdb'
-        ? s.premiered
-        : (s._embedded?.nextepisode?.airdate || s._embedded?.previousepisode?.airdate);
-
-      if (!airDateStr) return false;
-      return isAfter(today, parseISO(airDateStr));
-    }).sort((a, b) => {
-      const getDate = (item: Show) => {
-        if (item.source === 'tmdb') return item.premiered || '0000-01-01';
-        return item._embedded?.nextepisode?.airdate || item._embedded?.previousepisode?.airdate || '0000-01-01';
-      };
-      return new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime();
-    });
-
-    setUpcomingShows(upcoming);
-    setRecentlyAired(recent);
-    setLoadingUpcoming(false);
-  }, [shows]);
-
-  useEffect(() => {
-    // Jalankan fetch jika tab aktif adalah 'upcoming'
-    // ATAU jika data shows ada tetapi kita belum pernah memuat data upcoming (untuk badge)
-    const shouldFetch = activeTab === 'upcoming' ||
-      (shows.length > 0 && !loadingUpcoming && upcomingShows.length === 0 && recentlyAired.length === 0);
-
-    if (shouldFetch && !loadingUpcoming) {
-      fetchUpcoming();
-    }
-    // We intentionally omit loadingUpcoming and data lengths from dependencies to prevent infinite loops.
-    // The effect should only re-run when the tab changes or the source shows list changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, fetchUpcoming, shows.length]);
+  const { upcomingShows, recentlyAired, isLoading: loadingUpcoming } = useUpcomingShows();
 
   // Use fuzzy search for local tabs instead of simple includes()
   // Must be called before any early returns (React Hooks rules)
