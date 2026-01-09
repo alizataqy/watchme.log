@@ -91,15 +91,6 @@ export function ReviewDialog({
                         placeholder="Tulis pendapatmu atau catatanmu di sini..."
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        onFocus={(e) => {
-                            // Mencari container Dialog yang scrollable
-                            const container = e.target.closest('.max-h-\\[90dvh\\]');
-                            if (container) {
-                                setTimeout(() => {
-                                    container.scrollTo({ top: 100, behavior: 'smooth' });
-                                }, 300); // Tunggu sebentar sampai keyboard selesai muncul
-                            }
-                        }}
                         className="min-h-[100px] bg-secondary/50"
                     />
                 </div>
