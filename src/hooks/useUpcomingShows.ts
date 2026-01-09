@@ -36,45 +36,59 @@ export const useUpcomingShows = () => {
         // Only sync shows with 'watching' or 'watchlist' status to save API calls
         const showsToSync = shows.filter(s => s.trackStatus === 'watching' || s.trackStatus === 'watchlist');
 
-        const candidates = await Promise.all(
-            showsToSync.map(async (show) => {
-                // 1. Movie Check (TMDB)
-                if (show.source === 'tmdb') {
-                    if (show.premiered && isAfter(parseISO(show.premiered), tenDaysAgo)) {
-                        return show;
+        // Process in batches to avoid rate limiting
+        const BATCH_SIZE = 5;
+        const candidates: (Show | null)[] = [];
+
+        for (let i = 0; i < showsToSync.length; i += BATCH_SIZE) {
+            const batch = showsToSync.slice(i, i + BATCH_SIZE);
+            const batchResults = await Promise.all(
+                batch.map(async (show) => {
+                    // 1. Movie Check (TMDB)
+                    if (show.source === 'tmdb') {
+                        if (show.premiered && isAfter(parseISO(show.premiered), tenDaysAgo)) {
+                            return show;
+                        }
+                        return null;
+                    }
+
+                    // 2. Series Check (TVMaze)
+                    if (show.source === 'tvmaze' || !show.source) {
+                        try {
+                            // Use lighter fetch (no cast)
+                            const freshData = await getShowDetails(show.id, false);
+                            if (!freshData) return null;
+
+                            // Check for upcoming episode
+                            if (freshData._embedded?.nextepisode) {
+                                const airdate = parseISO(freshData._embedded.nextepisode.airdate);
+                                if (isAfter(airdate, tenDaysAgo)) {
+                                    return { ...freshData, source: 'tvmaze' as const, dbId: show.dbId } as Show;
+                                }
+                            }
+
+                            // Check for recently aired episode
+                            if (freshData._embedded?.previousepisode) {
+                                const airdate = parseISO(freshData._embedded.previousepisode.airdate);
+                                if (isAfter(airdate, tenDaysAgo)) {
+                                    return { ...freshData, source: 'tvmaze' as const, dbId: show.dbId } as Show;
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`Failed to fetch details for show ${show.id}`, error);
+                        }
+                        return null;
                     }
                     return null;
-                }
+                })
+            );
+            candidates.push(...batchResults);
 
-                // 2. Series Check (TVMaze)
-                if (show.source === 'tvmaze' || !show.source) {
-                    try {
-                        const freshData = await getShowDetails(show.id);
-                        if (!freshData) return null;
-
-                        // Check for upcoming episode
-                        if (freshData._embedded?.nextepisode) {
-                            const airdate = parseISO(freshData._embedded.nextepisode.airdate);
-                            if (isAfter(airdate, tenDaysAgo)) {
-                                return { ...freshData, source: 'tvmaze' as const, dbId: show.dbId } as Show;
-                            }
-                        }
-
-                        // Check for recently aired episode
-                        if (freshData._embedded?.previousepisode) {
-                            const airdate = parseISO(freshData._embedded.previousepisode.airdate);
-                            if (isAfter(airdate, tenDaysAgo)) {
-                                return { ...freshData, source: 'tvmaze' as const, dbId: show.dbId } as Show;
-                            }
-                        }
-                    } catch (error) {
-                        console.error(`Failed to fetch details for show ${show.id}`, error);
-                    }
-                    return null;
-                }
-                return null;
-            })
-        );
+            // Short delay between batches if there are more
+            if (i + BATCH_SIZE < showsToSync.length) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
 
         const upcoming = candidates.filter((s): s is Show => {
             if (!s) return false;

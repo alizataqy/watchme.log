@@ -110,27 +110,11 @@ const Index = () => {
 
         if (requestId !== searchRequestId.current) return;
 
-        // Fetch episodes for first few results to show next episode info
-        const showsWithEpisodes = await Promise.all(
-          data.slice(0, 5).map(async (result: { show: Show }) => {
-            try {
-              const showRes = await fetch(`https://api.tvmaze.com/shows/${result.show.id}?embed=nextepisode`);
-              const showData = await showRes.json();
-              return {
-                ...result,
-                show: { ...showData, source: 'tvmaze' }
-              };
-            } catch {
-              return { ...result, show: { ...result.show, source: 'tvmaze' } };
-            }
-          })
-        );
-
-        if (requestId !== searchRequestId.current) return;
-
-        // Add rest of results
-        const remaining = data.slice(5).map((r: SearchResult) => ({ ...r, show: { ...r.show, source: 'tvmaze' } }));
-        setSearchResults([...showsWithEpisodes, ...remaining]);
+        const results = data.map((r: SearchResult) => ({
+          ...r,
+          show: { ...r.show, source: 'tvmaze' as const }
+        }));
+        setSearchResults(results);
       } else {
         const results = await searchMovies(query);
         if (requestId !== searchRequestId.current) return;

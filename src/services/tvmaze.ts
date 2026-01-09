@@ -2,19 +2,38 @@ import { SearchResult, Show } from "@/types/show";
 
 const BASE_URL = 'https://api.tvmaze.com';
 
-export const getShowDetails = async (id: number): Promise<Show | null> => {
+interface TVMazeCastItem {
+  person: {
+    name: string;
+    image: { medium?: string; original?: string } | null;
+  };
+  character: {
+    name: string;
+  };
+}
+
+interface TVMazeScheduleItem {
+  show: Show;
+}
+
+export const getShowDetails = async (id: number, includeCast: boolean = true): Promise<Show | null> => {
   try {
-    const response = await fetch(`${BASE_URL}/shows/${id}?embed[]=nextepisode&embed[]=previousepisode&embed[]=cast`);
+    const embeds = ['nextepisode', 'previousepisode'];
+    if (includeCast) embeds.push('cast');
+
+    const embedQuery = embeds.map(e => `embed[]=${e}`).join('&');
+    const response = await fetch(`${BASE_URL}/shows/${id}?${embedQuery}`);
     const data = await response.json();
+
     return {
       ...data,
       source: 'tvmaze',
       _embedded: {
         ...data._embedded,
-        cast: (data._embedded?.cast || []).map((c: { person: { name: string; image: { medium?: string; original?: string } | null }; character: { name: string } }) => ({
+        cast: includeCast ? (data._embedded?.cast || []).map((c: TVMazeCastItem) => ({
           person: c.person,
           character: c.character.name
-        }))
+        })) : []
       }
     };
   } catch (error) {
@@ -25,15 +44,16 @@ export const getShowDetails = async (id: number): Promise<Show | null> => {
 
 export const getRecommendedSeries = async (): Promise<SearchResult[]> => {
   try {
-    // Fetch today's schedule for US to get more popular/relevant shows
-    const response = await fetch(`${BASE_URL}/shows`);
+    // Fetch today's schedule for US to get relevant/popular shows
+    // This is much faster than fetching the full show index
+    const response = await fetch(`${BASE_URL}/schedule?country=US`);
     const data = await response.json();
 
-    // Deduplicate shows from episodes and filter for quality
     const showsMap = new Map<number, Show>();
 
     if (Array.isArray(data)) {
-      data.forEach((s: Show) => {
+      data.forEach((item: TVMazeScheduleItem) => {
+        const s = item.show;
         if (s && s.image && !showsMap.has(s.id)) {
           // Only include shows that have at least one genre or a rating
           if ((s.genres && s.genres.length > 0) || (s.rating && s.rating.average)) {
@@ -45,23 +65,6 @@ export const getRecommendedSeries = async (): Promise<SearchResult[]> => {
           }
         }
       });
-    }
-
-    // If we didn't get enough results, try another page or fallback (though page 1 usually has ~250 shows)
-    if (showsMap.size < 20) {
-      const genResponse = await fetch(`${BASE_URL}/shows?page=1`);
-      const genData = await genResponse.json();
-      if (Array.isArray(genData)) {
-        genData.forEach((s: Show) => {
-          if (s && s.image && !showsMap.has(s.id) && showsMap.size < 20) {
-            showsMap.set(s.id, {
-              ...s,
-              genres: s.genres || [],
-              source: 'tvmaze'
-            });
-          }
-        });
-      }
     }
 
     const uniqueShows = Array.from(showsMap.values())
