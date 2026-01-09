@@ -233,7 +233,7 @@ const Profile = () => {
                     </Card>
 
                     {/* Test Notification Section */}
-                    <Card className="glass-card border-none shadow-xl bg-primary/5">
+                    {/* <Card className="glass-card border-none shadow-xl bg-primary/5">
                         <CardHeader>
                             <CardTitle className="text-xl flex items-center gap-2">
                                 <Bell className="h-5 w-5 text-primary" />
@@ -282,7 +282,7 @@ const Profile = () => {
                                 Kirim Notifikasi Test
                             </Button>
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </div>
             </main>
 
