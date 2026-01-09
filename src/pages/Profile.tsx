@@ -17,6 +17,7 @@ import { useShowStorage } from '@/hooks/useShowStorage';
 import { Show } from "@/types/show";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
 import { showBrowserNotification } from "@/services/browserNotification";
+import { saveNotification } from "@/services/notificationDb";
 
 
 const Profile = () => {
@@ -247,14 +248,32 @@ const Profile = () => {
                                 Klik tombol di bawah untuk mengirim notifikasi percobaan. Jika tidak muncul, pastikan Anda telah memberikan izin notifikasi di browser.
                             </p>
                             <Button
-                                onClick={() => {
-                                    showBrowserNotification("Halo! Ini Notif Percobaan", {
-                                        body: "Sistem notifikasi WatchMe.log sudah aktif di device Anda.",
-                                        tag: "test-notification",
+                                onClick={async () => {
+                                    if (!user) return;
+
+                                    const testNotif = {
+                                        id: `test-${Date.now()}`,
+                                        type: 'inactive' as const,
+                                        showId: 0,
+                                        showName: "WatchMe.log",
+                                        message: "Sistem notifikasi WatchMe.log sudah aktif di device Anda.",
+                                        timestamp: new Date().toISOString(),
+                                        read: false,
+                                        uniqueKey: `test-${Date.now()}`,
+                                        sentAt: new Date().toISOString(),
+                                    };
+
+                                    await showBrowserNotification("Halo! Ini Notif Percobaan", {
+                                        body: testNotif.message,
+                                        tag: testNotif.uniqueKey,
                                     });
+
+                                    // Simpan ke database juga agar masuk ke list notifikasi
+                                    await saveNotification(user.id, testNotif);
+
                                     toast({
                                         title: "Notifikasi Dikirim",
-                                        description: "Cek bar notifikasi device Anda.",
+                                        description: "Cek bar notifikasi device Anda dan daftar notifikasi.",
                                     });
                                 }}
                                 variant="outline"

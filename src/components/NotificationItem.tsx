@@ -18,11 +18,13 @@ export function NotificationItem({ notification }: NotificationItemProps) {
         }
     };
 
-    const Icon = notification.type === 'watching' ? Calendar : Clock;
+    const Icon = notification.type === 'upcoming' ? Calendar : Clock;
     const iconColor =
-        notification.type === 'watching'
+        notification.type === 'upcoming'
             ? 'text-blue-500'
-            : 'text-orange-500';
+            : notification.type === 'unwatched'
+                ? 'text-orange-500'
+                : 'text-purple-500';
 
     return (
         <div
