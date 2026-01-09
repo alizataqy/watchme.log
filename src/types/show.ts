@@ -97,6 +97,16 @@ export interface TrackedShow extends Show {
   addedAt: string;
   trackStatus: 'watchlist' | 'watched' | 'watching';  // User's tracking status
   notes?: string;
+  user_rating?: number;
+}
+
+export interface SeasonReview {
+  id?: string;
+  tracked_show_id: string;
+  season_number: number;
+  rating: number;
+  notes: string;
+  created_at?: string;
 }
 
 export interface TrackedShowRow {
@@ -113,7 +123,9 @@ export interface TrackedShowRow {
   summary: string | null;
   created_at: string;
   track_status: string;  // User's tracking status from database
-  source?: 'tvmaze' | 'tmdb';
+  source: string | null;
+  notes: string | null;
+  user_rating: number | null;
 }
 
 export interface Notification {

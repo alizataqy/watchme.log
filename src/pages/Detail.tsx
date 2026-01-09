@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Star, Calendar, Clock, Info, ExternalLink, Users } from "lucide-react";
+import { ArrowLeft, Star, Calendar, Clock, Info, ExternalLink, Users, MessageSquare } from "lucide-react";
+import { ReviewDialog } from "@/components/ReviewDialog";
+import { useShowContext } from "@/contexts/ShowContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getShowDetails } from "@/services/tvmaze";
@@ -27,8 +29,10 @@ const Detail = () => {
 
     const [show, setShow] = useState<Show | null>(null);
     const [loading, setLoading] = useState(true);
+    const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 
-    const { addShow, isInList, getShowStatus, removeShow, watching, watchlist, watched } = useShowStorage();
+    const { addShow, isInList, getShowStatus, removeShow, watching, watchlist, watched, shows, seasonReviews } = useShowStorage();
+    const isMovie = source === "tmdb";
 
     // Missing states for MobileNav
     const activeTab = "search"; // Default for detail page context
@@ -222,6 +226,78 @@ const Detail = () => {
                             </div>
                         </div>
 
+                        {inList && currentStatus === 'watched' && (
+                            <div className="space-y-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                                        <MessageSquare className="h-5 w-5 text-primary" />
+                                        Review Kamu
+                                    </h2>
+                                    <Button variant="ghost" size="sm" onClick={() => setReviewDialogOpen(true)}>
+                                        Edit
+                                    </Button>
+                                </div>
+                                {(() => {
+                                    const trackedShow = shows.find(s => s.id === show.id && s.source === source);
+                                    if (!trackedShow || (!trackedShow.user_rating && !trackedShow.notes)) {
+                                        return <p className="text-sm text-muted-foreground italic">Belum ada review. Bagikan pendapatmu!</p>;
+                                    }
+                                    return (
+                                        <div className="space-y-3">
+                                            {trackedShow.user_rating ? (
+                                                <div className="flex items-center gap-1">
+                                                    {[1, 2, 3, 4, 5].map((star) => (
+                                                        <Star
+                                                            key={star}
+                                                            className={`h-4 w-4 ${star <= (trackedShow.user_rating || 0) / 2 ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`}
+                                                        />
+                                                    ))}
+                                                    <span className="ml-2 font-bold">{trackedShow.user_rating}/10</span>
+                                                </div>
+                                            ) : null}
+                                            {trackedShow.notes && (
+                                                <p className="text-sm text-foreground bg-background/50 p-3 rounded-lg border border-border/50">
+                                                    {trackedShow.notes}
+                                                </p>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
+
+                        {inList && !isMovie && (
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-semibold flex items-center gap-2">
+                                    <Star className="h-5 w-5 text-primary" />
+                                    Review per Season
+                                </h2>
+                                {(() => {
+                                    const dbId = shows.find(s => s.id === show.id && s.source === source)?.dbId;
+                                    const reviews = dbId ? (seasonReviews[dbId] || []) : [];
+                                    if (reviews.length === 0) {
+                                        return <p className="text-sm text-muted-foreground italic">Belum ada review per season.</p>;
+                                    }
+                                    return (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {reviews.sort((a, b) => a.season_number - b.season_number).map((review) => (
+                                                <div key={review.id} className="p-3 rounded-lg bg-secondary/30 border border-border/50 space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-bold">Season {review.season_number}</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                                            <span className="text-xs font-bold">{review.rating}/10</span>
+                                                        </div>
+                                                    </div>
+                                                    {review.notes && <p className="text-xs text-muted-foreground italic line-clamp-2">"{review.notes}"</p>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
+
                         <div className="space-y-3">
                             <h2 className="text-xl font-semibold flex items-center gap-2">
                                 <Info className="h-5 w-5 text-primary" />
@@ -308,6 +384,16 @@ const Detail = () => {
                     }}
                 />
             )}
+
+            <ReviewDialog
+                open={reviewDialogOpen}
+                onOpenChange={setReviewDialogOpen}
+                showId={show.id}
+                showName={show.name}
+                initialRating={shows.find(s => s.id === show.id && s.source === source)?.user_rating || 0}
+                initialNotes={shows.find(s => s.id === show.id && s.source === source)?.notes || ''}
+                source={source as 'tvmaze' | 'tmdb'}
+            />
         </div>
     );
 };

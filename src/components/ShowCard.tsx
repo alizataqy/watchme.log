@@ -17,6 +17,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ReviewDialog } from './ReviewDialog';
+import { useShowContext } from '@/contexts/ShowContext';
+import { SeasonReview } from '@/types/show';
+import { MessageSquare } from 'lucide-react';
 
 interface Episode {
   season: number;
@@ -57,7 +61,10 @@ export function ShowCard({
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
   const [showEpisodes, setShowEpisodes] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [activeSeasonReview, setActiveSeasonReview] = useState<number | undefined>(undefined);
   const navigate = useNavigate();
+  const { seasonReviews } = useShowContext();
 
   const imageUrl = show.image?.medium || show.image?.original;
   const nextEpisode = show._embedded?.nextepisode;
@@ -433,6 +440,21 @@ export function ShowCard({
               </Button>
             </div>
           )}
+          {isInList && currentStatus === 'watched' && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full h-8 text-xs border-primary/20 hover:bg-primary/5"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveSeasonReview(undefined);
+                setReviewDialogOpen(true);
+              }}
+            >
+              <MessageSquare className="h-3 w-3 mr-1" />
+              {('user_rating' in show && (show as TrackedShow).user_rating) ? 'Edit Review' : 'Tulis Review'}
+            </Button>
+          )}
         </div>
       ) : (
         null
@@ -455,54 +477,71 @@ export function ShowCard({
                   );
 
                   return (
-                    <Button
-                      size="sm"
-                      variant={allWatched ? "default" : "outline"}
-                      className="h-8 text-xs px-3 mb-3"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant={allWatched ? "default" : "outline"}
+                        className="h-8 text-xs px-3 mb-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
 
-                        // Use bulk handler if available (for better performance and single toast)
-                        if (onToggleSeasonBulk) {
-                          const episodesToToggle = allWatched
-                            ? watchableEpisodes.map(ep => ({
-                              season: ep.season,
-                              episode: ep.number,
-                              episodeName: ep.name,
-                              airdate: ep.airdate
-                            }))
-                            : watchableEpisodes
-                              .filter(ep => !isEpisodeWatched(ep.season, ep.number))
-                              .map(ep => ({
+                          // Use bulk handler if available (for better performance and single toast)
+                          if (onToggleSeasonBulk) {
+                            const episodesToToggle = allWatched
+                              ? watchableEpisodes.map(ep => ({
                                 season: ep.season,
                                 episode: ep.number,
                                 episodeName: ep.name,
                                 airdate: ep.airdate
-                              }));
+                              }))
+                              : watchableEpisodes
+                                .filter(ep => !isEpisodeWatched(ep.season, ep.number))
+                                .map(ep => ({
+                                  season: ep.season,
+                                  episode: ep.number,
+                                  episodeName: ep.name,
+                                  airdate: ep.airdate
+                                }));
 
-                          onToggleSeasonBulk(episodesToToggle, allWatched);
-                        } else {
-                          // Fallback to individual toggles
-                          if (allWatched) {
-                            watchableEpisodes.forEach((ep) => {
-                              onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
-                            });
+                            onToggleSeasonBulk(episodesToToggle, allWatched);
                           } else {
-                            watchableEpisodes.forEach((ep) => {
-                              const watched = isEpisodeWatched(ep.season, ep.number);
-                              if (!watched) {
+                            // Fallback to individual toggles
+                            if (allWatched) {
+                              watchableEpisodes.forEach((ep) => {
                                 onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
-                              }
-                            });
+                              });
+                            } else {
+                              watchableEpisodes.forEach((ep) => {
+                                const watched = isEpisodeWatched(ep.season, ep.number);
+                                if (!watched) {
+                                  onToggleEpisode?.(ep.season, ep.number, ep.name, ep.airdate);
+                                }
+                              });
+                            }
                           }
-                        }
-                      }}
-                    >
-                      <Check />
-                    </Button>
+                        }}
+                      >
+                        <Check />
+                      </Button>
+
+                      {allWatched && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary mb-3"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveSeasonReview(Number(season));
+                            setReviewDialogOpen(true);
+                          }}
+                        >
+                          <Star className={`h-4 w-4 ${seasonReviews[('dbId' in show ? show.dbId : '') || '']?.some(r => r.season_number === Number(season)) ? 'fill-primary text-primary' : ''}`} />
+                        </Button>
+                      )}
+                    </div>
                   );
                 })()}
-                <h4 className="text-xs font-semibold text-muted-foreground mb-2">
+                <h4 className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   Season {season}
                 </h4>
               </div>
@@ -540,6 +579,22 @@ export function ShowCard({
           ))}
         </div>
       )}
+      <ReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        showId={show.id}
+        showName={show.name}
+        seasonNumber={activeSeasonReview}
+        initialRating={activeSeasonReview !== undefined
+          ? (seasonReviews[('dbId' in show ? show.dbId : '') || '']?.find(r => r.season_number === activeSeasonReview)?.rating || 0)
+          : ('user_rating' in show ? (show as TrackedShow).user_rating : 0)
+        }
+        initialNotes={activeSeasonReview !== undefined
+          ? (seasonReviews[('dbId' in show ? show.dbId : '') || '']?.find(r => r.season_number === activeSeasonReview)?.notes || '')
+          : ('notes' in show ? (show as TrackedShow).notes : '')
+        }
+        source={show.source}
+      />
     </div>
   );
 }

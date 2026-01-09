@@ -22,5 +22,8 @@ export function useShowStorage() {
     getShowDbId: context.getShowDbId,
     getShows: context.getShows,
     lastWatchedDates: context.lastWatchedDates,
+    seasonReviews: context.seasonReviews,
+    updateShowReview: context.updateShowReview,
+    saveSeasonReview: context.saveSeasonReview,
   };
 }

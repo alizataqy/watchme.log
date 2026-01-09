@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { TrackedShow, TrackedShowRow, TVMazeEpisode, Episode } from '@/types/show';
+import { TrackedShow, TrackedShowRow, TVMazeEpisode, Episode, SeasonReview } from '@/types/show';
 import { isAfter, parseISO } from 'date-fns';
 
 interface ShowContextType {
@@ -24,6 +24,9 @@ interface ShowContextType {
     getShowStatus: (showId: number, source?: string) => 'watchlist' | 'watched' | 'watching' | undefined;
     getShowDbId: (showId: number, source?: string) => string | undefined;
     getShows: () => Promise<TrackedShow[]>;
+    seasonReviews: SeasonReview[];
+    updateShowReview: (showId: number, rating: number, notes: string, source?: string) => Promise<void>;
+    saveSeasonReview: (showId: number, seasonNumber: number, rating: number, notes: string, source?: string) => Promise<void>;
 }
 
 const ShowContext = createContext<ShowContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [shows, setShows] = useState<TrackedShow[]>([]);
     const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, { season: number; episode: number }[]>>({});
     const [lastWatchedDates, setLastWatchedDates] = useState<Record<number, Date>>({});
+    const [seasonReviews, setSeasonReviews] = useState<SeasonReview[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchShows = useCallback(async () => {
@@ -40,6 +44,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setShows([]);
             setWatchedEpisodes({});
             setLastWatchedDates({});
+            setSeasonReviews([]);
             setIsLoading(false);
             return;
         }
@@ -68,9 +73,20 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 addedAt: s.created_at,
                 trackStatus: s.track_status as TrackedShow['trackStatus'],
                 source: s.source as TrackedShow['source'],
+                user_rating: s.user_rating || undefined,
+                notes: s.notes || undefined,
             }));
 
             setShows(mapped);
+
+            // Fetch season reviews
+            const { data: reviews, error: reviewsError } = await supabase
+                .from('season_reviews')
+                .select('*')
+                .eq('user_id', user.id);
+
+            if (reviewsError) throw reviewsError;
+            setSeasonReviews(reviews || []);
 
             // Fetch watched episodes
             const { data: episodes, error: episodesError } = await supabase
@@ -227,6 +243,44 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const getShows = useCallback(async () => shows, [shows]);
 
+    const updateShowReview = async (showId: number, rating: number, notes: string, source: string = 'tvmaze') => {
+        if (!user) return;
+        const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
+        if (!show?.dbId) return;
+
+        const { error } = await supabase
+            .from('tracked_shows')
+            .update({
+                user_rating: rating,
+                notes: notes
+            })
+            .eq('id', show.dbId);
+
+        if (error) throw error;
+        await fetchShows();
+    };
+
+    const saveSeasonReview = async (showId: number, seasonNumber: number, rating: number, notes: string, source: string = 'tvmaze') => {
+        if (!user) return;
+        const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
+        if (!show?.dbId) return;
+
+        const { error } = await supabase
+            .from('season_reviews')
+            .upsert({
+                user_id: user.id,
+                tracked_show_id: show.dbId,
+                season_number: seasonNumber,
+                rating,
+                notes
+            }, {
+                onConflict: 'user_id,tracked_show_id,season_number'
+            });
+
+        if (error) throw error;
+        await fetchShows();
+    };
+
     const watchlist = React.useMemo(() => shows.filter((s) => s.trackStatus === 'watchlist'), [shows]);
     const watched = React.useMemo(() => shows.filter((s) => s.trackStatus === 'watched'), [shows]);
     const watching = React.useMemo(() => shows.filter((s) => s.trackStatus === 'watching'), [shows]);
@@ -236,7 +290,8 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             shows, watchlist, watched, watching, watchedEpisodes, lastWatchedDates, isLoading,
             refreshShows: fetchShows, addShow, removeShow, updateShowStatus, toggleEpisode,
             toggleEpisodesBulk, resetWatchedEpisodes, markAllEpisodesAsWatched,
-            isInList, getShowStatus, getShowDbId, getShows
+            isInList, getShowStatus, getShowDbId, getShows,
+            seasonReviews, updateShowReview, saveSeasonReview
         }}>
             {children}
         </ShowContext.Provider>

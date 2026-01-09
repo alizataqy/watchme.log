@@ -30,6 +30,9 @@ export type Database = {
           track_status: string
           updated_at: string
           user_id: string
+          user_rating: number | null
+          notes: string | null
+          source: string | null
         }
         Insert: {
           created_at?: string
@@ -46,6 +49,9 @@ export type Database = {
           track_status?: string
           updated_at?: string
           user_id: string
+          user_rating?: number | null
+          notes?: string | null
+          source?: string | null
         }
         Update: {
           created_at?: string
@@ -62,6 +68,9 @@ export type Database = {
           track_status?: string
           updated_at?: string
           user_id?: string
+          user_rating?: number | null
+          notes?: string | null
+          source?: string | null
         }
         Relationships: []
       }
@@ -144,6 +153,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "watched_episodes_tracked_show_id_fkey"
+            columns: ["tracked_show_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      season_reviews: {
+        Row: {
+          id: string
+          tracked_show_id: string
+          user_id: string
+          season_number: number
+          rating: number
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          tracked_show_id: string
+          user_id: string
+          season_number: number
+          rating: number
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          tracked_show_id?: string
+          user_id?: string
+          season_number?: number
+          rating?: number
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_reviews_tracked_show_id_fkey"
             columns: ["tracked_show_id"]
             isOneToOne: false
             referencedRelation: "tracked_shows"
