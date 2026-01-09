@@ -272,7 +272,7 @@ export function ShowCard({
           )}
 
           {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-            <div className="mt-1 text-xs p-2 mr-5 absolute right-0">
+            <div className="mt-5 flex text-xs p-2 mr-5 absolute right-0">
               {watchedCount}/{totalEpisodes}
             </div>
           )}

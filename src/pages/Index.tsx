@@ -740,22 +740,7 @@ const Index = () => {
             )}
           </TabsContent>
         </Tabs>
-      </main>
-
-      {/* Mobile Bottom Navigation */}
-      {isMobile && (
-        <MobileNav
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          counts={{
-            watching: watching.length,
-            watchlist: watchlist.length,
-            upcoming: upcomingShows.length,
-            watched: watched.length
-          }}
-        />
-      )}
-      {/* Desktop Experience Modal */}
+              {/* Desktop Experience Modal */}
       <Dialog open={showDesktopModal} onOpenChange={(open) => {
         setShowDesktopModal(open);
         if (!open) {
@@ -784,6 +769,21 @@ const Index = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </main>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <MobileNav
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          counts={{
+            watching: watching.length,
+            watchlist: watchlist.length,
+            upcoming: upcomingShows.length,
+            watched: watched.length
+          }}
+        />
+      )}
     </div>
   );
 };

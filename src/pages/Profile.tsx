@@ -13,6 +13,9 @@ import SEO from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useShowStorage } from '@/hooks/useShowStorage';
+import { Show } from "@/types/show";
+
 
 const Profile = () => {
     const { user, updateProfile, updatePassword, isLoading: authLoading } = useAuth();
@@ -25,6 +28,17 @@ const Profile = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [activeTab, setActiveTabState] = useState('profile');
+    const [upcomingShows, setUpcomingShows] = useState<Show[]>([]);
+
+    const setActiveTab = (tab: string) => {
+        navigate(`/?tab=${tab}`);
+    };
+    const {
+        watchlist,
+        watching,
+        watched,
+    } = useShowStorage();
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -216,13 +230,13 @@ const Profile = () => {
 
             {isMobile && (
                 <MobileNav
-                    activeTab="profile"
-                    setActiveTab={(tab) => navigate(`/?tab=${tab}`)}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
                     counts={{
-                        watching: 0,
-                        watchlist: 0,
-                        upcoming: 0,
-                        watched: 0
+                        watching: watching.length,
+                        watchlist: watchlist.length,
+                        upcoming: upcomingShows.length,
+                        watched: watched.length
                     }}
                 />
             )}
