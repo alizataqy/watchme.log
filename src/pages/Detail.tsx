@@ -13,6 +13,8 @@ import { useShowStorage } from "@/hooks/useShowStorage";
 import { useToast } from "@/hooks/use-toast";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUpcomingShows } from "@/hooks/useUpcomingShows";
+
 
 const Detail = () => {
     const { id } = useParams();
@@ -30,7 +32,7 @@ const Detail = () => {
     // Missing states for MobileNav
     const activeTab = "search"; // Default for detail page context
     const setActiveTab = (tab: string) => navigate(`/?tab=${tab}`);
-    const upcomingShows: Show[] = [];
+    const { upcomingShows } = useUpcomingShows();
 
     useEffect(() => {
         const fetchDetails = async () => {

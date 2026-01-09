@@ -630,35 +630,37 @@ const Index = () => {
             )}
           </TabsContent>
         </Tabs>
-              {/* Desktop Experience Modal */}
-      <Dialog open={showDesktopModal} onOpenChange={(open) => {
-        setShowDesktopModal(open);
-        if (!open) {
-          sessionStorage.setItem('desktop-experience-modal-shown', 'true');
-        }
-      }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogDescription className="pt-2 text-base">
-              You'll get a <span className="text-primary font-bold italic"> better experience</span> if you open this app on your <span className="font-semibold text-foreground">mobile phone</span>.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="bg-secondary/30 p-4 rounded-lg border border-border/50 text-sm text-muted-foreground italic">
-            "WatchMe.log dirancang khusus untuk penggunaan mobile agar kamu bisa mencatat tontonanmu dengan cepat di mana saja!"
-          </div>
-          <DialogFooter>
-            <Button
-              className="w-full"
-              onClick={() => {
-                setShowDesktopModal(false);
-                sessionStorage.setItem('desktop-experience-modal-shown', 'true');
-              }}
-            >
-              Lanjutkan di Desktop
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Desktop Experience Modal */}
+        {!isMobile && (
+          <Dialog open={showDesktopModal} onOpenChange={(open) => {
+            setShowDesktopModal(open);
+            if (!open) {
+              sessionStorage.setItem('desktop-experience-modal-shown', 'true');
+            }
+          }}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogDescription className="pt-2 text-base">
+                  You'll get a <span className="text-primary font-bold italic"> better experience</span> if you open this app on your <span className="font-semibold text-foreground">mobile phone</span>.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="bg-secondary/30 p-4 rounded-lg border border-border/50 text-sm text-muted-foreground italic">
+                "WatchMe.log dirancang khusus untuk penggunaan mobile agar kamu bisa mencatat tontonanmu dengan cepat di mana saja!"
+              </div>
+              <DialogFooter>
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setShowDesktopModal(false);
+                    sessionStorage.setItem('desktop-experience-modal-shown', 'true');
+                  }}
+                >
+                  Lanjutkan di Desktop
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </main>
 
       {/* Mobile Bottom Navigation */}
