@@ -63,7 +63,7 @@ export function ReviewDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px] rounded-xl">
+            <DialogContent className="sm:max-w-[425px] rounded-xl max-h-[90dvh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         {seasonNumber !== undefined ? `Review Season ${seasonNumber}` : 'Review Film/Series'}
