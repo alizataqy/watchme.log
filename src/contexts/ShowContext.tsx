@@ -24,7 +24,7 @@ interface ShowContextType {
     getShowStatus: (showId: number, source?: string) => 'watchlist' | 'watched' | 'watching' | undefined;
     getShowDbId: (showId: number, source?: string) => string | undefined;
     getShows: () => Promise<TrackedShow[]>;
-    seasonReviews: SeasonReview[];
+    seasonReviews: Record<string, SeasonReview[]>;
     updateShowReview: (showId: number, rating: number, notes: string, source?: string) => Promise<void>;
     saveSeasonReview: (showId: number, seasonNumber: number, rating: number, notes: string, source?: string) => Promise<void>;
 }
@@ -36,7 +36,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [shows, setShows] = useState<TrackedShow[]>([]);
     const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, { season: number; episode: number }[]>>({});
     const [lastWatchedDates, setLastWatchedDates] = useState<Record<number, Date>>({});
-    const [seasonReviews, setSeasonReviews] = useState<SeasonReview[]>([]);
+    const [seasonReviews, setSeasonReviews] = useState<Record<string, SeasonReview[]>>({});
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchShows = useCallback(async () => {
@@ -44,7 +44,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setShows([]);
             setWatchedEpisodes({});
             setLastWatchedDates({});
-            setSeasonReviews([]);
+            setSeasonReviews({});
             setIsLoading(false);
             return;
         }
@@ -86,7 +86,15 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 .eq('user_id', user.id);
 
             if (reviewsError) throw reviewsError;
-            setSeasonReviews(reviews || []);
+
+            const reviewsMap: Record<string, SeasonReview[]> = {};
+            (reviews || []).forEach(review => {
+                if (!reviewsMap[review.tracked_show_id]) {
+                    reviewsMap[review.tracked_show_id] = [];
+                }
+                reviewsMap[review.tracked_show_id].push(review);
+            });
+            setSeasonReviews(reviewsMap);
 
             // Fetch watched episodes
             const { data: episodes, error: episodesError } = await supabase
@@ -265,16 +273,17 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
         if (!show?.dbId) return;
 
+        const existingReview = seasonReviews[show.dbId]?.find(r => r.season_number === seasonNumber);
+
         const { error } = await supabase
             .from('season_reviews')
             .upsert({
+                id: existingReview?.id,
                 user_id: user.id,
                 tracked_show_id: show.dbId,
                 season_number: seasonNumber,
                 rating,
-                notes
-            }, {
-                onConflict: 'user_id,tracked_show_id,season_number'
+                notes: notes || null
             });
 
         if (error) throw error;

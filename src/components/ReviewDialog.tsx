@@ -63,7 +63,7 @@ export function ReviewDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] rounded-xl">
                 <DialogHeader>
                     <DialogTitle>
                         {seasonNumber !== undefined ? `Review Season ${seasonNumber}` : 'Review Film/Series'}
@@ -73,12 +73,12 @@ export function ReviewDialog({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <div className="flex justify-center gap-2 mb-2">
+                    <div className="flex justify-center gap-1.5 mb-2 overflow-x-auto pb-2 scrollbar-hide">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                             <button
                                 key={star}
                                 onClick={() => setRating(star)}
-                                className={`transition-all hover:scale-110 ${star <= rating ? 'text-yellow-500' : 'text-muted-foreground'}`}
+                                className={`transition-all hover:scale-110 flex-shrink-0 ${star <= rating ? 'text-yellow-500' : 'text-muted-foreground'}`}
                             >
                                 <Star className={`h-6 w-6 ${star <= rating ? 'fill-yellow-500' : ''}`} />
                             </button>
@@ -88,18 +88,18 @@ export function ReviewDialog({
                         Rating: {rating}/10
                     </div>
                     <Textarea
-                        placeholder="Tulis pendapatmu di sini..."
+                        placeholder="Tulis pendapatmu atau catatanmu di sini..."
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        className="min-h-[100px]"
+                        className="min-h-[100px] bg-secondary/50"
                     />
                 </div>
-                <DialogFooter>
-                    <Button variant="secondary" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+                <DialogFooter className="flex flex-row justify-between items-center gap-4 h-12">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="flex-1">
                         Batal
                     </Button>
-                    <Button onClick={handleSubmit} disabled={isSubmitting}>
-                        {isSubmitting ? 'Menyimpan...' : 'Simpan Review'}
+                    <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1">
+                        {isSubmitting ? 'Menyimpan...' : 'Simpan'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
