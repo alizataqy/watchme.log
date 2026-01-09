@@ -18,6 +18,16 @@ import { Calendar } from 'lucide-react';
 import { MobileNav } from '@/components/MobileNav';
 import SEO from '@/components/SEO';
 import { useFuzzySearch } from '@/hooks/useFuzzySearch';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Monitor, Smartphone } from 'lucide-react';
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -30,6 +40,7 @@ const Index = () => {
   const [recommendations, setRecommendations] = useState<SearchResult[]>([]);
   const [isLoadingRecs, setIsLoadingRecs] = useState(false);
   const [localQuery, setLocalQuery] = useState('');
+  const [showDesktopModal, setShowDesktopModal] = useState(false);
 
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
@@ -67,8 +78,14 @@ const Index = () => {
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');
+    } else if (user && !isMobile) {
+      // Check if modal has already been shown in this session
+      const hasShownModal = sessionStorage.getItem('desktop-experience-modal-shown');
+      if (!hasShownModal) {
+        setShowDesktopModal(true);
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, isMobile]);
 
   const searchRequestId = useRef(0);
   const recommendationsRequestId = useRef(0);
@@ -738,6 +755,35 @@ const Index = () => {
           }}
         />
       )}
+      {/* Desktop Experience Modal */}
+      <Dialog open={showDesktopModal} onOpenChange={(open) => {
+        setShowDesktopModal(open);
+        if (!open) {
+          sessionStorage.setItem('desktop-experience-modal-shown', 'true');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogDescription className="pt-2 text-base">
+              You'll get a <span className="text-primary font-bold italic"> better experience</span> if you open this app on your <span className="font-semibold text-foreground">mobile phone</span>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-secondary/30 p-4 rounded-lg border border-border/50 text-sm text-muted-foreground italic">
+            "WatchMe.log dirancang khusus untuk penggunaan mobile agar kamu bisa mencatat tontonanmu dengan cepat di mana saja!"
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={() => {
+                setShowDesktopModal(false);
+                sessionStorage.setItem('desktop-experience-modal-shown', 'true');
+              }}
+            >
+              Lanjutkan di Desktop
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
