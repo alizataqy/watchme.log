@@ -1,5 +1,5 @@
 import { TrackedShow, Notification } from "../types/show";
-import { differenceInDays, parseISO } from "date-fns";
+import { differenceInDays, parseISO, format } from "date-fns";
 
 export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notification[] {
     const notifications: Notification[] = [];
@@ -12,9 +12,10 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notificatio
         const daysUntilAir = differenceInDays(airdate, today);
 
         if (daysUntilAir >= 0 && daysUntilAir <= 5) {
+            const uniqueKey = `upcoming-${show.id}-${nextEpisode.season}-${nextEpisode.number}-${nextEpisode.airdate}`;
             notifications.push({
                 id: `upcoming-${show.id}-${nextEpisode.season}-${nextEpisode.number}`,
-                type: 'watching',
+                type: 'upcoming',
                 showId: show.id,
                 showName: show.name,
                 message:
@@ -25,6 +26,7 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notificatio
                             : `Tayang Dalam ${daysUntilAir} hari`,
                 timestamp: new Date().toISOString(),
                 read: false,
+                uniqueKey,
                 episodeInfo: {
                     season: nextEpisode.season,
                     episode: nextEpisode.number,
@@ -58,14 +60,16 @@ export function detectUnwatchedEpisodes(
             const isWatched = watchedEpisodes?.get(show.id)?.has(episodeKey);
 
             if (daysSinceAir > 7 && !isWatched) {
+                const uniqueKey = `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}-${prevEpisode.airdate}`;
                 notifications.push({
                     id: `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}`,
-                    type: 'watchlist',
+                    type: 'unwatched',
                     showId: show.id,
                     showName: show.name,
                     message: `Episode sudah tayang ${daysSinceAir} hari yang lalu`,
                     timestamp: new Date().toISOString(),
                     read: false,
+                    uniqueKey,
                     episodeInfo: {
                         season: prevEpisode.season,
                         episode: prevEpisode.number,
@@ -97,14 +101,18 @@ export function detectInactiveSeries(
 
                 // Jika sudah 15+ hari tidak menonton
                 if (daysSinceLastWatch >= INACTIVE_DAYS) {
+                    // uniqueKey based on date to allow re-notification every 7 days
+                    const weekNumber = Math.floor(daysSinceLastWatch / 7);
+                    const uniqueKey = `inactive-${show.id}-week${weekNumber}`;
                     notifications.push({
                         id: `inactive-${show.id}`,
-                        type: 'watched',
+                        type: 'inactive',
                         showId: show.id,
                         showName: show.name,
                         message: `Sudah ${daysSinceLastWatch} hari tidak menonton series ini`,
                         timestamp: new Date().toISOString(),
                         read: false,
+                        uniqueKey,
                     });
                 }
             }

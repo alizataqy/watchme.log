@@ -10,13 +10,16 @@ import {
     requestNotificationPermission,
     showBrowserNotification,
 } from '@/services/browserNotification';
+import { checkNotificationExists, saveNotification } from '@/services/notificationDb';
 import { useShowStorage } from './useShowStorage';
+import { useAuth } from '@/hooks/useAuth';
 
 const STORAGE_KEY = 'show-tracker-notifications';
 const CHECK_INTERVAL = 20 * 60 * 1000; // 20 menit
 const LAST_CHECK_KEY = 'last-notification-check';
 
 export function useNotifications() {
+    const { user } = useAuth();
     const { getShows, lastWatchedDates } = useShowStorage();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -47,6 +50,8 @@ export function useNotifications() {
     }, [notifications]);
 
     const fetchNotifications = useCallback(async () => {
+        if (!user) return;
+
         try {
             const trackedShows = await getShows();
 
@@ -62,16 +67,22 @@ export function useNotifications() {
             );
             const inactiveNotifs = detectInactiveSeries(trackedShows, lastWatchedMap);
 
-            // Merge dengan notifikasi yang sudah ada
+            // Merge semua notifikasi
             const allNotifs = [...upcomingNotifs, ...unwatchedNotifs, ...inactiveNotifs];
 
-            // Cek notifikasi baru yang belum pernah ditampilkan
-            const existingIds = new Set(notifications.map((n) => n.id));
-            const newNotifs = allNotifs.filter((n) => !existingIds.has(n.id));
+            // Filter notifikasi: cek database untuk prevent duplicate
+            const newNotifs: Notification[] = [];
+            for (const notif of allNotifs) {
+                // Check di database apakah sudah pernah dikirim
+                const exists = await checkNotificationExists(user.id, notif.uniqueKey);
+                if (!exists) {
+                    newNotifs.push(notif);
+                }
+            }
 
             // Show browser notification untuk notifikasi baru
             if (permissionGranted && newNotifs.length > 0) {
-                newNotifs.forEach((notif) => {
+                for (const notif of newNotifs) {
                     const title = notif.showName;
                     const body = notif.episodeInfo
                         ? `S${notif.episodeInfo.season}E${notif.episodeInfo.episode} - ${notif.message}`
@@ -79,21 +90,28 @@ export function useNotifications() {
 
                     showBrowserNotification(title, {
                         body,
-                        tag: notif.id, // Prevent duplicate notifications
-                        requireInteraction: false, // Auto dismiss after beberapa detik
+                        tag: notif.uniqueKey,
+                        requireInteraction: false,
                         data: { notificationId: notif.id, showId: notif.showId },
                     });
-                });
+
+                    // Save ke database setelah berhasil kirim
+                    await saveNotification(user.id, {
+                        ...notif,
+                        sentAt: new Date().toISOString(),
+                    });
+                }
             }
 
-            setNotifications((prev) => mergeNotifications(prev, allNotifs));
+            // Merge dengan localStorage (untuk quick access)
+            setNotifications((prev) => mergeNotifications(prev, newNotifs));
 
             // Update last check time
             localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
-    }, [getShows, lastWatchedDates, notifications, permissionGranted]);
+    }, [getShows, lastWatchedDates, notifications, permissionGranted, user]);
 
     const markAsRead = useCallback((notificationId: string) => {
         setNotifications((prev) =>

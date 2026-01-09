@@ -94,12 +94,14 @@ export interface TrackedShowRow {
 
 export interface Notification {
   id: string;
-  type: 'watchlist' | 'watched' | 'watching';
+  type: 'upcoming' | 'unwatched' | 'inactive';
   showId: number;
   showName: string;
   message: string;
   timestamp: string;
   read: boolean;
+  uniqueKey: string; // For duplicate detection
+  sentAt?: string; // When notification was sent (for database sync)
   episodeInfo?: {
     season: number;
     episode: number;
