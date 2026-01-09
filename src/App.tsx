@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { ShowProvider } from "@/contexts/ShowContext";
 
 const queryClient = new QueryClient();
 
@@ -42,9 +43,11 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthProvider>
-        <TooltipProvider>
-          <AppContent />
-        </TooltipProvider>
+        <ShowProvider>
+          <TooltipProvider>
+            <AppContent />
+          </TooltipProvider>
+        </ShowProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

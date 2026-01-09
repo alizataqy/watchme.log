@@ -231,58 +231,6 @@ const Profile = () => {
                             </CardFooter>
                         </form>
                     </Card>
-
-                    {/* Test Notification Section */}
-                    {/* <Card className="glass-card border-none shadow-xl bg-primary/5">
-                        <CardHeader>
-                            <CardTitle className="text-xl flex items-center gap-2">
-                                <Bell className="h-5 w-5 text-primary" />
-                                Test Notifikasi
-                            </CardTitle>
-                            <CardDescription>
-                                Pastikan sistem notifikasi bekerja di device Anda.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                Klik tombol di bawah untuk mengirim notifikasi percobaan. Jika tidak muncul, pastikan Anda telah memberikan izin notifikasi di browser.
-                            </p>
-                            <Button
-                                onClick={async () => {
-                                    if (!user) return;
-
-                                    const testNotif = {
-                                        id: `test-${Date.now()}`,
-                                        type: 'inactive' as const,
-                                        showId: 0,
-                                        showName: "WatchMe.log",
-                                        message: "Sistem notifikasi WatchMe.log sudah aktif di device Anda.",
-                                        timestamp: new Date().toISOString(),
-                                        read: false,
-                                        uniqueKey: `test-${Date.now()}`,
-                                        sentAt: new Date().toISOString(),
-                                    };
-
-                                    await showBrowserNotification("Halo! Ini Notif Percobaan", {
-                                        body: testNotif.message,
-                                        tag: testNotif.uniqueKey,
-                                    });
-
-                                    // Simpan ke database juga agar masuk ke list notifikasi
-                                    await saveNotification(user.id, testNotif);
-
-                                    toast({
-                                        title: "Notifikasi Dikirim",
-                                        description: "Cek bar notifikasi device Anda dan daftar notifikasi.",
-                                    });
-                                }}
-                                variant="outline"
-                                className="w-full"
-                            >
-                                Kirim Notifikasi Test
-                            </Button>
-                        </CardContent>
-                    </Card> */}
                 </div>
             </main>
 

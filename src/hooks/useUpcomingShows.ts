@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { isAfter, parseISO } from 'date-fns';
 import { useShowStorage } from './useShowStorage';
 import { getShowDetails } from '@/services/tvmaze';
@@ -10,24 +10,35 @@ export const useUpcomingShows = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { shows } = useShowStorage();
 
+    const lastSyncRef = useRef<number>(0);
+
     const fetchUpcoming = useCallback(async () => {
-        // Prevent fetch if no shows
-        if (shows.length === 0) {
-            setUpcomingShows([]);
-            setRecentlyAired([]);
+        // Prevent fetch if no shows or synced very recently (within 30s)
+        const now = Date.now();
+        if (shows.length === 0 || (now - lastSyncRef.current < 30000)) {
+            if (shows.length === 0) {
+                setUpcomingShows([]);
+                setRecentlyAired([]);
+            }
             return;
         }
 
+        lastSyncRef.current = now;
         setIsLoading(true);
+        console.log('Syncing upcoming shows from TVMaze...');
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const tenDaysAgo = new Date(today);
         tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
+        // Only sync shows with 'watching' or 'watchlist' status to save API calls
+        const showsToSync = shows.filter(s => s.trackStatus === 'watching' || s.trackStatus === 'watchlist');
+
         const candidates = await Promise.all(
-            shows.map(async (show) => {
-                // 1. Movie Check
+            showsToSync.map(async (show) => {
+                // 1. Movie Check (TMDB)
                 if (show.source === 'tmdb') {
                     if (show.premiered && isAfter(parseISO(show.premiered), tenDaysAgo)) {
                         return show;
@@ -35,8 +46,8 @@ export const useUpcomingShows = () => {
                     return null;
                 }
 
-                // 2. Series Check
-                if (show.source === 'tvmaze' || !show.source) { // Default tvmaze
+                // 2. Series Check (TVMaze)
+                if (show.source === 'tvmaze' || !show.source) {
                     try {
                         const freshData = await getShowDetails(show.id);
                         if (!freshData) return null;
@@ -49,7 +60,7 @@ export const useUpcomingShows = () => {
                             }
                         }
 
-                        // Check for recently aired episode if no nextepisode or if nextepisode is far away
+                        // Check for recently aired episode
                         if (freshData._embedded?.previousepisode) {
                             const airdate = parseISO(freshData._embedded.previousepisode.airdate);
                             if (isAfter(airdate, tenDaysAgo)) {
@@ -59,7 +70,6 @@ export const useUpcomingShows = () => {
                     } catch (error) {
                         console.error(`Failed to fetch details for show ${show.id}`, error);
                     }
-
                     return null;
                 }
                 return null;
