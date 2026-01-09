@@ -91,3 +91,19 @@ export interface TrackedShowRow {
   track_status: string;  // User's tracking status from database
   source?: 'tvmaze' | 'tmdb';
 }
+
+export interface Notification {
+  id: string;
+  type: 'watchlist' | 'watched' | 'watching';
+  showId: number;
+  showName: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  episodeInfo?: {
+    season: number;
+    episode: number;
+    episodeName: string;
+    airdate: string;
+  };
+}

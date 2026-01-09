@@ -8,12 +8,14 @@ export function useShowStorage() {
   const { user } = useAuth();
   const [shows, setShows] = useState<TrackedShow[]>([]);
   const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, { season: number; episode: number }[]>>({});
+  const [lastWatchedDates, setLastWatchedDates] = useState<Record<number, Date>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchShows = useCallback(async () => {
     if (!user) {
       setShows([]);
       setWatchedEpisodes({});
+      setLastWatchedDates({});
       setIsLoading(false);
       return;
     }
@@ -54,6 +56,8 @@ export function useShowStorage() {
       if (episodesError) throw episodesError;
 
       const episodesMap: Record<string, { season: number; episode: number }[]> = {};
+      const lastWatchedMap: Record<number, Date> = {}; // showId -> last watched date
+
       (episodes || []).forEach((ep) => {
         if (!episodesMap[ep.tracked_show_id]) {
           episodesMap[ep.tracked_show_id] = [];
@@ -62,8 +66,20 @@ export function useShowStorage() {
           season: ep.season,
           episode: ep.episode,
         });
+
+        // Find the show_id for this tracked_show_id
+        const show = mapped.find((s) => s.dbId === ep.tracked_show_id);
+        if (show) {
+          const watchedAt = new Date(ep.watched_at);
+          // Keep the most recent watched_at timestamp for each show
+          if (!lastWatchedMap[show.id] || watchedAt > lastWatchedMap[show.id]) {
+            lastWatchedMap[show.id] = watchedAt;
+          }
+        }
       });
+
       setWatchedEpisodes(episodesMap);
+      setLastWatchedDates(lastWatchedMap);
     } catch (error) {
       console.error('Error fetching shows:', error);
     } finally {
@@ -298,6 +314,10 @@ export function useShowStorage() {
   const getShowDbId = (showId: number, source: string = 'tvmaze') =>
     shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source)?.dbId;
 
+  const getShows = useCallback(async () => {
+    return shows;
+  }, [shows]);
+
   const watchlist = shows.filter((s) => s.trackStatus === 'watchlist');
   const watched = shows.filter((s) => s.trackStatus === 'watched');
   const watching = shows.filter((s) => s.trackStatus === 'watching');
@@ -319,5 +339,7 @@ export function useShowStorage() {
     isInList,
     getShowStatus,
     getShowDbId,
+    getShows,
+    lastWatchedDates,
   };
 }
