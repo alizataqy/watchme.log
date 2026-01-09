@@ -106,9 +106,17 @@ const Detail = () => {
     return (
         <div className="min-h-screen bg-background pb-32">
             {/* Header Branding */}
-            <div className="absolute top-0  right-0 z-20 p-4 flex justify-between items-center pointer-events-none">
+            <div className="fixed top-0 left-0 right-0 z-50 p-4 flex items-center justify-between pointer-events-none">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-background/50 backdrop-blur-sm pointer-events-auto hover:bg-background/80"
+                    onClick={() => navigate(-1)}
+                >
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
                 <Link to="/" className="pointer-events-auto">
-                    <h1 className="text-xl font-bold text-gradient">WatchMe.log</h1>
+                    <h1 className="text-xl font-bold text-gradient drop-shadow-md">WatchMe.log</h1>
                 </Link>
             </div>
 
@@ -122,14 +130,6 @@ const Detail = () => {
                     />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-4 left-4 rounded-full bg-background/50 backdrop-blur-sm pointer-events-auto z-30"
-                    onClick={() => navigate(-1)}
-                >
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
             </div>
 
             <div className="container -mt-40 sm:-mt-56 relative z-10 px-4">
