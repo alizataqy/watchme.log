@@ -95,7 +95,7 @@ const Auth = () => {
     }
   };
 
-  const handleOAuthLogin = async (provider: 'google' | 'github') => {
+  const handleOAuthLogin = async (provider: 'google') => {
     const { error } = await signInWithOAuth(provider);
     if (error) {
       toast({
