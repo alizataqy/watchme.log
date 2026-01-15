@@ -125,9 +125,9 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     useEffect(() => {
         if (!user?.id) return;
 
-        // console.log('Setting up realtime subscription for user:', user.id);
+        // Use a unique channel name per user to avoid collisions between tabs/sessions
         const channel = supabase
-            .channel('show-tracker-changes')
+            .channel(`db-changes-${user.id}`)
             .on(
                 'postgres_changes',
                 {
@@ -137,7 +137,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     filter: `user_id=eq.${user.id}`,
                 },
                 () => {
-                    // console.log('Realtime change detected: tracked_shows');
+                    // console.log('Realtime change: tracked_shows');
                     fetchShows();
                 }
             )
@@ -150,7 +150,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     filter: `user_id=eq.${user.id}`,
                 },
                 () => {
-                    // console.log('Realtime change detected: watched_episodes');
+                    // console.log('Realtime change: watched_episodes');
                     fetchShows();
                 }
             )
@@ -163,19 +163,25 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     filter: `user_id=eq.${user.id}`,
                 },
                 () => {
-                    // console.log('Realtime change detected: season_reviews');
+                    // console.log('Realtime change: season_reviews');
                     fetchShows();
                 }
             )
             .subscribe((status) => {
-                // console.log('Realtime subscription status:', status);
+                if (status === 'SUBSCRIBED') {
+                    // console.log('✅ Realtime connected');
+                } else if (status === 'CHANNEL_ERROR') {
+                    // console.error('❌ Realtime connection error');
+                } else if (status === 'TIMED_OUT') {
+                    // console.warn('⏰ Realtime subscription timed out');
+                }
             });
 
         return () => {
             // console.log('Cleaning up realtime subscription');
             supabase.removeChannel(channel);
         };
-    }, [user?.id, fetchShows]);
+    }, [user?.id, fetchShows]); // fetchShows is memoized with useCallback
 
     const addShow = useCallback(async (show: Omit<TrackedShow, 'addedAt'>) => {
         if (!user) return;
