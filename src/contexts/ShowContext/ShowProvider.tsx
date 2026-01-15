@@ -32,7 +32,7 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         lastFetchRef.current = { userId: user.id, timestamp: now };
 
         try {
-            console.log('Fetching shows from Supabase...');
+            // console.log('Fetching shows from Supabase...');
             const { data: trackedShows, error: showsError } = await supabase
                 .from('tracked_shows')
                 .select('*')
@@ -114,12 +114,67 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } finally {
             setIsLoading(false);
         }
-    }, [user?.id]); // Use user.id for better stability
+    }, [user]); // Include user for better stability and to avoid lint warnings
 
     useEffect(() => {
         if (user?.id) {
             fetchShows();
         }
+    }, [user?.id, fetchShows]);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        // console.log('Setting up realtime subscription for user:', user.id);
+        const channel = supabase
+            .channel('show-tracker-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'tracked_shows',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                () => {
+                    // console.log('Realtime change detected: tracked_shows');
+                    fetchShows();
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'watched_episodes',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                () => {
+                    // console.log('Realtime change detected: watched_episodes');
+                    fetchShows();
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'season_reviews',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                () => {
+                    // console.log('Realtime change detected: season_reviews');
+                    fetchShows();
+                }
+            )
+            .subscribe((status) => {
+                // console.log('Realtime subscription status:', status);
+            });
+
+        return () => {
+            // console.log('Cleaning up realtime subscription');
+            supabase.removeChannel(channel);
+        };
     }, [user?.id, fetchShows]);
 
     const addShow = useCallback(async (show: Omit<TrackedShow, 'addedAt'>) => {

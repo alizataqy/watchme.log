@@ -1,7 +1,7 @@
 // Request permission dari user
 export async function requestNotificationPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
-        console.log('Browser tidak support notifications');
+        // console.log('Browser tidak support notifications');
         return false;
     }
 

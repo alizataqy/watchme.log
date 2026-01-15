@@ -12,7 +12,7 @@ interface AuthContextType {
   updateProfile: (data: { full_name?: string; avatar_url?: string }) => Promise<{ error: Error | null }>;
   updatePassword: (password: string) => Promise<{ error: Error | null }>;
   uploadAvatar: (file: File) => Promise<{ url: string | null; error: Error | null }>;
-  signInWithOAuth: (provider: 'google' | 'github') => Promise<{ error: Error | null }>;
+  signInWithOAuth: (provider: 'google') => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/?tab=watching`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -98,11 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithOAuth = async (provider: 'google' | 'github') => {
+  const signInWithOAuth = async (provider: 'google') => {
     // Ensure the redirect URL ends with a slash if needed, or matches Supabase config
-    const siteUrl = window.location.origin.endsWith('/')
+    const siteUrl = window.location.origin.endsWith('/?tab=watching')
       ? window.location.origin
-      : `${window.location.origin}/`;
+      : `${window.location.origin}/?tab=watching`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,

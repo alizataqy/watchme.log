@@ -25,7 +25,7 @@ export const useUpcomingShows = () => {
 
         lastSyncRef.current = now;
         setIsLoading(true);
-        console.log('Syncing upcoming shows from TVMaze...');
+        // console.log('Syncing upcoming shows from TVMaze...');
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
