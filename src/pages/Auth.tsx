@@ -64,7 +64,7 @@ const Auth = () => {
         title: 'Berhasil Masuk',
         description: 'Selamat datang kembali!',
       });
-      navigate('/');
+      navigate('/?tab=watching');
     }
   };
 
@@ -91,7 +91,7 @@ const Auth = () => {
         title: 'Berhasil Daftar',
         description: 'Akun berhasil dibuat. Silakan masuk.',
       });
-      navigate('/');
+      navigate('/?tab=watching');
     }
   };
 
