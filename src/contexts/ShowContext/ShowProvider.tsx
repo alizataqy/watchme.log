@@ -258,24 +258,66 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         const isWatched = (watchedEpisodes[show.dbId] || []).some(ep => ep.season === season && ep.episode === episode);
 
-        if (isWatched) {
-            await supabase.from('watched_episodes').delete()
-                .eq('user_id', user.id).eq('tracked_show_id', show.dbId).eq('season', season).eq('episode', episode);
-        } else {
-            await supabase.from('watched_episodes').insert({
-                user_id: user.id, tracked_show_id: show.dbId, season, episode, episode_name: episodeName, airdate,
-            });
+        // --- OPTIMISTIC UPDATE START ---
+        // Kita langsung update UI tanpa nunggu database
+        setWatchedEpisodes(prev => {
+            const current = prev[show.dbId!] || [];
+            if (isWatched) {
+                return { ...prev, [show.dbId!]: current.filter(ep => !(ep.season === season && ep.episode === episode)) };
+            } else {
+                return { ...prev, [show.dbId!]: [...current, { season, episode }] };
+            }
+        });
+        // --- OPTIMISTIC UPDATE END ---
+
+        try {
+            if (isWatched) {
+                await supabase.from('watched_episodes').delete()
+                    .eq('user_id', user.id).eq('tracked_show_id', show.dbId).eq('season', season).eq('episode', episode);
+            } else {
+                await supabase.from('watched_episodes').insert({
+                    user_id: user.id, tracked_show_id: show.dbId, season, episode, episode_name: episodeName, airdate,
+                });
+            }
+            // Kita tidak perlu fetchShows() manual di sini karena Realtime akan mendeteksinya
+            // dan melakukan sinkronisasi terakhir jika diperlukan.
+        } catch (error) {
+            // console.error('Error toggling episode:', error);
+            // Revert state if error (opsional, tapi lebih aman)
+            await fetchShows();
         }
-        if (!silent) await fetchShows();
     }, [user, shows, watchedEpisodes, fetchShows]);
 
     const toggleEpisodesBulk = useCallback(async (showId: number, episodes: Episode[], source: string = 'tvmaze') => {
         if (!user || episodes.length === 0) return;
-        for (const ep of episodes) {
-            await toggleEpisode(showId, ep.season, ep.episode, ep.episodeName, ep.airdate, source, true);
-        }
+        const show = shows.find((s) => s.id === showId && (s.source || 'tvmaze') === source);
+        if (!show?.dbId) return;
+
+        // Optimistic update untuk bulk
+        setWatchedEpisodes(prev => {
+            const current = prev[show.dbId!] || [];
+            const episodeKeys = new Set(episodes.map(e => `${e.season}-${e.episode}`));
+            const alreadyWatchedAll = episodes.every(e => current.some(ce => ce.season === e.season && ce.episode === e.episode));
+
+            if (alreadyWatchedAll) {
+                // Remove all
+                return { ...prev, [show.dbId!]: current.filter(ce => !episodeKeys.has(`${ce.season}-${ce.episode}`)) };
+            } else {
+                // Add missing only
+                const newItems = episodes
+                    .filter(e => !current.some(ce => ce.season === e.season && ce.episode === e.episode))
+                    .map(e => ({ season: e.season, episode: e.episode }));
+                return { ...prev, [show.dbId!]: [...current, ...newItems] };
+            }
+        });
+
+        // Di sini kita bisa pakai loop, tapi tanpa menunggu satu per satu selesai agar lebih cepat
+        const promises = episodes.map(ep =>
+            toggleEpisode(showId, ep.season, ep.episode, ep.episodeName, ep.airdate, source, true)
+        );
+        await Promise.all(promises);
         await fetchShows();
-    }, [user, toggleEpisode, fetchShows]);
+    }, [user, shows, toggleEpisode, fetchShows]);
 
     const resetWatchedEpisodes = useCallback(async (showId: number, source: string = 'tvmaze') => {
         if (!user) return;
