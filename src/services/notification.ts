@@ -87,10 +87,11 @@ export function detectInactiveSeries(
     trackedShows: TrackedShow[],
     userId: string,
     lastWatchedDates?: Map<number, Date>,
+    watchedEpisodes?: Map<number, Set<string>>,
 ): Notification[] {
     const notifications: Notification[] = [];
     const today = new Date();
-    const INACTIVE_DAYS = 15; // Ingatkan setelah 15 hari tidak menonton
+    const INACTIVE_DAYS = 7; // Ingatkan setelah 7 hari tidak menonton
 
     trackedShows
         .filter((show) => show.trackStatus === 'watching')
@@ -101,11 +102,40 @@ export function detectInactiveSeries(
             if (lastWatched) {
                 const daysSinceLastWatch = differenceInDays(today, lastWatched);
 
-                // Jika sudah 15+ hari tidak menonton
+                // Jika sudah 7+ hari tidak menonton
                 if (daysSinceLastWatch >= INACTIVE_DAYS) {
                     // uniqueKey based on date to allow re-notification every 7 days
                     const weekNumber = Math.floor(daysSinceLastWatch / 7);
                     const uniqueKey = `inactive-${show.id}-week${weekNumber}-${userId}`;
+
+                    // Cari episode terakhir yang user tonton dari watchedEpisodes
+                    let lastWatchedEpisode: { season: number; episode: number; name: string } | undefined;
+                    const watchedSet = watchedEpisodes?.get(show.id);
+
+                    if (watchedSet && watchedSet.size > 0) {
+                        // Parse semua episode yang ditonton dan cari yang terbesar
+                        const episodes = Array.from(watchedSet).map(key => {
+                            const match = key.match(/S(\d+)E(\d+)/);
+                            if (match) {
+                                return {
+                                    season: parseInt(match[1]),
+                                    episode: parseInt(match[2]),
+                                };
+                            }
+                            return null;
+                        }).filter(ep => ep !== null) as { season: number; episode: number }[];
+
+                        // Sort: season descending, then episode descending
+                        episodes.sort((a, b) => {
+                            if (a.season !== b.season) {
+                                return b.season - a.season;
+                            }
+                            return b.episode - a.episode;
+                        });
+
+                        lastWatchedEpisode = episodes[0];
+                    }
+
                     notifications.push({
                         id: `inactive-${show.id}`,
                         type: 'inactive',
@@ -115,6 +145,13 @@ export function detectInactiveSeries(
                         timestamp: new Date().toISOString(),
                         read: false,
                         uniqueKey,
+                        episodeInfo: lastWatchedEpisode ? {
+                            season: lastWatchedEpisode.season,
+                            episode: lastWatchedEpisode.episode,
+                            episodeName: show.name,
+                            airdate: null,
+                            airstamp: null,
+                        } : undefined,
                     });
                 }
             }

@@ -127,11 +127,11 @@ export function useNotifications() {
             const unwatchedNotifs = detectUnwatchedEpisodes(enrichedShows, user.id, watchedMap);
             // console.log(`📺 Unwatched notifications found: ${unwatchedNotifs.length}`);
 
-            // Deteksi inactive series (15+ hari tidak menonton)
+            // Deteksi inactive series (7+ hari tidak menonton)
             const lastWatchedMap = new Map<number, Date>(
                 Object.entries(lastWatchedDates).map(([showId, date]) => [Number(showId), date])
             );
-            const inactiveNotifs = detectInactiveSeries(trackedShows, user.id, lastWatchedMap);
+            const inactiveNotifs = detectInactiveSeries(trackedShows, user.id, lastWatchedMap, watchedMap);
 
             // Merge semua notifikasi
             const allNotifs = [...upcomingNotifs, ...unwatchedNotifs, ...inactiveNotifs];
