@@ -109,7 +109,7 @@ export function detectInactiveSeries(
                     const uniqueKey = `inactive-${show.id}-week${weekNumber}-${userId}`;
 
                     // Cari episode terakhir yang user tonton dari watchedEpisodes
-                    let lastWatchedEpisode: { season: number; episode: number; name: string } | undefined;
+                    let lastWatchedEpisode: { season: number; episode: number; } | undefined;
                     const watchedSet = watchedEpisodes?.get(show.id);
 
                     if (watchedSet && watchedSet.size > 0) {
