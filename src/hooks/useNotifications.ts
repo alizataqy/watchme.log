@@ -103,7 +103,7 @@ export function useNotifications() {
             );
 
             // Deteksi upcoming episodes
-            const upcomingNotifs = detectUpcomingEpisodes(enrichedShows);
+            const upcomingNotifs = detectUpcomingEpisodes(enrichedShows, user.id);
             // console.log(`📅 Upcoming notifications found: ${upcomingNotifs.length}`);
 
             // Deteksi unwatched episodes
@@ -124,14 +124,14 @@ export function useNotifications() {
                 }
             });
 
-            const unwatchedNotifs = detectUnwatchedEpisodes(enrichedShows, watchedMap);
+            const unwatchedNotifs = detectUnwatchedEpisodes(enrichedShows, user.id, watchedMap);
             // console.log(`📺 Unwatched notifications found: ${unwatchedNotifs.length}`);
 
             // Deteksi inactive series (15+ hari tidak menonton)
             const lastWatchedMap = new Map<number, Date>(
                 Object.entries(lastWatchedDates).map(([showId, date]) => [Number(showId), date])
             );
-            const inactiveNotifs = detectInactiveSeries(trackedShows, lastWatchedMap);
+            const inactiveNotifs = detectInactiveSeries(trackedShows, user.id, lastWatchedMap);
 
             // Merge semua notifikasi
             const allNotifs = [...upcomingNotifs, ...unwatchedNotifs, ...inactiveNotifs];

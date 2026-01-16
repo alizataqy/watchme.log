@@ -143,5 +143,6 @@ export interface Notification {
     episode: number;
     episodeName: string;
     airdate: string;
+    airstamp: string;
   };
 }

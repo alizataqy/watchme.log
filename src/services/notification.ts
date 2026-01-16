@@ -1,7 +1,7 @@
 import { TrackedShow, Notification } from "../types/show";
 import { differenceInDays, parseISO, format } from "date-fns";
 
-export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notification[] {
+export function detectUpcomingEpisodes(trackedShows: TrackedShow[], userId: string): Notification[] {
     const notifications: Notification[] = [];
     const today = new Date();
 
@@ -10,9 +10,8 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notificatio
         if (!nextEpisode) return;
         const airdate = parseISO(nextEpisode.airdate);
         const daysUntilAir = differenceInDays(airdate, today);
-
         if (daysUntilAir >= 0 && daysUntilAir <= 5) {
-            const uniqueKey = `upcoming-${show.id}-${nextEpisode.season}-${nextEpisode.number}-${nextEpisode.airdate}`;
+            const uniqueKey = `upcoming-${show.id}-${nextEpisode.season}-${nextEpisode.number}-${nextEpisode.airdate}-${userId}`;
             notifications.push({
                 id: `upcoming-${show.id}-${nextEpisode.season}-${nextEpisode.number}`,
                 type: 'upcoming',
@@ -20,9 +19,9 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notificatio
                 showName: show.name,
                 message:
                     daysUntilAir === 0
-                        ? 'Tayang hari ini!'
+                        ? 'Tayang hari ini sekitar jam ' + nextEpisode.airstamp
                         : daysUntilAir === 1
-                            ? 'Tayang Besok!'
+                            ? 'Tayang Besok sekitar jam ' + nextEpisode.airstamp
                             : `Tayang Dalam ${daysUntilAir} hari`,
                 timestamp: new Date().toISOString(),
                 read: false,
@@ -32,6 +31,7 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notificatio
                     episode: nextEpisode.number,
                     episodeName: nextEpisode.name,
                     airdate: nextEpisode.airdate,
+                    airstamp: nextEpisode.airstamp,
                 },
             });
         }
@@ -41,7 +41,8 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[]): Notificatio
 
 export function detectUnwatchedEpisodes(
     trackedShows: TrackedShow[],
-    watchedEpisodes?: Map<number, Set<string>>
+    userId: string,
+    watchedEpisodes?: Map<number, Set<string>>,
 ): Notification[] {
     const notifications: Notification[] = [];
     const today = new Date();
@@ -58,9 +59,8 @@ export function detectUnwatchedEpisodes(
             // Format episode key as "season-number"
             const episodeKey = `S${prevEpisode.season}E${prevEpisode.number}`;
             const isWatched = watchedEpisodes?.get(show.id)?.has(episodeKey);
-
             if (daysSinceAir > 7 && !isWatched) {
-                const uniqueKey = `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}-${prevEpisode.airdate}`;
+                const uniqueKey = `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}-${prevEpisode.airdate}-${userId}`;
                 notifications.push({
                     id: `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}`,
                     type: 'unwatched',
@@ -75,6 +75,7 @@ export function detectUnwatchedEpisodes(
                         episode: prevEpisode.number,
                         episodeName: prevEpisode.name,
                         airdate: prevEpisode.airdate,
+                        airstamp: prevEpisode.airstamp,
                     },
                 });
             }
@@ -84,7 +85,8 @@ export function detectUnwatchedEpisodes(
 
 export function detectInactiveSeries(
     trackedShows: TrackedShow[],
-    lastWatchedDates?: Map<number, Date> // Map<showId, lastWatchedDate>
+    userId: string,
+    lastWatchedDates?: Map<number, Date>,
 ): Notification[] {
     const notifications: Notification[] = [];
     const today = new Date();
@@ -103,7 +105,7 @@ export function detectInactiveSeries(
                 if (daysSinceLastWatch >= INACTIVE_DAYS) {
                     // uniqueKey based on date to allow re-notification every 7 days
                     const weekNumber = Math.floor(daysSinceLastWatch / 7);
-                    const uniqueKey = `inactive-${show.id}-week${weekNumber}`;
+                    const uniqueKey = `inactive-${show.id}-week${weekNumber}-${userId}`;
                     notifications.push({
                         id: `inactive-${show.id}`,
                         type: 'inactive',
