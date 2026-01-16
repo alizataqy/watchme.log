@@ -1,5 +1,6 @@
 import { SearchBar } from "./SearchBar";
 import { User, LogOut, Film } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                         <h1 className="text-xl font-bold text-gradient">WatchMe.log</h1>
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* <NotificationBell /> */}
                         <Button
                             variant="ghost"
                             size="sm"

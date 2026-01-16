@@ -52,7 +52,7 @@ export async function saveNotification(
     notification: Notification
 ): Promise<void> {
     try {
-        const { error } = await supabase.from('notification_logs').insert({
+        const { error } = await supabase.from('notification_logs').upsert({
             user_id: userId,
             notification_type: notification.type,
             show_id: notification.showId,
@@ -61,6 +61,9 @@ export async function saveNotification(
             episode_info: notification.episodeInfo || null,
             sent_at: notification.sentAt || new Date().toISOString(),
             unique_key: notification.uniqueKey,
+        }, {
+            onConflict: 'user_id,unique_key',
+            ignoreDuplicates: true
         });
 
         if (error) throw error;
@@ -84,6 +87,7 @@ export async function getRecentNotifications(
             .select('*')
             .eq('user_id', userId)
             .gte('sent_at', sevenDaysAgo.toISOString())
+            .is('dismissed_at', null) // Only get non-dismissed notifications
             .order('sent_at', { ascending: false });
 
         if (error) throw error;
@@ -125,6 +129,26 @@ export async function markNotificationAsRead(
         if (error) throw error;
     } catch (error) {
         console.error('Error marking notification as read:', error);
+    }
+}
+
+/**
+ * Dismiss notification (mark as dismissed) in database
+ */
+export async function dismissNotification(
+    userId: string,
+    uniqueKey: string
+): Promise<void> {
+    try {
+        const { error } = await supabase
+            .from('notification_logs')
+            .update({ dismissed_at: new Date().toISOString() })
+            .eq('user_id', userId)
+            .eq('unique_key', uniqueKey);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error dismissing notification:', error);
     }
 }
 
