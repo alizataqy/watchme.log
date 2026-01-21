@@ -36,8 +36,11 @@ const Detail = () => {
 
     // Missing states for MobileNav
     const activeTab = "search"; // Default for detail page context
-    const setActiveTab = (tab: string) => navigate(`/?tab=${tab}`);
     const { upcomingShows } = useUpcomingShows();
+
+    const setActiveTab = (tab: string) => {
+        navigate(tab === 'watching' ? '/' : `/${tab}`);
+    };
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -118,11 +121,11 @@ const Detail = () => {
                 image={show.image?.original || show.image?.medium}
             />
             {/* Header Branding */}
-            <div className="fixed top-0 left-0 right-0 z-50 p-4 flex items-center justify-between pointer-events-none">
+            <div className="fixed top-0 left-0 right-0 z-50 p-4 flex items-center justify-between pointer-events-none bg-background/95 backdrop-blur-sm rounded-b-lg">
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-full bg-background/50 backdrop-blur-sm pointer-events-auto hover:bg-background/80"
+                    className="pointer-events-auto hover:bg-background/80"
                     onClick={() => navigate(-1)}
                 >
                     <ArrowLeft className="h-5 w-5" />
@@ -146,23 +149,36 @@ const Detail = () => {
 
             <div className="container -mt-40 sm:-mt-56 relative z-10 px-4">
                 <div className="flex flex-col md:flex-row gap-8">
-                    {/* Poster */}
-                    <div className="w-48 sm:w-64 flex-shrink-0 mx-auto md:mx-0">
-                        <div className="glass-card rounded-xl shadow-2xl overflow-hidden border-primary/20">
-                            {show.image?.original || show.image?.medium ? (
-                                <img
-                                    src={show.image.original || show.image.medium}
-                                    alt={show.name}
-                                    className="w-full h-auto aspect-[2/3] object-cover"
-                                />
-                            ) : (
-                                <div className="w-full aspect-[2/3] flex items-center justify-center bg-secondary text-muted-foreground">
-                                    No Image
-                                </div>
-                            )}
+                    {/* Poster and Buttons */}
+                    <div className="flex flex-row gap-4 items-start">
+                        {/* Poster - Left */}
+                        <div className="w-32 sm:w-48 flex-shrink-0">
+                            <div className="glass-card rounded-xl shadow-2xl overflow-hidden border-primary/20">
+                                {show.image?.original || show.image?.medium ? (
+                                    <img
+                                        src={show.image.original || show.image.medium}
+                                        alt={show.name}
+                                        className="w-full h-auto aspect-[2/3] object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full aspect-[2/3] flex items-center justify-center bg-secondary text-muted-foreground">
+                                        No Image
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="mt-6 space-y-3">
+                        {/* Buttons - Right */}
+                        <div className="flex-1 space-y-3 max-w-xs">
+                            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">{show.name}</h1>
+                                <div className="justify-start md:justify-start text-sm text-muted-foreground">
+                                    {show.premiered && (
+                                        <div className="flex items-center gap-1.5">
+                                            <Calendar className="h-4 w-4" />
+                                            <span className="text-foreground">{format(parseISO(show.premiered), "dd MMM yyyy")}</span>
+                                        </div>
+                                    )}
+                                </div>
                             {!inList ? (
                                 <Button className="w-full shadow-lg shadow-primary/20" onClick={handleAddClick}>
                                     Tambah ke Watchlist
@@ -189,17 +205,9 @@ const Detail = () => {
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0 space-y-6 pt-4 md:pt-12">
+                    <div className="flex-1 min-w-0 space-y-4">
                         <div className="space-y-4 text-center md:text-left">
-                            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">{show.name}</h1>
-                            <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                                {show.genres.map((genre) => (
-                                    <Badge key={genre} variant="secondary" className="px-3 py-1">
-                                        {genre}
-                                    </Badge>
-                                ))}
-                            </div>
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm text-muted-foreground">
+                            <div className="flex flex-wrap justify-start md:justify-start gap-3">
                                 {show.rating.average && (
                                     <div className="flex items-center gap-1.5">
                                         <Star className="h-5 w-5 text-warning fill-warning" />
@@ -207,20 +215,14 @@ const Detail = () => {
                                         <span className="text-xs">/ 10</span>
                                     </div>
                                 )}
-                                {show.premiered && (
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar className="h-4 w-4" />
-                                        <span className="text-foreground">{format(parseISO(show.premiered), "yyyy")}</span>
-                                    </div>
-                                )}
+                                {show.genres.map((genre) => (
+                                    <Badge key={genre} variant="secondary" className="px-3 py-1">
+                                        {genre}
+                                    </Badge>
+                                ))}
                                 <div className="flex items-center gap-1.5">
                                     <Badge variant="outline" className="capitalize px-3 border-muted-foreground/30">
                                         {show.status}
-                                    </Badge>
-                                </div>
-                                <div className="flex items-center gap-1.5 uppercase tracking-wider">
-                                    <Badge variant="default" className="bg-primary/20 text-primary hover:bg-primary/30 border-none px-3">
-                                        {source}
                                     </Badge>
                                 </div>
                             </div>
@@ -340,7 +342,7 @@ const Detail = () => {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-border/50">
+                        <div className="grid grid-cols-3 sm:grid-cols-3 gap-6 pt-6 border-t border-border/50">
                             {show.premiered && (
                                 <div className="space-y-1">
                                     <p className="text-sm text-muted-foreground">Tanggal Rilis</p>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Clock, Eye, Search as SearchIcon, CheckCircle, Star } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
@@ -42,15 +42,19 @@ const Index = () => {
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const isMobile = useIsMobile();
 
-  const queryTab = searchParams.get('tab');
-  const [activeTab, setActiveTabState] = useState(queryTab || 'search');
+  const getTabFromPath = (path: string) => {
+    const p = path.substring(1);
+    if (p === 'search') return 'search';
+    return ['watchlist', 'upcoming', 'watched'].includes(p) ? p : 'watching';
+  };
+
+  const activeTab = getTabFromPath(location.pathname);
 
   const setActiveTab = (tab: string) => {
-    setActiveTabState(tab);
-    setSearchParams({ tab });
+    navigate(tab === 'watching' ? '/' : `/${tab}`);
   };
 
   const {

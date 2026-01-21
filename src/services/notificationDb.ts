@@ -13,6 +13,7 @@ export interface NotificationLogRow {
         episode: number;
         episodeName: string;
         airdate: string;
+        airstamp: string;
     } | null;
     sent_at: string;
     read_at: string | null;

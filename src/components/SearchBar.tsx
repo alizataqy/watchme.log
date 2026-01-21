@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
+import { useNavigate } from 'react-router-dom';
+
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading?: boolean;
@@ -11,6 +13,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange, isLocalTab }: SearchBarProps) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,6 +50,13 @@ export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange,
             }`}
         >
           Movies
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/genre')}
+          className={`px-3 py-1 text-xs font-medium rounded-full transition-colors`}
+        >
+          Genre
         </button>
       </div>
       <form onSubmit={handleSubmit} className="relative">

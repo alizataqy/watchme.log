@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Detail from "./pages/Detail";
 import Profile from "./pages/Profile";
+import Genre from "./pages/Genre";
 import NotFound from "./pages/NotFound";
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -28,8 +29,14 @@ const AppContent = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/search" element={<Index />} />
+          <Route path="/watchlist" element={<Index />} />
+          <Route path="/watching" element={<Index />} />
+          <Route path="/upcoming" element={<Index />} />
+          <Route path="/watched" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/genre" element={<Genre />} />
           <Route path="/show/:id" element={<Detail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

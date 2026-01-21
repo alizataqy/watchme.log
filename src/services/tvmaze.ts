@@ -42,6 +42,42 @@ export const getShowDetails = async (id: number, includeCast: boolean = true): P
   }
 };
 
+// Common TV Maze Genres
+export const TVMAZE_GENRES = [
+  'Action', 'Adventure', 'Anime', 'Comedy', 'Crime', 'Drama', 'Espionage', 'Family',
+  'Fantasy', 'History', 'Horror', 'Legal', 'Medical', 'Music', 'Mystery', 'Romance',
+  'Science-Fiction', 'Sports', 'Supernatural', 'Thriller', 'War', 'Western'
+];
+
+export const getSeriesByGenre = async (genre: string): Promise<SearchResult[]> => {
+  try {
+    // TVMaze doesn't have a direct "discover by genre" endpoint that is efficient.
+    // We will search for shows and filter clientside, or use the schedule endpoint and filter.
+    // For a "Genre" view, searching by genre name often works reasonably well on TVMaze search endpoint
+    // or we can fetch a curated list.
+    // Strategy: Use the /search/shows?q=genre endpoint which often returns shows matching that tag
+    const response = await fetch(`${BASE_URL}/search/shows?q=${encodeURIComponent(genre)}`);
+    const data = await response.json();
+
+    const results = data.map((item: any) => item.show)
+      .filter((show: any) => show.genres && show.genres.includes(genre)) // Strict filter to ensure relevance
+      .map((show: any) => ({
+        score: show.rating?.average || 0,
+        show: {
+          ...show,
+          source: 'tvmaze'
+        }
+      }));
+
+    // Sort by rating
+    return results.sort((a: SearchResult, b: SearchResult) => (b.show.rating?.average || 0) - (a.show.rating?.average || 0));
+
+  } catch (error) {
+    console.error('Error fetching series by genre:', error);
+    return [];
+  }
+};
+
 export const getRecommendedSeries = async (): Promise<SearchResult[]> => {
   try {
     // Fetch today's schedule for US to get relevant/popular shows

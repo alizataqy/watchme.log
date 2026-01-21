@@ -40,7 +40,7 @@ interface TmdbMovieDetailResponse {
     success?: boolean;
 }
 
-const TMDB_GENRES: Record<number, string> = {
+export const TMDB_GENRES: Record<number, string> = {
     28: 'Action',
     12: 'Adventure',
     16: 'Animation',
@@ -64,6 +64,41 @@ const TMDB_GENRES: Record<number, string> = {
 
 const getGenresFromIds = (ids: number[]): string[] => {
     return (ids || []).map(id => TMDB_GENRES[id]).filter(Boolean);
+};
+
+export const discoverMoviesByGenre = async (genreId: number): Promise<SearchResult[]> => {
+    if (!TMDB_API_KEY) return [];
+
+    try {
+        const response = await fetch(
+            `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc`
+        );
+        const data = await response.json();
+
+        return (data.results || []).map((movie: TmdbItem) => ({
+            score: movie.vote_average,
+            show: {
+                id: movie.id,
+                name: movie.title || movie.name || '',
+                image: movie.poster_path
+                    ? {
+                        medium: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                        original: `https://image.tmdb.org/t/p/original${movie.poster_path}`,
+                    }
+                    : null,
+                premiered: movie.release_date || movie.first_air_date || null,
+                ended: null,
+                status: 'Released',
+                genres: getGenresFromIds(movie.genre_ids),
+                rating: { average: movie.vote_average ? Number((Math.round(movie.vote_average * 10) / 10).toFixed(1)) : null },
+                summary: movie.overview,
+                source: 'tmdb',
+            } as unknown as Show
+        }));
+    } catch (error) {
+        console.error('TMDB Discover Error:', error);
+        return [];
+    }
 };
 
 export const searchMovies = async (query: string): Promise<SearchResult[]> => {
