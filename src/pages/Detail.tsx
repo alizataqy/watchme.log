@@ -10,13 +10,14 @@ import { getMovieDetails } from "@/services/tmdb";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Show } from "@/types/show";
 import { format, parseISO } from "date-fns";
-import { id as localeId } from "date-fns/locale";
+import { id as localeId, enUS as localeEn } from "date-fns/locale";
 import { useShowStorage } from "@/hooks/useShowStorage";
 import { useToast } from "@/hooks/use-toast";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
 import SEO from "@/components/SEO";
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 
 const Detail = () => {
@@ -26,6 +27,7 @@ const Detail = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
     const isMobile = useIsMobile();
+    const { t, language } = useLanguage();
 
     const [show, setShow] = useState<Show | null>(null);
     const [loading, setLoading] = useState(true);
@@ -75,10 +77,10 @@ const Detail = () => {
     if (!show) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <p className="text-muted-foreground">Detail tidak ditemukan.</p>
+                <p className="text-muted-foreground">{t('detail.notFound')}</p>
                 <Button onClick={() => navigate(-1)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Kembali
+                    {t('common.back')}
                 </Button>
             </div>
         );
@@ -95,16 +97,16 @@ const Detail = () => {
             status: show.status,
         });
         toast({
-            title: "Berhasil",
-            description: `${show.name} ditambahkan ke Watchlist`,
+            title: t('toast.success'),
+            description: `${show.name} ${t('toast.addedWatchlistDesc')}`,
         });
     };
 
     const handleRemoveClick = () => {
         removeShow(show.id, source as 'tvmaze' | 'tmdb');
         toast({
-            title: "Dihapus",
-            description: `${show.name} dihapus dari daftar`,
+            title: t('toast.removed'),
+            description: `${show.name} ${t('toast.removedDesc')}`,
         });
     };
 
@@ -147,7 +149,7 @@ const Detail = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
             </div>
 
-            <div className="container -mt-40 sm:-mt-56 relative z-10 px-4">
+            <div className="container -mt-52 sm:-mt-80 relative z-10 px-4">
                 <div className="flex flex-col md:flex-row gap-8">
                     {/* Poster and Buttons */}
                     <div className="flex flex-row gap-4 items-start">
@@ -162,7 +164,7 @@ const Detail = () => {
                                     />
                                 ) : (
                                     <div className="w-full aspect-[2/3] flex items-center justify-center bg-secondary text-muted-foreground">
-                                        No Image
+                                        {t('showCard.noImage')}
                                     </div>
                                 )}
                             </div>
@@ -171,25 +173,25 @@ const Detail = () => {
                         {/* Buttons - Right */}
                         <div className="flex-1 space-y-3 max-w-xs">
                             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">{show.name}</h1>
-                                <div className="justify-start md:justify-start text-sm text-muted-foreground">
-                                    {show.premiered && (
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar className="h-4 w-4" />
-                                            <span className="text-foreground">{format(parseISO(show.premiered), "dd MMM yyyy")}</span>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="justify-start md:justify-start text-sm text-muted-foreground">
+                                {show.premiered && (
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="h-4 w-4" />
+                                        <span className="text-foreground">{format(parseISO(show.premiered), "dd MMM yyyy", { locale: language === 'id' ? localeId : localeEn })}</span>
+                                    </div>
+                                )}
+                            </div>
                             {!inList ? (
                                 <Button className="w-full shadow-lg shadow-primary/20" onClick={handleAddClick}>
-                                    Tambah ke Watchlist
+                                    {t('detail.addToWatchlist')}
                                 </Button>
                             ) : (
                                 <div className="space-y-3">
                                     <Badge className="w-full py-2 justify-center capitalize bg-primary/10 text-primary border-primary/30" variant="outline">
-                                        {currentStatus === 'watching' ? 'Sedang Ditonton' : currentStatus === 'watched' ? 'Sudah Ditonton' : 'Di Watchlist'}
+                                        {currentStatus === 'watching' ? t('detail.status.watching') : currentStatus === 'watched' ? t('detail.status.watched') : t('detail.status.watchlist')}
                                     </Badge>
                                     <Button className="w-full" variant="destructive" onClick={handleRemoveClick}>
-                                        Hapus dari Daftar
+                                        {t('detail.removeFromList')}
                                     </Button>
                                 </div>
                             )}
@@ -197,7 +199,7 @@ const Detail = () => {
                                 <Button variant="outline" className="w-full" asChild>
                                     <a href={show.officialSite} target="_blank" rel="noopener noreferrer">
                                         <ExternalLink className="h-4 w-4 mr-2" />
-                                        Official Site
+                                        {t('detail.officialSite')}
                                     </a>
                                 </Button>
                             )}
@@ -217,12 +219,12 @@ const Detail = () => {
                                 )}
                                 {show.genres.map((genre) => (
                                     <Badge key={genre} variant="secondary" className="px-3 py-1">
-                                        {genre}
+                                        {t(`genre.${genre}`) !== `genre.${genre}` ? t(`genre.${genre}`) : genre}
                                     </Badge>
                                 ))}
                                 <div className="flex items-center gap-1.5">
                                     <Badge variant="outline" className="capitalize px-3 border-muted-foreground/30">
-                                        {show.status}
+                                        {show.status ? (t(`status.${show.status}`) !== `status.${show.status}` ? t(`status.${show.status}`) : show.status) : ''}
                                     </Badge>
                                 </div>
                             </div>
@@ -233,16 +235,16 @@ const Detail = () => {
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-xl font-semibold flex items-center gap-2">
                                         <MessageSquare className="h-5 w-5 text-primary" />
-                                        Review Kamu
+                                        {t('detail.yourReview')}
                                     </h2>
                                     <Button variant="ghost" size="sm" onClick={() => setReviewDialogOpen(true)}>
-                                        Edit
+                                        {t('detail.edit')}
                                     </Button>
                                 </div>
                                 {(() => {
                                     const trackedShow = shows.find(s => s.id === show.id && s.source === source);
                                     if (!trackedShow || (!trackedShow.user_rating && !trackedShow.notes)) {
-                                        return <p className="text-sm text-muted-foreground italic">Belum ada review. Bagikan pendapatmu!</p>;
+                                        return <p className="text-sm text-muted-foreground italic">{t('detail.noReview')}</p>;
                                     }
                                     return (
                                         <div className="space-y-3">
@@ -272,13 +274,13 @@ const Detail = () => {
                             <div className="space-y-4">
                                 <h2 className="text-xl font-semibold flex items-center gap-2">
                                     <Star className="h-5 w-5 text-primary" />
-                                    Review Season
+                                    {t('detail.seasonReview')}
                                 </h2>
                                 {(() => {
                                     const dbId = shows.find(s => s.id === show.id && s.source === source)?.dbId;
                                     const reviews = dbId ? (seasonReviews[dbId] || []) : [];
                                     if (reviews.length === 0) {
-                                        return <p className="text-sm text-muted-foreground italic">Belum ada review per season.</p>;
+                                        return <p className="text-sm text-muted-foreground italic">{t('detail.noSeasonReview')}</p>;
                                     }
                                     return (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -303,10 +305,10 @@ const Detail = () => {
                         <div className="space-y-3">
                             <h2 className="text-xl font-semibold flex items-center gap-2">
                                 <Info className="h-5 w-5 text-primary" />
-                                Sinopsis
+                                {t('detail.synopsis')}
                             </h2>
                             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                                {show.summary ? stripHtml(show.summary) : "Tidak ada ringkasan tersedia."}
+                                {show.summary ? stripHtml(show.summary) : t('detail.noSynopsis')}
                             </p>
                         </div>
 
@@ -314,7 +316,7 @@ const Detail = () => {
                             <div className="space-y-4">
                                 <h2 className="text-xl font-semibold flex items-center gap-2">
                                     <Users className="h-5 w-5 text-primary" />
-                                    Cast
+                                    {t('detail.cast')}
                                 </h2>
                                 <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 w-[calc(100%+2rem)] sm:w-full snap-x snap-mandatory touch-pan-x">
                                     {show._embedded.cast.map((member, index) => (
@@ -345,28 +347,28 @@ const Detail = () => {
                         <div className="grid grid-cols-3 sm:grid-cols-3 gap-6 pt-6 border-t border-border/50">
                             {show.premiered && (
                                 <div className="space-y-1">
-                                    <p className="text-sm text-muted-foreground">Tanggal Rilis</p>
+                                    <p className="text-sm text-muted-foreground">{t('detail.releaseDate')}</p>
                                     <p className="font-medium">
-                                        {format(parseISO(show.premiered), "dd MMMM yyyy", { locale: localeId })}
+                                        {format(parseISO(show.premiered), "dd MMMM yyyy", { locale: language === 'id' ? localeId : localeEn })}
                                     </p>
                                 </div>
                             )}
                             {(show.network || show.webChannel) && (
                                 <div className="space-y-1">
-                                    <p className="text-sm text-muted-foreground">Network</p>
+                                    <p className="text-sm text-muted-foreground">{t('detail.network')}</p>
                                     <p className="font-medium">{(show.network || show.webChannel)?.name}</p>
                                 </div>
                             )}
                             {show.runtime && (
                                 <div className="space-y-1">
-                                    <p className="text-sm text-muted-foreground">Durasi</p>
-                                    <p className="font-medium text-foreground">{show.runtime} menit</p>
+                                    <p className="text-sm text-muted-foreground">{t('detail.duration')}</p>
+                                    <p className="font-medium text-foreground">{show.runtime} {t('detail.minutes')}</p>
                                 </div>
                             )}
                             {show.type && (
                                 <div className="space-y-1">
-                                    <p className="text-sm text-muted-foreground">Tipe Konten</p>
-                                    <p className="font-medium text-foreground">{show.type}</p>
+                                    <p className="text-sm text-muted-foreground">{t('detail.contentType')}</p>
+                                    <p className="font-medium text-foreground">{t(`type.${show.type}`) !== `type.${show.type}` ? t(`type.${show.type}`) : show.type}</p>
                                 </div>
                             )}
                         </div>

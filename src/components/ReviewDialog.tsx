@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star } from 'lucide-react';
 import { useShowContext } from '@/contexts/ShowContext';
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 interface ReviewDialogProps {
     open: boolean;
@@ -37,6 +38,7 @@ export function ReviewDialog({
     const [notes, setNotes] = useState(initialNotes);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { updateShowReview, saveSeasonReview } = useShowContext();
+    const { t } = useLanguage();
 
     useEffect(() => {
         if (open) {
@@ -66,7 +68,7 @@ export function ReviewDialog({
             <DialogContent className="sm:max-w-[425px] rounded-xl max-h-[90dvh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
-                        {seasonNumber !== undefined ? `Review Season ${seasonNumber}` : 'Review Film/Series'}
+                        {seasonNumber !== undefined ? t('review.title.season').replace('{number}', String(seasonNumber)) : t('review.title.show')}
                     </DialogTitle>
                     <DialogDescription>
                         {showName}
@@ -85,10 +87,10 @@ export function ReviewDialog({
                         ))}
                     </div>
                     <div className="text-center text-sm font-medium mb-2">
-                        Rating: {rating}/10
+                        {t('review.rating').replace('{rating}', String(rating))}
                     </div>
                     <Textarea
-                        placeholder="Tulis pendapatmu atau catatanmu di sini..."
+                        placeholder={t('review.placeholder')}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         className="min-h-[100px] bg-secondary/50"
@@ -96,10 +98,10 @@ export function ReviewDialog({
                 </div>
                 <DialogFooter className="flex flex-row justify-between items-center gap-4 h-12">
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="flex-1">
-                        Batal
+                        {t('common.cancel')}
                     </Button>
                     <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1">
-                        {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+                        {isSubmitting ? t('review.saving') : t('review.save')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

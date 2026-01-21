@@ -12,13 +12,17 @@ interface MobileNavProps {
     };
 }
 
+import { useLanguage } from '@/contexts/LanguageContext/LanguageContext';
+
 export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
+    const { t } = useLanguage();
+
     const navItems = [
-        { id: 'search', icon: Search, label: 'Search' },
-        { id: 'watchlist', icon: Clock, label: 'Watchlist', count: counts.watchlist },
-        { id: 'watching', icon: Eye, label: 'Watching', count: counts.watching },
-        { id: 'upcoming', icon: Calendar, label: 'Up Coming', count: counts.upcoming },
-        { id: 'watched', icon: CheckCircle, label: 'Watched', count: counts.watched },
+        { id: 'search', icon: Search, label: t('nav.search') },
+        { id: 'watchlist', icon: Clock, label: t('nav.watchlist'), count: counts.watchlist },
+        { id: 'watching', icon: Eye, label: t('nav.watching'), count: counts.watching },
+        { id: 'upcoming', icon: Calendar, label: t('nav.upcoming'), count: counts.upcoming },
+        { id: 'watched', icon: CheckCircle, label: t('nav.watched'), count: counts.watched },
     ];
 
     return (

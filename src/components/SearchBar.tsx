@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -15,6 +16,7 @@ interface SearchBarProps {
 export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange, isLocalTab }: SearchBarProps) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +41,7 @@ export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange,
             : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
             }`}
         >
-          TV Series
+          {t('search.series')}
         </button>
         <button
           type="button"
@@ -49,21 +51,21 @@ export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange,
             : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
             }`}
         >
-          Movies
+          {t('search.movies')}
         </button>
         <button
           type="button"
           onClick={() => navigate('/genre')}
           className={`px-3 py-1 text-xs font-medium rounded-full transition-colors`}
         >
-          Genre
+          {t('search.genre')}
         </button>
       </div>
       <form onSubmit={handleSubmit} className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder={searchType === 'series' ? "Search TV Series..." : "Search Movies..."}
+          placeholder={searchType === 'series' ? t('search.placeholder.series') : t('search.placeholder.movies')}
           value={query}
           onChange={(e) => {
             const val = e.target.value;

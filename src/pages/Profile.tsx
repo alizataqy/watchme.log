@@ -18,6 +18,7 @@ import { Show } from "@/types/show";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
 import { showBrowserNotification } from "@/services/browserNotification";
 import { saveNotification } from "@/services/notificationDb";
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 
 const Profile = () => {
@@ -25,6 +26,7 @@ const Profile = () => {
     const { toast } = useToast();
     const navigate = useNavigate();
     const isMobile = useIsMobile();
+    const { t } = useLanguage();
 
     const [fullName, setFullName] = useState("");
     const [password, setPassword] = useState("");
@@ -36,7 +38,7 @@ const Profile = () => {
     const { upcomingShows } = useUpcomingShows();
 
     const setActiveTab = (tab: string) => {
-        navigate(`/?tab=${tab}`);
+        navigate(tab === 'watching' ? '/' : `/${tab}`);
     };
     const {
         watchlist,
@@ -63,14 +65,14 @@ const Profile = () => {
 
         if (error) {
             toast({
-                title: "Gagal memperbarui profile",
+                title: t('profile.toast.updateError'),
                 description: error.message,
                 variant: "destructive",
             });
         } else {
             toast({
-                title: "Profile diperbarui",
-                description: "Informasi profile Anda telah berhasil diperbarui.",
+                title: t('profile.toast.updateSuccess'),
+                description: t('profile.toast.updateSuccessDesc'),
             });
         }
     };
@@ -79,8 +81,8 @@ const Profile = () => {
         e.preventDefault();
         if (password !== confirmPassword) {
             toast({
-                title: "Password tidak cocok",
-                description: "Konfirmasi password harus sama dengan password baru.",
+                title: t('profile.toast.passwordMismatch'),
+                description: t('profile.toast.passwordMismatchDesc'),
                 variant: "destructive",
             });
             return;
@@ -88,8 +90,8 @@ const Profile = () => {
 
         if (password.length < 6) {
             toast({
-                title: "Password terlalu pendek",
-                description: "Password minimal 6 karakter.",
+                title: t('profile.toast.passwordShort'),
+                description: t('profile.toast.passwordShortDesc'),
                 variant: "destructive",
             });
             return;
@@ -101,14 +103,14 @@ const Profile = () => {
 
         if (error) {
             toast({
-                title: "Gagal memperbarui password",
+                title: t('profile.toast.passwordError'),
                 description: error.message,
                 variant: "destructive",
             });
         } else {
             toast({
-                title: "Password diperbarui",
-                description: "Password Anda telah berhasil diperbarui.",
+                title: t('profile.toast.passwordSuccess'),
+                description: t('profile.toast.passwordSuccessDesc'),
             });
             setPassword("");
             setConfirmPassword("");
@@ -127,14 +129,14 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <SEO title="Edit Profil" description="Atur profile WatchMe.log Anda." />
+            <SEO title={t('profile.title')} description="Atur profile WatchMe.log Anda." />
 
             <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
                 <div className="container py-4 flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <h1 className="text-xl font-bold text-gradient">Edit Profile</h1>
+                    <h1 className="text-xl font-bold text-gradient">{t('profile.header')}</h1>
                 </div>
             </header>
 
@@ -145,20 +147,20 @@ const Profile = () => {
                         <CardHeader>
                             <CardTitle className="text-xl flex items-center gap-2">
                                 <UserIcon className="h-5 w-5 text-primary" />
-                                Informasi Dasar
+                                {t('profile.basicInfo')}
                             </CardTitle>
                             <CardDescription>
-                                Perbarui nama tampilan Anda.
+                                {t('profile.basicInfoDesc')}
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleUpdateProfile}>
                             <CardContent className="space-y-6">
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="fullName">Nama Lengkap</Label>
+                                        <Label htmlFor="fullName">{t('profile.fullName')}</Label>
                                         <Input
                                             id="fullName"
-                                            placeholder="Masukkan nama lengkap"
+                                            placeholder={t('profile.fullNamePlaceholder')}
                                             value={fullName}
                                             onChange={(e) => setFullName(e.target.value)}
                                             className="bg-secondary/50 border-white/10"
@@ -171,10 +173,10 @@ const Profile = () => {
                                     {isUpdatingProfile ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Menyimpan...
+                                            {t('profile.saving')}
                                         </>
                                     ) : (
-                                        "Simpan Perubahan"
+                                        t('profile.save')
                                     )}
                                 </Button>
                             </CardFooter>
@@ -186,31 +188,31 @@ const Profile = () => {
                         <CardHeader>
                             <CardTitle className="text-xl flex items-center gap-2">
                                 <Lock className="h-5 w-5 text-primary" />
-                                Keamanan
+                                {t('profile.security')}
                             </CardTitle>
                             <CardDescription>
-                                Perbarui password akun Anda.
+                                {t('profile.securityDesc')}
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleUpdatePassword}>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="password">Password Baru</Label>
+                                    <Label htmlFor="password">{t('profile.newPassword')}</Label>
                                     <Input
                                         id="password"
                                         type="password"
-                                        placeholder="Min. 6 karakter"
+                                        placeholder={t('profile.newPasswordPlaceholder')}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="bg-secondary/50 border-white/10"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="confirmPassword">Konfirmasi Password Baru</Label>
+                                    <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
                                     <Input
                                         id="confirmPassword"
                                         type="password"
-                                        placeholder="Ulangi password baru"
+                                        placeholder={t('profile.confirmPasswordPlaceholder')}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="bg-secondary/50 border-white/10"
@@ -222,10 +224,10 @@ const Profile = () => {
                                     {isUpdatingPassword ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Memperbarui...
+                                            {t('profile.updating')}
                                         </>
                                     ) : (
-                                        "Perbarui Password"
+                                        t('profile.updatePassword')
                                     )}
                                 </Button>
                             </CardFooter>

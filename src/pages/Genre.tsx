@@ -15,6 +15,7 @@ import SEO from '@/components/SEO';
 import { MobileNav } from '@/components/MobileNav';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUpcomingShows } from '@/hooks/useUpcomingShows';
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 type GenreView = 'selection' | 'genres' | 'results';
 type MediaType = 'movie' | 'series' | null;
@@ -35,6 +36,7 @@ const Genre = () => {
 
     const isMobile = useIsMobile();
     const { upcomingShows } = useUpcomingShows();
+    const { t } = useLanguage();
 
     const {
         addShow, isInList, getShowStatus, removeShow, watching, watchlist, watched,
@@ -64,8 +66,8 @@ const Genre = () => {
         } catch (error) {
             console.error(error);
             toast({
-                title: 'Error',
-                description: 'Gagal memuat daftar tontonan.',
+                title: t('common.error'),
+                description: t('common.error'),
                 variant: 'destructive',
             });
         } finally {
@@ -88,8 +90,8 @@ const Genre = () => {
 
     // Titles helper
     const getTitle = () => {
-        if (view === 'selection') return 'Pilih Kategori';
-        if (view === 'genres') return `Genre ${mediaType === 'movie' ? 'Film' : 'Serial TV'}`;
+        if (view === 'selection') return t('genre.title.selection');
+        if (view === 'genres') return t('genre.title.genres').replace('{type}', mediaType === 'movie' ? t('genre.movies') : t('genre.series'));
         const genreName = mediaType === 'movie'
             ? TMDB_GENRES[Number(selectedGenre)]
             : selectedGenre;
@@ -99,7 +101,7 @@ const Genre = () => {
     // Action handlers reused from Index.tsx
     const handleAddToWatchlist = (show: Show) => {
         addShow({ ...show, trackStatus: 'watchlist' });
-        toast({ title: 'Ditambahkan ke Watchlist', description: `${show.name} berhasil ditambahkan.` });
+        toast({ title: t('toast.addedWatchlist'), description: `${show.name} ${t('toast.addedWatchlistDesc')}` });
     };
 
     const handleMarkWatched = async (show: Show) => {
@@ -110,20 +112,20 @@ const Genre = () => {
                 await addShow({ ...show, trackStatus: 'watched' });
                 if (show.source === 'tvmaze') await markAllEpisodesAsWatched(show.id, show.source);
             }
-            toast({ title: 'Ditandai Sudah Ditonton', description: `${show.name} ditandai sudah ditonton.` });
+            toast({ title: t('toast.markWatched'), description: `${show.name} ${t('toast.markWatchedDesc')}` });
         } catch (error) {
-            toast({ title: 'Gagal', description: 'Terjadi kesalahan.', variant: 'destructive' });
+            toast({ title: t('common.error'), description: t('common.error'), variant: 'destructive' });
         }
     };
 
     const handleRemove = (show: Show) => {
         removeShow(show.id, show.source);
-        toast({ title: 'Dihapus', description: `${show.name} dihapus dari daftar.` });
+        toast({ title: t('toast.removed'), description: `${show.name} ${t('toast.removedDesc')}` });
     };
 
     const handleMarkWatching = async (show: Show) => {
         addShow({ ...show, trackStatus: 'watching' });
-        toast({ title: 'Sedang Ditonton', description: `${show.name} ditambahkan ke daftar sedang ditonton.` });
+        toast({ title: t('toast.watching'), description: `${show.name} ${t('toast.watchingDesc')}` });
     };
 
     return (
@@ -156,7 +158,7 @@ const Genre = () => {
                                     <Film className="h-12 w-12 text-primary" />
                                 </div>
                                 <div className="text-center">
-                                    <h2 className="text-xl font-bold">Movies</h2>
+                                    <h2 className="text-xl font-bold">{t('genre.movies')}</h2>
                                 </div>
                             </button>
 
@@ -168,7 +170,7 @@ const Genre = () => {
                                     <Tv className="h-12 w-12 text-primary" />
                                 </div>
                                 <div className="text-center">
-                                    <h2 className="text-xl font-bold">TV Series</h2>
+                                    <h2 className="text-xl font-bold">{t('genre.series')}</h2>
                                 </div>
                             </button>
                         </div>
@@ -186,7 +188,7 @@ const Genre = () => {
                                     className="flex items-center gap-3 p-4 rounded-lg bg-secondary/50 hover:bg-secondary border border-transparent hover:border-primary/20 transition-all text-left"
                                 >
                                     <Clapperboard className="h-5 w-5 text-muted-foreground" />
-                                    <span className="font-medium">{name}</span>
+                                    <span className="font-medium">{t(`genre.${name}`) !== `genre.${name}` ? t(`genre.${name}`) : name}</span>
                                 </button>
                             ))
                         ) : (
@@ -197,7 +199,7 @@ const Genre = () => {
                                     className="flex items-center gap-3 p-4 rounded-lg bg-secondary/50 hover:bg-secondary border border-transparent hover:border-primary/20 transition-all text-left"
                                 >
                                     <Tv className="h-5 w-5 text-muted-foreground" />
-                                    <span className="font-medium">{genre}</span>
+                                    <span className="font-medium">{t(`genre.${genre}`) !== `genre.${genre}` ? t(`genre.${genre}`) : genre}</span>
                                 </button>
                             ))
                         )}
@@ -228,7 +230,7 @@ const Genre = () => {
                             </div>
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">
-                                Tidak ada hasil ditemukan untuk genre ini.
+                                {t('genre.noResults')}
                             </div>
                         )}
                     </div>

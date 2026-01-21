@@ -18,6 +18,7 @@ import { MobileNav } from '@/components/MobileNav';
 import SEO from '@/components/SEO';
 import { useFuzzySearch } from '@/hooks/useFuzzySearch';
 import { useUpcomingShows } from '@/hooks/useUpcomingShows';
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +45,7 @@ const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
 
   const getTabFromPath = (path: string) => {
     const p = path.substring(1);
@@ -127,8 +129,8 @@ const Index = () => {
     } catch (error) {
       if (requestId === searchRequestId.current) {
         toast({
-          title: 'Error',
-          description: 'Gagal mencari. Coba lagi nanti.',
+          title: t('common.error'),
+          description: t('toast.errorSearch'),
           variant: 'destructive',
         });
       }
@@ -137,7 +139,7 @@ const Index = () => {
         setIsSearching(false);
       }
     }
-  }, [activeTab, searchType, toast]);
+  }, [activeTab, searchType, toast, t]);
 
   const fetchRecommendations = useCallback(async () => {
     const requestId = ++recommendationsRequestId.current;
@@ -183,8 +185,8 @@ const Index = () => {
       trackStatus: 'watchlist',
     });
     toast({
-      title: 'Ditambahkan ke Watchlist',
-      description: `${show.name} berhasil ditambahkan.`,
+      title: t('toast.addedWatchlist'),
+      description: `${show.name} ${t('toast.addedWatchlistDesc')}`,
     });
   };
 
@@ -203,8 +205,8 @@ const Index = () => {
         }
       }
       toast({
-        title: 'Ditandai Sudah Ditonton',
-        description: `${show.name} ditandai sudah ditonton.`,
+        title: t('toast.markWatched'),
+        description: `${show.name} ${t('toast.markWatchedDesc')}`,
       });
     } catch (error) {
       toast({
@@ -218,16 +220,16 @@ const Index = () => {
   const handleRemove = (show: Show) => {
     removeShow(show.id, show.source);
     toast({
-      title: 'Dihapus',
-      description: `${show.name} dihapus dari daftar.`,
+      title: t('toast.removed'),
+      description: `${show.name} ${t('toast.removedDesc')}`,
     });
   };
 
   const handleMoveToWatchlist = (show: TrackedShow) => {
     updateShowStatus(show.id, 'watchlist', show.source);
     toast({
-      title: 'Dipindahkan ke Watchlist',
-      description: `${show.name} dipindahkan ke watchlist.`,
+      title: t('toast.moveToWatchlist'),
+      description: `${show.name} ${t('toast.moveToWatchlistDesc')}`,
     });
   };
 
@@ -248,8 +250,8 @@ const Index = () => {
         });
       }
       toast({
-        title: 'Sedang Ditonton',
-        description: `${show.name} ditambahkan ke daftar sedang ditonton.${currentStatus === 'watched' ? ' Episode direset.' : ''}`,
+        title: t('toast.watching'),
+        description: `${show.name} ${t('toast.watchingDesc')}${currentStatus === 'watched' ? ' Episode direset.' : ''}`,
       });
       setActiveTab('watching');
     } catch (error) {
@@ -300,10 +302,10 @@ const Index = () => {
     // Show single toast
     const seasonNumber = episodes[0]?.season;
     toast({
-      title: allWatched ? 'Season Di-uncheck' : 'Season Selesai',
+      title: allWatched ? t('toast.seasonUnchecked') : t('toast.seasonFinished'),
       description: allWatched
-        ? `Season ${seasonNumber} ditandai belum ditonton.`
-        : `Season ${seasonNumber} berhasil ditandai sudah ditonton!`,
+        ? t('toast.seasonUncheckedDesc').replace('{number}', String(seasonNumber))
+        : t('toast.seasonFinishedDesc').replace('{number}', String(seasonNumber)),
     });
   };
 
@@ -363,11 +365,11 @@ const Index = () => {
             <TabsList className="w-full grid grid-cols-5 mb-8">
               <TabsTrigger value="search" className="flex items-center gap-1.5">
                 <SearchIcon className="h-4 w-4" />
-                <span>Search</span>
+                <span>{t('nav.search')}</span>
               </TabsTrigger>
               <TabsTrigger value="watchlist" className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
-                <span>Watchlist</span>
+                <span>{t('nav.watchlist')}</span>
                 {watchlist.length > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {watchlist.length}
@@ -376,7 +378,7 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="watching" className="flex items-center gap-1.5">
                 <Eye className="h-4 w-4" />
-                <span>Watching</span>
+                <span>{t('nav.watching')}</span>
                 {watching.length > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {watching.length}
@@ -385,7 +387,7 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="upcoming" className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />
-                <span>Up Coming</span>
+                <span>{t('nav.upcoming')}</span>
                 {upcomingShows.length > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {upcomingShows.length}
@@ -394,7 +396,7 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="watched" className="flex items-center gap-1.5">
                 <CheckCircle className="h-4 w-4" />
-                <span>Watched</span>
+                <span>{t('nav.watched')}</span>
                 {watched.length > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
                     {watched.length}
@@ -427,9 +429,9 @@ const Index = () => {
                 <div className="px-1 pb-2">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                    Rekomendasi {searchType === 'series' ? 'Serial TV' : 'Film'} Populer
+                    {t('index.recommendations').replace('{type}', searchType === 'series' ? 'TV Series' : 'Movie')}
                   </h2>
-                  <p className="text-sm text-muted-foreground">Sedang tren hari ini</p>
+                  <p className="text-sm text-muted-foreground">{t('index.trending')}</p>
                 </div>
                 {recommendations.map((result) => (
                   <ShowCard
@@ -449,7 +451,7 @@ const Index = () => {
             )}
             {hasSearched && searchResults.length === 0 && !isSearching && (
               <div className="text-center py-12 text-muted-foreground">
-                Tidak ada hasil ditemukan.
+                {t('index.noResults')}
               </div>
             )}
           </TabsContent>
@@ -461,7 +463,7 @@ const Index = () => {
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="upcoming" />
                 {shows.length > 0 && localQuery && (
-                  <p className="mt-4 text-sm text-muted-foreground">Tidak ada jadwal tayang yang cocok dengan "{localQuery}"</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{t('index.noSchedule').replace('{query}', localQuery)}</p>
                 )}
               </div>
             ) : (
@@ -470,7 +472,7 @@ const Index = () => {
                   <div className="space-y-3">
                     <h2 className="text-sm font-semibold text-primary px-1 flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      Up Coming
+                      {t('nav.upcoming')}
                     </h2>
                     {upcomingShows.map((show) => (
                       <ShowCard
@@ -495,7 +497,8 @@ const Index = () => {
                   <div className="space-y-3">
                     <h2 className="text-sm font-semibold text-muted-foreground px-1 flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      Recently Aired
+                      <Clock className="h-4 w-4" />
+                      {t('index.recentlyAired')}
                     </h2>
                     {recentlyAired.map((show) => (
                       <ShowCard
@@ -546,7 +549,7 @@ const Index = () => {
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="watching" />
                 {watching.length > 0 && localQuery && (
-                  <p className="mt-4 text-sm text-muted-foreground">Tidak ada tontonan yang cocok dengan "{localQuery}"</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{t('index.noWatching').replace('{query}', localQuery)}</p>
                 )}
               </div>
             )}
@@ -579,7 +582,7 @@ const Index = () => {
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="watchlist" />
                 {watchlist.length > 0 && localQuery && (
-                  <p className="mt-4 text-sm text-muted-foreground">Tidak ada daftar tonton yang cocok dengan "{localQuery}"</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{t('index.noWatchlist').replace('{query}', localQuery)}</p>
                 )}
               </div>
             )}
@@ -612,7 +615,7 @@ const Index = () => {
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="watched" />
                 {watched.length > 0 && localQuery && (
-                  <p className="mt-4 text-sm text-muted-foreground">Tidak ada tontonan selesai yang cocok dengan "{localQuery}"</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{t('index.noWatched').replace('{query}', localQuery)}</p>
                 )}
               </div>
             )}

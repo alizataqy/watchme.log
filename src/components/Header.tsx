@@ -1,10 +1,17 @@
 import { SearchBar } from "./SearchBar";
-import { User, LogOut, Film } from "lucide-react";
+import { User, LogOut, Film, Languages } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ModeToggle } from "./ModeToggle";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 interface HeaderProps {
     onSearch: (query: string) => void;
@@ -17,6 +24,7 @@ interface HeaderProps {
 export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, isLocalTab }: HeaderProps) => {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
+    const { language, setLanguage, t } = useLanguage();
 
     const handleSignOut = async () => {
         await signOut();
@@ -43,8 +51,24 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                                 {user?.user_metadata?.full_name || user?.email}
                             </span>
                         </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" title={t('header.changeLanguage')}>
+                                    <Languages className="h-[1.2rem] w-[1.2rem]" />
+                                    <span className="sr-only">{t('header.changeLanguage')}</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setLanguage("id")}>
+                                    Bahasa Indonesia {language === 'id' && '✓'}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setLanguage("en")}>
+                                    English {language === 'en' && '✓'}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         <ModeToggle />
-                        <Button size="sm" variant="ghost" onClick={handleSignOut} title="Keluar">
+                        <Button size="sm" variant="ghost" onClick={handleSignOut} title={t('header.signOut')}>
                             <LogOut className="h-5 w-5" />
                         </Button>
                     </div>
