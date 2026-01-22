@@ -94,7 +94,7 @@ export function ShowCard({
         ) {
             return;
         }
-        navigate(`/show/${show.id}`);
+        navigate(`/show/${show.id}?source=${show.source || 'tvmaze'}`);
     };
 
     const loadEpisodes = (e: React.MouseEvent) => {
