@@ -13,6 +13,7 @@ interface AuthContextType {
   updatePassword: (password: string) => Promise<{ error: Error | null }>;
   uploadAvatar: (file: File) => Promise<{ url: string | null; error: Error | null }>;
   signInWithOAuth: (provider: 'google') => Promise<{ error: Error | null }>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -113,8 +114,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signOut, updateProfile, updatePassword, uploadAvatar, signInWithOAuth }}>
+    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signOut, updateProfile, updatePassword, uploadAvatar, signInWithOAuth, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );
