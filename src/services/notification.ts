@@ -19,9 +19,9 @@ export function detectUpcomingEpisodes(trackedShows: TrackedShow[], userId: stri
                 showName: show.name,
                 message:
                     daysUntilAir === 0
-                        ? 'Tayang hari ini sekitar jam ' + nextEpisode.airstamp
+                        ? 'Tayang hari ini sekitar jam ' + format(parseISO(nextEpisode.airstamp), 'HH:mm')
                         : daysUntilAir === 1
-                            ? 'Tayang Besok sekitar jam ' + nextEpisode.airstamp
+                            ? 'Tayang Besok sekitar jam ' + format(parseISO(nextEpisode.airstamp), 'HH:mm')
                             : `Tayang Dalam ${daysUntilAir} hari`,
                 timestamp: new Date().toISOString(),
                 read: false,
