@@ -17,16 +17,14 @@ Disallow: /src/
 # Google Bot specific rules
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
+
 
 # Bing Bot specific rules  
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 2
+
 
 # Sitemap Location
 Sitemap: https://watchme-log.vercel.app/sitemap.xml
 
-# Host (canonical domain)
-Host: https://watchme-log.vercel.app
 
