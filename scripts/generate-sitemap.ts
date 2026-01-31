@@ -6,7 +6,7 @@ import { env } from 'process';
  * Generate sitemap.xml untuk WatchMe.log
  */
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = 'https://watchme-log.vercel.app';
 
 interface SitemapUrl {
     loc: string;
@@ -79,43 +79,111 @@ const staticUrls: SitemapUrl[] = [
     }
 ];
 
+interface TVMazeScheduleItem {
+    show: {
+        id: number;
+        image: {
+            medium?: string;
+            original?: string;
+        } | null;
+        rating?: {
+            average?: number;
+        };
+    };
+}
+
+interface TMDBMovie {
+    id: number;
+}
+
+interface TMDBResponse {
+    results: TMDBMovie[];
+}
+
 // Popular shows dari TVMaze (Top rated/popular)
-const popularTVShows = [
-    82,    // Game of Thrones
-    169,   // Breaking Bad
-    216,   // Rick and Morty
-    1871,  // Westworld
-    305,   // The Walking Dead
-    73,    // The Flash
-    13,    // Arrow
-    210,   // Stranger Things
-    175,   // The Big Bang Theory
-    180,   // Firefly
-    526,   // The Vampire Diaries
-    37,    // Supernatural
-    1,     // Under the Dome
-    66,    // The 100
-    431,   // Fargo
-];
+async function fetchPopularTVShows(): Promise<number[]> {
+    try {
+        // Fetch today's schedule from TVMaze to get popular shows
+        const response = await fetch('https://api.tvmaze.com/schedule?country=US');
+        if (!response.ok) {
+            console.error('Failed to fetch TVMaze shows, using fallback');
+            return getFallbackTVShows();
+        }
+
+        const data: TVMazeScheduleItem[] = await response.json();
+
+        // Extract unique show IDs and sort by rating
+        const showsMap = new Map<number, { id: number; rating: number }>();
+
+        data.forEach((item) => {
+            const show = item.show;
+            if (show && show.id && show.image) {
+                const rating = show.rating?.average || 0;
+                if (!showsMap.has(show.id) || (showsMap.get(show.id)!.rating < rating)) {
+                    showsMap.set(show.id, { id: show.id, rating });
+                }
+            }
+        });
+
+        // Sort by rating and get top 15
+        const popularShows = Array.from(showsMap.values())
+            .sort((a, b) => b.rating - a.rating)
+            .slice(0, 15)
+            .map(show => show.id);
+
+        return popularShows.length > 0 ? popularShows : getFallbackTVShows();
+    } catch (error) {
+        console.error('Error fetching TVMaze shows:', error);
+        return getFallbackTVShows();
+    }
+}
+
+// Fallback popular TV shows jika API gagal
+function getFallbackTVShows(): number[] {
+    return [
+        82, 169, 216, 1871, 305, 73, 13, 210, 175, 180, 526, 37, 1, 66, 431
+    ];
+}
 
 // Popular movies dari TMDB
-const popularMovies = [
-    550,    // Fight Club
-    603,    // The Matrix
-    13,     // Forrest Gump
-    680,    // Pulp Fiction
-    157336, // Interstellar
-    27205,  // Inception
-    278,    // The Shawshank Redemption
-    238,    // The Godfather
-    424,    // Schindler's List
-    129,    // Spirited Away
-    19404,  // Dilwale Dulhania Le Jayenge
-    372058, // Your Name
-    496243, // Parasite
-    122,    // The Lord of the Rings: The Return of the King
-    497,    // The Green Mile
-];
+async function fetchPopularMovies(): Promise<number[]> {
+    try {
+        const apiKey = process.env.VITE_TMDB_API_KEY || '';
+        if (!apiKey) {
+            console.warn('TMDB API key not found, using fallback movies');
+            return getFallbackMovies();
+        }
+
+        // Fetch trending movies from TMDB
+        const response = await fetch(
+            `https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}`
+        );
+
+        if (!response.ok) {
+            console.error('Failed to fetch TMDB movies, using fallback');
+            return getFallbackMovies();
+        }
+
+        const data: TMDBResponse = await response.json();
+
+        // Get top 15 trending movies
+        const popularMovies = data.results
+            .slice(0, 15)
+            .map((movie) => movie.id);
+
+        return popularMovies.length > 0 ? popularMovies : getFallbackMovies();
+    } catch (error) {
+        console.error('Error fetching TMDB movies:', error);
+        return getFallbackMovies();
+    }
+}
+
+// Fallback popular movies jika API gagal
+function getFallbackMovies(): number[] {
+    return [
+        550, 603, 13, 680, 157336, 27205, 278, 238, 424, 129, 19404, 372058, 496243, 122, 497
+    ];
+}
 
 function generateSitemapXML(urls: SitemapUrl[]): string {
     const urlEntries = urls.map(url => {
@@ -151,21 +219,27 @@ ${urlEntries.substring(urlEntries.lastIndexOf('</url>') + 10)}
 </urlset>`;
 }
 
-function generateSitemap() {
+async function generateSitemap() {
     console.log('🚀 Generating sitemap.xml...');
 
     const today = new Date().toISOString().split('T')[0];
 
+    // Fetch popular shows and movies from APIs
+    const [popularTVShows, popularMovies] = await Promise.all([
+        fetchPopularTVShows(),
+        fetchPopularMovies()
+    ]);
+
     // Generate URLs for shows and movies
     const dynamicUrls: SitemapUrl[] = [
-        ...popularTVShows.map(id => ({
-            loc: `/show/${id}`,
+        ...popularTVShows.map((id: number) => ({
+            loc: `/show/${id}?source=tvmaze`,
             changefreq: 'daily' as const,
             priority: 0.6,
             lastmod: today
         })),
-        ...popularMovies.map(id => ({
-            loc: `/movie/${id}`,
+        ...popularMovies.map((id: number) => ({
+            loc: `/show/${id}?source=tmdb`,
             changefreq: 'daily' as const,
             priority: 0.6,
             lastmod: today
@@ -174,11 +248,6 @@ function generateSitemap() {
 
     const allUrls = [...staticUrls, ...dynamicUrls];
 
-    console.log(`📄 Total URLs: ${allUrls.length}`);
-    console.log(`   - Static pages: ${staticUrls.length}`);
-    console.log(`   - TV Shows: ${popularTVShows.length}`);
-    console.log(`   - Movies: ${popularMovies.length}`);
-
     // Generate XML
     const xml = generateSitemapXML(allUrls);
 
@@ -186,9 +255,7 @@ function generateSitemap() {
     const outputPath = './public/sitemap.xml';
     fs.writeFileSync(outputPath, xml, 'utf-8');
 
-    console.log(`✅ Sitemap generated successfully!`);
-    console.log(`📍 Location: ${outputPath}`);
-    console.log(`🔗 Will be available at: ${BASE_URL}/sitemap.xml`);
+    console.log(`Sitemap generated successfully!`);
 }
 
 // Run the generator
