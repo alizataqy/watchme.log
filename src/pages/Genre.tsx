@@ -220,6 +220,7 @@ const Genre = () => {
                                         key={`${result.show.source}-${result.show.id}`}
                                         show={result.show}
                                         isInList={isInList(result.show.id, result.show.source)}
+                                        isSearch={true}
                                         currentStatus={getShowStatus(result.show.id, result.show.source)}
                                         onAddToWatchlist={() => handleAddToWatchlist(result.show)}
                                         onMarkWatched={() => handleMarkWatched(result.show)}
