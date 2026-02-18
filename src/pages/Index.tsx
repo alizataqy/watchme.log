@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Clock, Eye, Search as SearchIcon, CheckCircle, Star } from 'lucide-react';
+import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { ShowCard } from '@/components/ShowCard';
@@ -631,6 +631,12 @@ const Index = () => {
           }}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <div className="mt-1 flex w-full mx-auto justify-center gap-2">
+                    <Bell className="h-5 w-5 text-primary" />
+                    Notification
+                  </div>
+                </DialogTitle>
                 <DialogDescription className="pt-2 text-base">
                   You'll get a <span className="text-primary font-bold italic"> better experience</span> if you open this app on your <span className="font-semibold text-foreground">mobile phone</span>.
                 </DialogDescription>

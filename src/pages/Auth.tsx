@@ -74,7 +74,7 @@ const Auth = () => {
         title: 'Berhasil Masuk',
         description: 'Selamat datang kembali!',
       });
-      navigate('/?tab=watching');
+      navigate('/watching');
     }
   };
 
@@ -101,7 +101,7 @@ const Auth = () => {
         title: 'Berhasil Daftar',
         description: 'Akun berhasil dibuat. Silakan masuk.',
       });
-      navigate('/?tab=watching');
+      navigate('/watching');
     }
   };
 
@@ -152,7 +152,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
       <SEO
-        title="Login / Register"
+        title="Login"
         description="Masuk atau daftar ke WatchMe.log untuk mulai melacak film dan serial TV favoritmu secara gratis."
       />
       <div className="absolute top-4 right-4">

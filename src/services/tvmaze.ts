@@ -57,20 +57,22 @@ export const getSeriesByGenre = async (genre: string): Promise<SearchResult[]> =
     // or we can fetch a curated list.
     // Strategy: Use the /search/shows?q=genre endpoint which often returns shows matching that tag
     const response = await fetch(`${BASE_URL}/search/shows?q=${encodeURIComponent(genre)}`);
-    const data = await response.json();
+    const data = await response.json() as { score: number; show: Show }[];
 
-    const results = data.map((item: any) => item.show)
-      .filter((show: any) => show.genres && show.genres.includes(genre)) // Strict filter to ensure relevance
-      .map((show: any) => ({
+    if (!Array.isArray(data)) return [];
+
+    const results = data.map((item) => item.show)
+      .filter((show) => show.genres?.includes(genre)) // Strict filter to ensure relevance
+      .map((show) => ({
         score: show.rating?.average || 0,
         show: {
           ...show,
-          source: 'tvmaze'
+          source: 'tvmaze' as const
         }
       }));
 
     // Sort by rating
-    return results.sort((a: SearchResult, b: SearchResult) => (b.show.rating?.average || 0) - (a.show.rating?.average || 0));
+    return results.sort((a, b) => (b.show.rating?.average || 0) - (a.show.rating?.average || 0));
 
   } catch (error) {
     console.error('Error fetching series by genre:', error);
