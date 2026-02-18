@@ -43,6 +43,7 @@ interface ShowCardProps {
     onToggleSeasonBulk?: (episodes: { season: number; episode: number; episodeName: string; airdate: string }[], allWatched: boolean) => void;
     showEpisodeTracking?: boolean;
     isUpcomingView?: boolean;
+    isSearch?: boolean;
 }
 
 export function ShowCard({
@@ -58,6 +59,7 @@ export function ShowCard({
     onToggleSeasonBulk,
     showEpisodeTracking = false,
     isUpcomingView = false,
+    isSearch = false,
 }: ShowCardProps) {
     const [episodes, setEpisodes] = useState<Episode[]>([]);
     const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
@@ -189,24 +191,31 @@ export function ShowCard({
                             {t('showCard.noImage')}
                         </div>
                     )}
-                    {show.rating?.average && (
-                        <div className="absolute top-1 left-1 bg-background/90 backdrop-blur-sm px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1">
-                            <Star className="h-3 w-3 text-warning fill-warning" />
-                            {show.rating.average}
-                        </div>
-                    )}
+
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0 flex flex-col">
                     <div className="flex justify-between items-start gap-2">
-                        <h3 className="font-semibold text-sm group-hover:text-primary transition-colors leading-tight">{show.name}</h3>
-                        {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-                            <div className="text-xs font-medium text-muted-foreground whitespace-nowrap pt-0.5">
-                                {watchedCount}/{totalEpisodes}
+
+                        <div className="flex items-center justify-between w-full gap-2">
+                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors leading-tight">{show.name}</h3>
+                            <div className="flex items-center gap-1 shrink-0">
+                                {show.rating?.average && isSearch && (
+                                    <div className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-1.5 py-0.5 rounded text-xs  font-medium flex items-center gap-1">
+                                        <Star className="h-3 w-3 text-warning fill-warning" />
+                                        {show.rating.average}
+                                    </div>
+                                )}
+                                {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
+                                    <div className="text-xs font-medium text-muted-foreground whitespace-nowrap pt-0.5">
+                                        {watchedCount}/{totalEpisodes}
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
+
 
                     <div className="flex flex-wrap gap-1 mt-1">
                         {show.genres?.slice(0, 2).map((genre) => (
