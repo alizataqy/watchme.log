@@ -49,7 +49,6 @@ export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
                                         {item.count}
                                     </span>
                                 )}
-
                             </div>
                             <span className={cn(
                                 "text-[10px] font-medium transition-opacity duration-300",
@@ -57,7 +56,6 @@ export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
                             )}>
                                 {item.label}
                             </span>
-
                             {/* Active Background Glow */}
                             {isActive && (
                                 <div className="absolute inset-0 bg-primary/15 dark:bg-primary/5 rounded-sm" />

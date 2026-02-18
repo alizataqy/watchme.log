@@ -56,7 +56,7 @@ const Index = () => {
   const activeTab = getTabFromPath(location.pathname);
 
   const setActiveTab = (tab: string) => {
-    navigate(tab === 'watching' ? '/' : `/${tab}`);
+    navigate(tab === 'watching' ? '/watching' : `/${tab}`);
   };
 
   const {
