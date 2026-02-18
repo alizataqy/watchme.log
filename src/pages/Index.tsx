@@ -333,7 +333,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Daftar Tontonan Movie & TV Series"
+        title="Home"
         description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
       />
       {/* Header */}
@@ -407,6 +407,10 @@ const Index = () => {
           )}
 
           <TabsContent value="search" className="mt-0">
+            <SEO
+              title="Search"
+              description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
+            />
             {isSearching || isLoadingRecs ? (
               <LoadingSpinner />
             ) : searchResults.length > 0 ? (
@@ -459,6 +463,10 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="upcoming" className="animate-fade-in outline-none">
+            <SEO
+              title="Upcoming"
+              description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
+            />
             {loadingUpcoming ? (
               <LoadingSpinner />
             ) : upcomingShows.length === 0 && recentlyAired.length === 0 ? (
@@ -525,6 +533,10 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="watching" className="mt-0">
+            <SEO
+              title="Watching"
+              description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
+            />
             {filteredWatching.length > 0 ? (
               <div className="space-y-3">
                 {filteredWatching.map((show) => (
@@ -558,6 +570,10 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="watchlist" className="mt-0">
+            <SEO
+              title="Watchlist"
+              description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
+            />
             {filteredWatchlist.length > 0 ? (
               <div className="space-y-3">
                 {filteredWatchlist.map((show) => (
@@ -591,6 +607,10 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="watched" className="mt-0">
+            <SEO
+              title="Watched"
+              description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
+            />
             {filteredWatched.length > 0 ? (
               <div className="space-y-3">
                 {filteredWatched.map((show) => (
