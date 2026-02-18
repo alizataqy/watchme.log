@@ -505,8 +505,7 @@ const Index = () => {
 
                 {recentlyAired.length > 0 && (
                   <div className="space-y-3">
-                    <h2 className="text-sm font-semibold text-muted-foreground px-1 flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
+                    <h2 className="text-sm font-semibold px-1 flex items-center text-red-300 gap-2">
                       <Clock className="h-4 w-4" />
                       {t('index.recentlyAired')}
                     </h2>
