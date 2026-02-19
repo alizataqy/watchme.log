@@ -28,7 +28,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Monitor, Smartphone } from 'lucide-react';
+import { SortFilterBar } from "@/components/SortFiterBar";
+import { useSortFilter } from "@/hooks/useSortFilter";
+
+
+
+
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -318,6 +323,10 @@ const Index = () => {
   const filteredWatched = useFuzzySearch(watched, localQuery);
   const filteredUpcoming = useFuzzySearch(upcomingShows, localQuery);
 
+  const watchingSortFilter = useSortFilter(filteredWatching);
+  const watchlistSortFilter = useSortFilter(filteredWatchlist);
+  const watchedSortFilter = useSortFilter(filteredWatched);
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -538,7 +547,15 @@ const Index = () => {
             />
             {filteredWatching.length > 0 ? (
               <div className="space-y-3">
-                {filteredWatching.map((show) => (
+                <SortFilterBar
+                  sortBy={watchingSortFilter.sortBy}
+                  onSortChange={watchingSortFilter.onSortChange}
+                  selectedGenres={watchingSortFilter.selectedGenres}
+                  onGenreChange={watchingSortFilter.onGenreChange}
+                  availableGenres={watchingSortFilter.availableGenres}
+                  totalCount={watchingSortFilter.sortedAndFiltered.length}
+                />
+                {watchingSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
                     show={show}
@@ -575,7 +592,15 @@ const Index = () => {
             />
             {filteredWatchlist.length > 0 ? (
               <div className="space-y-3">
-                {filteredWatchlist.map((show) => (
+                <SortFilterBar
+                  sortBy={watchlistSortFilter.sortBy}
+                  onSortChange={watchlistSortFilter.onSortChange}
+                  selectedGenres={watchlistSortFilter.selectedGenres}
+                  onGenreChange={watchlistSortFilter.onGenreChange}
+                  availableGenres={watchlistSortFilter.availableGenres}
+                  totalCount={watchlistSortFilter.sortedAndFiltered.length}
+                />
+                {watchlistSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
                     show={show}
@@ -612,7 +637,15 @@ const Index = () => {
             />
             {filteredWatched.length > 0 ? (
               <div className="space-y-3">
-                {filteredWatched.map((show) => (
+                <SortFilterBar
+                  sortBy={watchedSortFilter.sortBy}
+                  onSortChange={watchedSortFilter.onSortChange}
+                  selectedGenres={watchedSortFilter.selectedGenres}
+                  onGenreChange={watchedSortFilter.onGenreChange}
+                  availableGenres={watchedSortFilter.availableGenres}
+                  totalCount={watchedSortFilter.sortedAndFiltered.length}
+                />
+                {watchedSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
                     show={show}

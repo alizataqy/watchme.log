@@ -39,7 +39,6 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                         <h1 className="text-xl font-bold text-gradient">WatchMe.log</h1>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* <NotificationBell /> */}
                         <Button
                             variant="ghost"
                             size="sm"
@@ -59,11 +58,11 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setLanguage("id")}>
-                                    Bahasa Indonesia {language === 'id' && '✓'}
+                                <DropdownMenuItem onClick={() => setLanguage("id")} className={language === 'id' ? 'bg-primary/15 text-primary font-medium' : ''}>
+                                    Bahasa Indonesia
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setLanguage("en")}>
-                                    English {language === 'en' && '✓'}
+                                <DropdownMenuItem onClick={() => setLanguage("en")} className={language === 'en' ? 'bg-primary/15 text-primary font-medium' : ''}>
+                                    English
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
