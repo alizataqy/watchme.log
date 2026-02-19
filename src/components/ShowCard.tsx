@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Show, TrackedShow } from '@/types/show';
-import { Calendar, Star, Plus, Check, Eye, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Star, Plus, Check, Eye, Clock, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO, isAfter, differenceInDays, formatDistanceToNow } from 'date-fns';
@@ -162,6 +162,13 @@ export function ShowCard({
         }
     }, [watchedEpisodes, episodes, currentStatus, onMarkWatched]);
 
+    // Next unwatched episode (only for watching status)
+    const nextUnwatchedEpisode = currentStatus === 'watching' && !isMovie
+        ? episodes
+            .filter(ep => !isAfter(parseISO(ep.airdate || '9999-01-01'), new Date()))
+            .find(ep => !isEpisodeWatched(ep.season, ep.number))
+        : undefined;
+
     // Group episodes by season
     const episodesBySeason = episodes.reduce((acc, ep) => {
         if (!acc[ep.season]) acc[ep.season] = [];
@@ -282,6 +289,19 @@ export function ShowCard({
                                     {show._embedded?.nextepisode ? t('showCard.next') : t('showCard.latest')}: S{(show._embedded?.nextepisode || show._embedded?.previousepisode)!.season}E{(show._embedded?.nextepisode || show._embedded?.previousepisode)!.number}: {(show._embedded?.nextepisode || show._embedded?.previousepisode)!.name}
                                 </p>
                             )}
+                        </div>
+                    )}
+
+                    {/* Next Unwatched Episode Banner — Watching tab only */}
+                    {nextUnwatchedEpisode && !isUpcomingView && (
+                        <div className="mt-1.5 flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/25 rounded-md">
+                            <PlayCircle className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="text-xs font-semibold text-primary shrink-0">
+                                S{nextUnwatchedEpisode.season}E{nextUnwatchedEpisode.number}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                                {nextUnwatchedEpisode.name}
+                            </span>
                         </div>
                     )}
 

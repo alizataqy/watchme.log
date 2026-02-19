@@ -17,13 +17,13 @@
 ### 2. Sort & Filter di Setiap Tab
 - [x] Tambahkan komponen `SortFilterBar` di atas list show
 - [x] Sort by: nama (A-Z / Z-A), tanggal ditambahkan, rating user, genre
-- [x] Filter by: genre, source (TVMaze / TMDB)
-- [x] Simpan preferensi sort/filter ke localStorage
+- [ ] Filter by: genre, source (TVMaze / TMDB)
+- [ ] Simpan preferensi sort/filter ke localStorage
 
 ### 3. Continue Watching (Next Episode)
-- [ ] Di tab **Watching**, tampilkan "episode berikutnya" yang belum ditonton secara prominent
-- [ ] Hitung next unwatched episode dari `watchedEpisodes`
-- [ ] Tampilkan badge "Next: S01E03" di ShowCard
+- [x] Di tab **Watching**, tampilkan "episode berikutnya" yang belum ditonton secara prominent
+- [x] Hitung next unwatched episode dari `watchedEpisodes`
+- [x] Tampilkan badge "Next: S01E03" di ShowCard
 
 ---
 
