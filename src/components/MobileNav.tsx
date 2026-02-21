@@ -26,7 +26,7 @@ export function MobileNav({ activeTab, setActiveTab, counts }: MobileNavProps) {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-t border-border/50 safe-area-inset-bottom shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.1)]">
+        <nav className="fixed rounded-lg bottom-0 left-0 right-0 z-50 bg-background backdrop-blur-lg border-t border-border/50 safe-area-inset-bottom">
             <div className="grid grid-cols-5 h-16 max-w-md mx-auto relative">
                 {navItems.map((item) => {
                     const isActive = activeTab === item.id;

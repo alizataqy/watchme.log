@@ -67,14 +67,15 @@ export const SortFilterBar = ({
 
     return (
         <div className="flex flex-col gap-3 mb-4 px-1">
-            <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground capitalize font-semibold">{totalCount} Cards</span>
-
+            <div className="flex justify-between">
+                <span className="text-sm justify-center text-muted-foreground capitalize font-semibold">{totalCount} Cards
+                    
+                </span>
                 {onSearchTypeChange && (
-                    <div className="flex bg-secondary/50 gap-3 px-3 py-1 rounded-lg border border-border/50">
+                    <div className="grid grid-cols-3 bg-secondary/50 gap-10 justify-center items-center px-3 w-full py-1 rounded-lg border border-border/50">
                         <button
                             onClick={() => onSearchTypeChange('all')}
-                            className={`px-6 py-1 text-[10px] font-bold rounded-md transition-all ${searchType === 'all'
+                            className={`px-6 py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'all'
                                 ? 'bg-background text-primary shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
@@ -83,7 +84,7 @@ export const SortFilterBar = ({
                         </button>
                         <button
                             onClick={() => onSearchTypeChange('series')}
-                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${searchType === 'series'
+                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'series'
                                 ? 'bg-background text-primary shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
@@ -92,7 +93,7 @@ export const SortFilterBar = ({
                         </button>
                         <button
                             onClick={() => onSearchTypeChange('movie')}
-                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${searchType === 'movie'
+                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'movie'
                                 ? 'bg-background text-primary shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
