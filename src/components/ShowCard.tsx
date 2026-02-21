@@ -231,22 +231,23 @@ export function ShowCard({
                             </Badge>
                         ))}
                     </div>
+                    {!isUpcomingView && (
+                        <div className='border rounded-md p-2 mt-2'>
+                            {show.premiered && !isUpcomingView && (
+                                <p className="text-xs text-muted-foreground ml-1 flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {format(parseISO(show.premiered), 'dd MMM yyyy', { locale: language === 'id' ? localeId : localeEn })}
+                                </p>
+                            )}
 
-                    <div className='border rounded-md p-2 mt-2'>
-                        {show.premiered && !isUpcomingView && (
-                            <p className="text-xs text-muted-foreground ml-1 flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {format(parseISO(show.premiered), 'dd MMM yyyy', { locale: language === 'id' ? localeId : localeEn })}
-                            </p>
-                        )}
-
-                        {currentStatus === 'watchlist' && 'addedAt' in show && show.addedAt && (
-                            <p className="text-xs mt-1 flex items-center ml-1 gap-1">
-                                <Clock className="h-3 w-3" />
-                                {t('showCard.addedAt').replace('{date}', formatDistanceToNow(parseISO(show.addedAt), { addSuffix: true, locale: language === 'id' ? localeId : localeEn }))}
-                            </p>
-                        )}
-                    </div>
+                            {currentStatus === 'watchlist' && 'addedAt' in show && show.addedAt && (
+                                <p className="text-xs mt-1 flex items-center ml-1 gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {t('showCard.addedAt').replace('{date}', formatDistanceToNow(parseISO(show.addedAt), { addSuffix: true, locale: language === 'id' ? localeId : localeEn }))}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {/* Special Upcoming Display in Info section */}
                     {isUpcomingView && (
