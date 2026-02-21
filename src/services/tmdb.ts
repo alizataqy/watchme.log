@@ -105,12 +105,15 @@ export const searchMovies = async (query: string): Promise<SearchResult[]> => {
     if (!query || !TMDB_API_KEY) return [];
 
     try {
-        const response = await fetch(
-            `${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`
-        );
-        const data = await response.json();
+        const [res1] = await Promise.all([
+            fetch(`${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1`),
+        ]);
 
-        return (data.results || []).map((movie: TmdbItem) => ({
+        const [data1] = await Promise.all([res1.json()]);
+        const results = [...(data1.results || [])];
+        const limit = 10;
+
+        return results.slice(0, limit).map((movie: TmdbItem) => ({
             score: movie.vote_average,
             show: {
                 id: movie.id,
@@ -135,6 +138,7 @@ export const searchMovies = async (query: string): Promise<SearchResult[]> => {
         return [];
     }
 };
+
 
 export const getTrendingMovies = async (): Promise<SearchResult[]> => {
     if (!TMDB_API_KEY) return [];
@@ -167,41 +171,6 @@ export const getTrendingMovies = async (): Promise<SearchResult[]> => {
         }));
     } catch (error) {
         console.error('TMDB Trending Movies Error:', error);
-        return [];
-    }
-};
-
-export const getTrendingSeries = async (): Promise<SearchResult[]> => {
-    if (!TMDB_API_KEY) return [];
-
-    try {
-        const response = await fetch(
-            `${BASE_URL}/trending/tv/day?api_key=${TMDB_API_KEY}`
-        );
-        const data = await response.json();
-
-        return (data.results || []).slice(0, 10).map((tv: TmdbItem) => ({
-            score: tv.vote_average,
-            show: {
-                id: tv.id,
-                name: tv.name || tv.title || '',
-                image: tv.poster_path
-                    ? {
-                        medium: `https://image.tmdb.org/t/p/w500${tv.poster_path}`,
-                        original: `https://image.tmdb.org/t/p/original${tv.poster_path}`,
-                    }
-                    : null,
-                premiered: tv.first_air_date || tv.release_date || null,
-                ended: null,
-                status: 'Airing',
-                genres: getGenresFromIds(tv.genre_ids),
-                rating: { average: tv.vote_average ? Number((Math.round(tv.vote_average * 10) / 10).toFixed(1)) : null },
-                summary: tv.overview,
-                source: 'tmdb',
-            } as unknown as Show
-        }));
-    } catch (error) {
-        console.error('TMDB Trending Series Error:', error);
         return [];
     }
 };

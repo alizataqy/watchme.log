@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell } from 'lucide-react';
+import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell, LayoutGrid } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { ShowCard } from '@/components/ShowCard';
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { searchMovies, getTrendingMovies } from '@/services/tmdb';
 import { getRecommendedSeries } from '@/services/tvmaze';
+import { searchUnified } from '@/services/aggregator';
 import { Calendar } from 'lucide-react';
 import { MobileNav } from '@/components/MobileNav';
 import SEO from '@/components/SEO';
@@ -39,30 +40,11 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [searchType, setSearchType] = useState<'series' | 'movie'>('series');
+  const [searchType, setSearchType] = useState<'series' | 'movie' | 'all'>('all');
   const [recommendations, setRecommendations] = useState<SearchResult[]>([]);
   const [isLoadingRecs, setIsLoadingRecs] = useState(false);
   const [localQuery, setLocalQuery] = useState('');
   const [showDesktopModal, setShowDesktopModal] = useState(false);
-
-  const { toast } = useToast();
-  const { user, isLoading: authLoading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useIsMobile();
-  const { t } = useLanguage();
-
-  const getTabFromPath = (path: string) => {
-    const p = path.substring(1);
-    if (p === 'search') return 'search';
-    return ['watchlist', 'upcoming', 'watched'].includes(p) ? p : 'watching';
-  };
-
-  const activeTab = getTabFromPath(location.pathname);
-
-  const setActiveTab = (tab: string) => {
-    navigate(tab === 'watching' ? '/watching' : `/${tab}`);
-  };
 
   const {
     watchlist,
@@ -83,6 +65,41 @@ const Index = () => {
     shows, // Need access to all shows for upcoming logic
   } = useShowStorage();
 
+  const { toast } = useToast();
+  const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const { t } = useLanguage();
+
+  const getTabFromPath = (path: string) => {
+    const parts = path.substring(1).split('/');
+    const p = parts[0];
+    if (p === 'search') return 'search';
+    return ['watchlist', 'upcoming', 'watched'].includes(p) ? p : 'watching';
+  };
+
+  const activeTab = getTabFromPath(location.pathname);
+
+  const setActiveTab = (tab: string) => {
+    if (tab === 'search') {
+      navigate('/search/all');
+    } else {
+      navigate(tab === 'watching' ? '/watching' : `/${tab}`);
+    }
+  };
+
+  const handleSearchTypeChange = (type: 'series' | 'movie' | 'all', queryOverride?: string) => {
+    const pathMap = {
+      all: 'all',
+      series: 'tvseries',
+      movie: 'movies'
+    };
+    const q = queryOverride !== undefined ? queryOverride : localQuery;
+    const queryParam = q ? `?q=${encodeURIComponent(q)}` : '';
+    navigate(`/search/${pathMap[type]}${queryParam}`);
+  };
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');
@@ -98,7 +115,7 @@ const Index = () => {
   const searchRequestId = useRef(0);
   const recommendationsRequestId = useRef(0);
 
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = useCallback(async (query: string, skipNavigate = false) => {
     const requestId = ++searchRequestId.current;
     setLocalQuery(query);
 
@@ -106,16 +123,31 @@ const Index = () => {
       return;
     }
 
+    const pathMap = {
+      all: 'all',
+      series: 'tvseries',
+      movie: 'movies'
+    };
+
     if (!query) {
       setSearchResults([]);
       setHasSearched(false);
+      if (!skipNavigate) {
+        navigate(`/search/${pathMap[searchType]}`, { replace: true });
+      }
       return;
     }
+
+    navigate(`/search/${pathMap[searchType]}?q=${encodeURIComponent(query)}`, { replace: true });
 
     setIsSearching(true);
     setHasSearched(true);
     try {
-      if (searchType === 'series') {
+      if (searchType === 'all') {
+        const results = await searchUnified(query);
+        if (requestId !== searchRequestId.current) return;
+        setSearchResults(results);
+      } else if (searchType === 'series') {
         const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
         const data = await response.json();
 
@@ -144,13 +176,20 @@ const Index = () => {
         setIsSearching(false);
       }
     }
-  }, [activeTab, searchType, toast, t]);
+  }, [activeTab, searchType, toast, t, navigate]);
 
   const fetchRecommendations = useCallback(async () => {
     const requestId = ++recommendationsRequestId.current;
     setIsLoadingRecs(true);
     try {
-      if (searchType === 'series') {
+      if (searchType === 'all') {
+        const [series, movies] = await Promise.all([
+          getRecommendedSeries(),
+          getTrendingMovies()
+        ]);
+        if (requestId !== recommendationsRequestId.current) return;
+        setRecommendations([...series, ...movies].sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 20));
+      } else if (searchType === 'series') {
         const results = await getRecommendedSeries();
         if (requestId !== recommendationsRequestId.current) return;
         setRecommendations(results);
@@ -167,6 +206,33 @@ const Index = () => {
       }
     }
   }, [searchType]);
+
+  useEffect(() => {
+    const path = location.pathname;
+    const searchParams = new URLSearchParams(location.search);
+    const query = searchParams.get('q') || '';
+
+    if (query && !localQuery && activeTab === 'search') {
+      setLocalQuery(query);
+      handleSearch(query);
+    } else if (!query && localQuery && activeTab === 'search') {
+      // Clear state when URL query is removed
+      setLocalQuery('');
+      setSearchResults([]);
+      setHasSearched(false);
+    }
+
+    if (path.startsWith('/search/')) {
+      const type = path.split('/').pop();
+      if (type === 'all') setSearchType('all');
+      else if (type === 'tvseries') setSearchType('series');
+      else if (type === 'movies') setSearchType('movie');
+    } else if (path === '/search') {
+      setSearchType('all');
+      navigate(`/search/all${location.search}`, { replace: true });
+    }
+  }, [location.pathname, location.search, navigate, activeTab, handleSearch, localQuery]);
+
 
   // Consolidate search and recommendation triggers
   useEffect(() => {
@@ -350,7 +416,7 @@ const Index = () => {
         onSearch={handleSearch}
         isSearching={isSearching}
         searchType={searchType}
-        onSearchTypeChange={setSearchType}
+        onSearchTypeChange={handleSearchTypeChange}
         isLocalTab={activeTab !== 'search'}
       />
 
@@ -424,6 +490,18 @@ const Index = () => {
               <LoadingSpinner />
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
+                <SortFilterBar
+                  sortBy="name-asc"
+                  onSortChange={() => { }}
+                  selectedGenres={[]}
+                  onGenreChange={() => { }}
+                  availableGenres={[]}
+                  totalCount={searchResults.length}
+                  searchType={searchType}
+                  onSearchTypeChange={handleSearchTypeChange}
+                  hideSort={true}
+                  hideFilter={true}
+                />
                 {searchResults.map((result) => (
                   <ShowCard
                     key={`${result.show.source}-${result.show.id}`}
@@ -440,13 +518,33 @@ const Index = () => {
               </div>
             ) : !hasSearched && recommendations.length > 0 ? (
               <div className="space-y-3">
-                <div className="px-1 pb-2">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                <div className="px-1 flex items-center justify-between">
+                  <h2 className="text-sm font-semibold flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                    {t('index.recommendations').replace('{type}', searchType === 'series' ? 'TV Series' : 'Movie')}
+                    {t('index.recommendations').replace('{type}', searchType === 'all' ? 'TV Series & Movies' : (searchType === 'series' ? 'TV Series' : 'Movie'))}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{t('index.trending')}</p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 gap-1.5"
+                    onClick={() => navigate('/genre')}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    Genre
+                  </Button>
                 </div>
+                <SortFilterBar
+                  sortBy="name-asc"
+                  onSortChange={() => { }}
+                  selectedGenres={[]}
+                  onGenreChange={() => { }}
+                  availableGenres={[]}
+                  totalCount={recommendations.length}
+                  searchType={searchType}
+                  onSearchTypeChange={handleSearchTypeChange}
+                  hideSort={true}
+                  hideFilter={true}
+                />
                 {recommendations.map((result) => (
                   <ShowCard
                     key={`${result.show.source}-${result.show.id}`}
@@ -514,7 +612,7 @@ const Index = () => {
 
                 {recentlyAired.length > 0 && (
                   <div className="space-y-3">
-                    <h2 className="text-sm font-semibold px-1 flex items-center text-red-300 gap-2">
+                    <h2 className="text-sm font-semibold px-1 flex items-center text-destructive gap-2">
                       <Clock className="h-4 w-4" />
                       {t('index.recentlyAired')}
                     </h2>

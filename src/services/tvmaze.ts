@@ -107,7 +107,7 @@ export const getRecommendedSeries = async (): Promise<SearchResult[]> => {
 
     const uniqueShows = Array.from(showsMap.values())
       .sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0))
-      .slice(0, 13);
+      .slice(0, 10);
 
     return uniqueShows.map(show => ({
       score: show.rating?.average || 0,

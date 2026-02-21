@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, User as UserIcon, Lock, ArrowLeft, Bell } from "lucide-react";
+import { Loader2, User as UserIcon, Lock, ArrowLeft, Mail } from "lucide-react";
 import SEO from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -22,7 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 
 const Profile = () => {
-    const { user, updateProfile, updatePassword, isLoading: authLoading } = useAuth();
+    const { user, updateProfile, updatePassword, updateEmail, isLoading: authLoading } = useAuth();
     const { toast } = useToast();
     const navigate = useNavigate();
     const isMobile = useIsMobile();
@@ -30,6 +30,7 @@ const Profile = () => {
 
     const [fullName, setFullName] = useState("");
     const [password, setPassword] = useState("");
+    const [oldPassword, setOldPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
@@ -76,6 +77,7 @@ const Profile = () => {
             });
         }
     };
+
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -180,6 +182,34 @@ const Profile = () => {
                                     )}
                                 </Button>
                             </CardFooter>
+                        </form>
+                    </Card>
+
+                    {/* Email Section */}
+                    <Card className="glass-card border-none shadow-xl">
+                        <CardHeader>
+                            <CardTitle className="text-xl flex items-center gap-2">
+                                <Mail className="h-5 w-5 text-primary" />
+                                {t('profile.email')}
+                            </CardTitle>
+                            <CardDescription>
+                                {t('profile.emailDesc')}
+                            </CardDescription>
+                        </CardHeader>
+                        <form>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">{t('profile.email')}</Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder={t('profile.emailPlaceholder')}
+                                        value={user.email}
+                                        className="bg-secondary/50 border-white/10"
+                                        disabled
+                                    />
+                                </div>
+                            </CardContent>
                         </form>
                     </Card>
 

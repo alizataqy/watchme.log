@@ -14,10 +14,10 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 interface HeaderProps {
-    onSearch: (query: string) => void;
+    onSearch: (query: string, skipNavigate?: boolean) => void;
     isSearching: boolean;
-    searchType: 'series' | 'movie';
-    onSearchTypeChange: (type: 'series' | 'movie') => void;
+    searchType: 'series' | 'movie' | 'all';
+    onSearchTypeChange: (type: 'series' | 'movie' | 'all') => void;
     isLocalTab?: boolean;
 }
 
@@ -40,9 +40,9 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
-                            variant="ghost"
+                            variant="link"
                             size="sm"
-                            className="flex items-center gap-2 px-2 hover:bg-secondary/80 h-9"
+                            className="flex items-center gap-2 px-2 h-9"
                             onClick={() => navigate('/profile')}
                         >
                             <User className="h-4 w-4 text-primary" />
@@ -67,8 +67,8 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <ModeToggle />
-                        <Button size="sm" variant="ghost" onClick={handleSignOut} title={t('header.signOut')}>
-                            <LogOut className="h-5 w-5" />
+                        <Button size="sm" variant="link" onClick={handleSignOut} title={t('header.signOut')}>
+                            <LogOut className="h-5 w-5 text-destructive" />
                         </Button>
                     </div>
                 </div>

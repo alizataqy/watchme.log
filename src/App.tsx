@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider } from "@/contexts/AuthProvider";
 import { useNotifications } from "@/hooks/useNotifications";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -32,6 +32,12 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<Navigate to="/watching" replace />} />
           <Route path="/search" element={<Index />} />
+          <Route path="/search/all" element={<Index />} />
+          <Route path="/search/tvseries" element={<Index />} />
+          <Route path="/search/movies" element={<Index />} />
+          <Route path="/search/all?q=:query" element={<Index />} />
+          <Route path="/search/tvseries?q=:query" element={<Index />} />
+          <Route path="/search/movies?q=:query" element={<Index />} />
           <Route path="/watchlist" element={<Index />} />
           <Route path="/watching" element={<Index />} />
           <Route path="/upcoming" element={<Index />} />
