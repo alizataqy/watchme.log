@@ -66,7 +66,7 @@ export const Header = ({
                 <div className="flex justify-between mb-4 items-center">
                     <div className="flex items-center justify-center gap-2 ">
                         <h1 className="text-wrap overflow-hidden text-primary flex items-center gap-1 ">
-                            <img src="/public/favicon.ico" alt="logo" className="w-8 h-8" />
+                            <img src="/favicon.ico" alt="logo" className="w-8 h-8" />
                             <span className="text-sm">{user?.user_metadata?.full_name || user?.email}</span>
                         </h1>
                     </div>
