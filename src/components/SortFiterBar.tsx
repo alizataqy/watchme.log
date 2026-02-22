@@ -53,29 +53,20 @@ export const SortFilterBar = ({
         }
     };
 
-    const getBaseUrl = () => {
-        if (typeof window !== 'undefined') {
-            const path = window.location.pathname.split('/').pop() || 'watching';
-            if (path === 'search') return t('nav.search') || 'Search';
-            return path.charAt(0).toUpperCase() + path.slice(1);
-        }
-        return "";
-    };
-
     const hasActiveFilter = selectedGenres.length > 0;
     const hasActiveSort = sortBy !== 'added-newest';
 
     return (
         <div className="flex flex-col gap-3 mb-4 px-1">
             <div className="flex justify-between">
-                <span className="text-sm justify-center text-muted-foreground capitalize font-semibold">{totalCount} Cards
-                    
+                <span className="flex items-center text-sm text-muted-foreground capitalize font-semibold">
+                    {totalCount} {t('search.cards')}
                 </span>
                 {onSearchTypeChange && (
-                    <div className="grid grid-cols-3 bg-secondary/50 gap-10 justify-center items-center px-3 w-full py-1 rounded-lg border border-border/50">
+                    <div className="grid grid-cols-3 bg-secondary/50 gap-2 justify-center items-center px-2 w-full py-1 rounded-lg border border-border/50">
                         <button
                             onClick={() => onSearchTypeChange('all')}
-                            className={`px-6 py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'all'
+                            className={`py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'all'
                                 ? 'bg-background text-primary shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
@@ -84,7 +75,7 @@ export const SortFilterBar = ({
                         </button>
                         <button
                             onClick={() => onSearchTypeChange('series')}
-                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'series'
+                            className={`py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'series'
                                 ? 'bg-background text-primary shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}
@@ -93,7 +84,7 @@ export const SortFilterBar = ({
                         </button>
                         <button
                             onClick={() => onSearchTypeChange('movie')}
-                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'movie'
+                            className={`py-1.5 text-xs font-bold rounded-md transition-all ${searchType === 'movie'
                                 ? 'bg-background text-primary shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                                 }`}

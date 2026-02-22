@@ -29,7 +29,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { SortFilterBar } from "@/components/SortFiterBar";
 import { useSortFilter } from "@/hooks/useSortFilter";
 
 
@@ -418,6 +417,43 @@ const Index = () => {
         searchType={searchType}
         onSearchTypeChange={handleSearchTypeChange}
         isLocalTab={activeTab !== 'search'}
+        {...(activeTab === 'watching' ? {
+          sortBy: watchingSortFilter.sortBy,
+          onSortChange: watchingSortFilter.onSortChange,
+          selectedGenres: watchingSortFilter.selectedGenres,
+          onGenreChange: watchingSortFilter.onGenreChange,
+          availableGenres: watchingSortFilter.availableGenres,
+          totalCount: watchingSortFilter.sortedAndFiltered.length,
+        } : activeTab === 'watchlist' ? {
+          sortBy: watchlistSortFilter.sortBy,
+          onSortChange: watchlistSortFilter.onSortChange,
+          selectedGenres: watchlistSortFilter.selectedGenres,
+          onGenreChange: watchlistSortFilter.onGenreChange,
+          availableGenres: watchlistSortFilter.availableGenres,
+          totalCount: watchlistSortFilter.sortedAndFiltered.length,
+        } : activeTab === 'watched' ? {
+          sortBy: watchedSortFilter.sortBy,
+          onSortChange: watchedSortFilter.onSortChange,
+          selectedGenres: watchedSortFilter.selectedGenres,
+          onGenreChange: watchedSortFilter.onGenreChange,
+          availableGenres: watchedSortFilter.availableGenres,
+          totalCount: watchedSortFilter.sortedAndFiltered.length,
+        } : activeTab === 'search' ? {
+          totalCount: hasSearched ? searchResults.length : recommendations.length,
+          hideSort: true,
+          hideFilter: true,
+          isUpcomingTab: false,
+        } : activeTab === 'upcoming' ? {
+          isUpcomingTab: true,
+          hideSort: true,
+          hideFilter: true,
+          totalCount: null
+        } : {
+          hideSort: true,
+          hideFilter: true,
+          totalCount: 0,
+          isUpcomingTab: false,
+        })}
       />
 
       {/* Main Content */}
@@ -490,18 +526,7 @@ const Index = () => {
               <LoadingSpinner />
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
-                <SortFilterBar
-                  sortBy="name-asc"
-                  onSortChange={() => { }}
-                  selectedGenres={[]}
-                  onGenreChange={() => { }}
-                  availableGenres={[]}
-                  totalCount={searchResults.length}
-                  searchType={searchType}
-                  onSearchTypeChange={handleSearchTypeChange}
-                  hideSort={true}
-                  hideFilter={true}
-                />
+
                 {searchResults.map((result) => (
                   <ShowCard
                     key={`${result.show.source}-${result.show.id}`}
@@ -533,18 +558,7 @@ const Index = () => {
                     Genre
                   </Button>
                 </div>
-                <SortFilterBar
-                  sortBy="name-asc"
-                  onSortChange={() => { }}
-                  selectedGenres={[]}
-                  onGenreChange={() => { }}
-                  availableGenres={[]}
-                  totalCount={recommendations.length}
-                  searchType={searchType}
-                  onSearchTypeChange={handleSearchTypeChange}
-                  hideSort={true}
-                  hideFilter={true}
-                />
+
                 {recommendations.map((result) => (
                   <ShowCard
                     key={`${result.show.source}-${result.show.id}`}
@@ -645,14 +659,7 @@ const Index = () => {
             />
             {filteredWatching.length > 0 ? (
               <div className="space-y-3">
-                <SortFilterBar
-                  sortBy={watchingSortFilter.sortBy}
-                  onSortChange={watchingSortFilter.onSortChange}
-                  selectedGenres={watchingSortFilter.selectedGenres}
-                  onGenreChange={watchingSortFilter.onGenreChange}
-                  availableGenres={watchingSortFilter.availableGenres}
-                  totalCount={watchingSortFilter.sortedAndFiltered.length}
-                />
+
                 {watchingSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
@@ -690,14 +697,7 @@ const Index = () => {
             />
             {filteredWatchlist.length > 0 ? (
               <div className="space-y-3">
-                <SortFilterBar
-                  sortBy={watchlistSortFilter.sortBy}
-                  onSortChange={watchlistSortFilter.onSortChange}
-                  selectedGenres={watchlistSortFilter.selectedGenres}
-                  onGenreChange={watchlistSortFilter.onGenreChange}
-                  availableGenres={watchlistSortFilter.availableGenres}
-                  totalCount={watchlistSortFilter.sortedAndFiltered.length}
-                />
+
                 {watchlistSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
@@ -735,14 +735,7 @@ const Index = () => {
             />
             {filteredWatched.length > 0 ? (
               <div className="space-y-3">
-                <SortFilterBar
-                  sortBy={watchedSortFilter.sortBy}
-                  onSortChange={watchedSortFilter.onSortChange}
-                  selectedGenres={watchedSortFilter.selectedGenres}
-                  onGenreChange={watchedSortFilter.onGenreChange}
-                  availableGenres={watchedSortFilter.availableGenres}
-                  totalCount={watchedSortFilter.sortedAndFiltered.length}
-                />
+
                 {watchedSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}

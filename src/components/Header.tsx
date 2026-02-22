@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
+import { SortOption } from "./SortFiterBar";
 
 interface HeaderProps {
     onSearch: (query: string, skipNavigate?: boolean) => void;
@@ -19,9 +20,34 @@ interface HeaderProps {
     searchType: 'series' | 'movie' | 'all';
     onSearchTypeChange: (type: 'series' | 'movie' | 'all') => void;
     isLocalTab?: boolean;
+    isUpcomingTab?: boolean;
+    // SortFilterBar props
+    sortBy?: SortOption;
+    onSortChange?: (sort: SortOption) => void;
+    selectedGenres?: string[];
+    onGenreChange?: (genres: string[]) => void;
+    availableGenres?: string[];
+    totalCount?: number;
+    hideSort?: boolean;
+    hideFilter?: boolean;
 }
 
-export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, isLocalTab }: HeaderProps) => {
+export const Header = ({
+    onSearch,
+    isSearching,
+    searchType,
+    onSearchTypeChange,
+    isLocalTab,
+    isUpcomingTab,
+    sortBy,
+    onSortChange,
+    selectedGenres,
+    onGenreChange,
+    availableGenres,
+    totalCount,
+    hideSort,
+    hideFilter,
+}: HeaderProps) => {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
     const { language, setLanguage, t } = useLanguage();
@@ -78,6 +104,15 @@ export const Header = ({ onSearch, isSearching, searchType, onSearchTypeChange, 
                     searchType={searchType}
                     onSearchTypeChange={onSearchTypeChange}
                     isLocalTab={isLocalTab}
+                    isUpcomingTab={isUpcomingTab}
+                    sortBy={sortBy}
+                    onSortChange={onSortChange}
+                    selectedGenres={selectedGenres}
+                    onGenreChange={onGenreChange}
+                    availableGenres={availableGenres}
+                    totalCount={totalCount}
+                    hideSort={hideSort}
+                    hideFilter={hideFilter}
                 />
             </div>
         </header>

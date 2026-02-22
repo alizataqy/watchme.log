@@ -65,11 +65,7 @@
 - [ ] (Opsional) Import dari file JSON
 - [ ] (Opsional) Support format Trakt.tv / Letterboxd CSV
 
-### 10. Notifikasi In-App yang Lebih Lengkap
-- [ ] Tampilkan history notifikasi di `NotificationBell`
-- [ ] Tambahkan fitur "mark as read" per notifikasi
-- [ ] Tambahkan badge count yang update real-time
-- [ ] Hapus notifikasi lama (> 30 hari)
+
 
 ---
 

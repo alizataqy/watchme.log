@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
+import { SortFilterBar, SortOption } from './SortFiterBar';
 
 interface SearchBarProps {
   onSearch: (query: string, skipNavigate?: boolean) => void;
@@ -11,9 +12,33 @@ interface SearchBarProps {
   searchType: 'series' | 'movie' | 'all';
   onSearchTypeChange?: (type: 'series' | 'movie' | 'all', queryOverride?: string) => void;
   isLocalTab?: boolean;
+  isUpcomingTab?: boolean;
+  sortBy?: SortOption;
+  onSortChange?: (sort: SortOption) => void;
+  selectedGenres?: string[];
+  onGenreChange?: (genres: string[]) => void;
+  availableGenres?: string[];
+  totalCount?: number | null;
+  hideSort?: boolean;
+  hideFilter?: boolean;
 }
 
-export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange, isLocalTab }: SearchBarProps) {
+export function SearchBar({
+  onSearch,
+  isLoading,
+  searchType,
+  onSearchTypeChange,
+  isLocalTab,
+  isUpcomingTab = false,
+  sortBy = 'added-newest',
+  onSortChange = () => { },
+  selectedGenres = [],
+  onGenreChange = () => { },
+  availableGenres = [],
+  totalCount = null,
+  hideSort = true,
+  hideFilter = true,
+}: SearchBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [query, setQuery] = useState('');
@@ -64,7 +89,7 @@ export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange,
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <form onSubmit={handleSubmit} className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -86,6 +111,30 @@ export function SearchBar({ onSearch, isLoading, searchType, onSearchTypeChange,
           </button>
         )}
       </form>
+      {!isLocalTab && (
+        <SortFilterBar
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+          selectedGenres={selectedGenres}
+          onGenreChange={onGenreChange}
+          availableGenres={availableGenres}
+          totalCount={totalCount}
+          searchType={searchType}
+          onSearchTypeChange={onSearchTypeChange}
+          hideSort={hideSort}
+          hideFilter={hideFilter}
+        />
+      )}
+      {isLocalTab && !isUpcomingTab && (
+        <SortFilterBar
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+          selectedGenres={selectedGenres}
+          onGenreChange={onGenreChange}
+          availableGenres={availableGenres}
+          totalCount={totalCount}
+        />
+      )}
     </div>
   );
 }
