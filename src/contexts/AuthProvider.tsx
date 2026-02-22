@@ -42,9 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signOut = async () => {
         await supabase.auth.signOut();
+        localStorage.clear();
+        // Optional: clear session storage as well
+        sessionStorage.clear();
     };
 
-    const updateProfile = async (data: { full_name?: string; avatar_url?: string }) => {
+    const updateProfile = async (data: { full_name?: string; avatar_url?: string; has_onboarded?: boolean }) => {
         const { error } = await supabase.auth.updateUser({
             data: data
         });

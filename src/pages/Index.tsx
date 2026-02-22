@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useSortFilter } from "@/hooks/useSortFilter";
+import { Onboarding } from "@/components/Onboarding";
 
 
 
@@ -44,6 +45,7 @@ const Index = () => {
   const [isLoadingRecs, setIsLoadingRecs] = useState(false);
   const [localQuery, setLocalQuery] = useState('');
   const [showDesktopModal, setShowDesktopModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const {
     watchlist,
@@ -109,7 +111,14 @@ const Index = () => {
         setShowDesktopModal(true);
       }
     }
-  }, [user, authLoading, navigate, isMobile]);
+
+    if (user && !authLoading && !isLoading) {
+      const hasOnboarded = user.user_metadata?.has_onboarded || localStorage.getItem('has_onboarded') === 'true';
+      if (!hasOnboarded && shows.length === 0) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [user, authLoading, navigate, isMobile, isLoading, shows.length]);
 
   const searchRequestId = useRef(0);
   const recommendationsRequestId = useRef(0);
@@ -803,6 +812,7 @@ const Index = () => {
             </DialogContent>
           </Dialog>
         )}
+        <Onboarding open={showOnboarding} onOpenChange={setShowOnboarding} />
       </main>
 
       {/* Mobile Bottom Navigation */}

@@ -45,9 +45,9 @@
 - [ ] Format pesan: "Lagi nonton [Nama Show] ⭐ [Rating] — WatchMe.log"
 
 ### 7. Onboarding / Tutorial untuk User Baru
-- [ ] Deteksi user baru (pertama kali login, belum ada show)
-- [ ] Tampilkan tooltip/overlay singkat menjelaskan fitur utama
-- [ ] Simpan status onboarding ke localStorage / Supabase
+- [x] Deteksi user baru (pertama kali login, belum ada show)
+- [x] Tampilkan tooltip/overlay singkat menjelaskan fitur utama
+- [x] Simpan status onboarding ke localStorage / Supabase
 
 ---
 
