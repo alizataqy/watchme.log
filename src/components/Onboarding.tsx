@@ -73,7 +73,7 @@ export const Onboarding = ({ open, onOpenChange }: OnboardingProps) => {
         }}>
             <DialogContent className="sm:max-w-lg max-w-xs rounded-lg">
                 <DialogHeader className="items-center text-center">
-                    <div className="mt-4 p-3 bg-primary/10 rounded-full animate-bounce">
+                    <div className="mt-4 p-3 bg-primary/10 rounded-full animate-bounce duration-1000">
                         {currentStep.icon}
                     </div>
                     <DialogTitle className="text-xl font-bold">{currentStep.title}</DialogTitle>

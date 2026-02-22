@@ -205,32 +205,40 @@ export function ShowCard({
                 <div className="flex-1 min-w-0 flex flex-col">
                     <div className="flex justify-between items-start gap-2">
 
-                        <div className="flex items-center justify-between w-full gap-2">
-                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors leading-tight">{show.name}</h3>
+                        <div className="flex justify-between w-full gap-2">
+                            <div className="flex flex-col">
+                                <h3 className="font-semibold mt-1 text-sm group-hover:text-primary transition-colors leading-tight">
+                                    {show.name}
+                                </h3>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                    {show.genres?.slice(0, 2).map((genre) => (
+                                        <Badge key={genre} variant="secondary" className="text-[10px] px-1.5 py-0">
+                                            {t(`genre.${genre}`) !== `genre.${genre}` ? t(`genre.${genre}`) : genre}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
                             <div className="flex items-center gap-1 shrink-0">
-                                {show.rating?.average && isSearch && (
-                                    <div className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-1.5 py-0.5 rounded text-xs  font-medium flex items-center gap-1">
-                                        <Star className="h-3 w-3 text-warning fill-warning" />
-                                        {show.rating.average}
+                                <div className="flex flex-col items-end gap-1">
+                                    {show.rating?.average && isSearch && (
+                                        <div className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-1.5 py-0.5 rounded text-xs  font-medium flex items-center ">
+                                            <Star className="h-3 w-3 text-warning fill-warning" />
+                                            {show.rating.average}
+                                        </div>
+                                    )}
+                                    {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
+                                        <div className="text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/90 backdrop-blur-sm px-1.5 py-0.5 rounded">
+                                            {watchedCount}/{totalEpisodes}
+                                        </div>
+                                    )}
+                                    <div className="capitalize flex items-center bg-background/90 whitespace-nowrap backdrop-blur-sm px-1.5 py-0.5 rounded text-xs font-medium">
+                                        {show.source == "tmdb" ? "Movie" : "TV Series"}
                                     </div>
-                                )}
-                                {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-                                    <div className="text-xs font-medium text-muted-foreground whitespace-nowrap pt-0.5">
-                                        {watchedCount}/{totalEpisodes}
-                                    </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     </div>
 
-
-                    <div className="flex flex-wrap gap-1 mt-1">
-                        {show.genres?.slice(0, 2).map((genre) => (
-                            <Badge key={genre} variant="secondary" className="text-[10px] px-1.5 py-0">
-                                {t(`genre.${genre}`) !== `genre.${genre}` ? t(`genre.${genre}`) : genre}
-                            </Badge>
-                        ))}
-                    </div>
                     {!isUpcomingView && (
                         <div className='border rounded-md p-2 mt-2'>
                             {show.premiered && !isUpcomingView && (
@@ -469,14 +477,32 @@ export function ShowCard({
                                 </Button>
                             )}
 
-                            <Button
-                                size="sm"
-                                variant="destructive"
-                                className="h-8 text-xs px-3"
-                                onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
-                            >
-                                {t('showCard.remove')}
-                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                    <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        className="h-8 text-xs px-3 alert-dialog-trigger"
+                                    >
+                                        {t('showCard.remove')}
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t('showCard.confirmRemove')}</AlertDialogTitle>
+                                        <AlertDialogDescription dangerouslySetInnerHTML={{ __html: t('showCard.confirmRemoveDesc').replace('{name}', show.name) }} />
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
+                                        >
+                                            {t('showCard.yesRemove')}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
                     )}
                     {isInList && currentStatus === 'watched' && (
@@ -518,10 +544,10 @@ export function ShowCard({
                                         );
 
                                         return (
-                                            <div className="flex items-center gap-2">
+                                            <div className="grid grid-cols-2 items-center gap-2">
                                                 <Button
-                                                    size="icon"
-                                                    variant="ghost"
+                                                    size="sm"
+                                                    variant="outline"
                                                     className="h-8 w-8 mb-3"
                                                     onClick={(e) => {
                                                         e.stopPropagation();

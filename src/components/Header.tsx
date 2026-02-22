@@ -47,6 +47,7 @@ export const Header = ({
     totalCount,
     hideSort,
     hideFilter,
+
 }: HeaderProps) => {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
@@ -57,14 +58,19 @@ export const Header = ({
         navigate('/auth');
     };
 
+
+
     return (
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
             <div className="container py-4">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-bold text-gradient">WatchMe.log</h1>
+                <div className="flex justify-between mb-4 items-center">
+                    <div className="flex items-center justify-center gap-2 ">
+                        <h1 className="text-wrap overflow-hidden text-primary flex items-center gap-1 ">
+                            <img src="/public/favicon.ico" alt="logo" className="w-8 h-8" />
+                            <span className="text-sm">{user?.user_metadata?.full_name || user?.email}</span>
+                        </h1>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-end gap-2">
                         <Button
                             variant="link"
                             size="sm"
