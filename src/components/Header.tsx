@@ -18,7 +18,7 @@ interface HeaderProps {
     onSearch: (query: string, skipNavigate?: boolean) => void;
     isSearching: boolean;
     searchType: 'series' | 'movie' | 'all';
-    onSearchTypeChange: (type: 'series' | 'movie' | 'all') => void;
+    onSearchTypeChange: (type: 'series' | 'movie' | 'all', queryOverride?: string) => void;
     isLocalTab?: boolean;
     isUpcomingTab?: boolean;
     // SortFilterBar props
@@ -67,10 +67,10 @@ export const Header = ({
                     <div className="flex items-center justify-center gap-2 ">
                         <h1 className="text-wrap overflow-hidden text-primary flex items-center gap-1 ">
                             <img src="/favicon.ico" alt="logo" className="w-8 h-8" />
-                            <span className="text-sm">{user?.user_metadata?.full_name || user?.email}</span>
+                            <span className="text-sm font-bold">{user?.user_metadata?.full_name || user?.email}</span>
                         </h1>
                     </div>
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-enddisc gap-2">
                         <Button
                             variant="link"
                             size="sm"

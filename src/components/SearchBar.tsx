@@ -45,19 +45,21 @@ export function SearchBar({
   const { t } = useLanguage();
 
   // Sync query from URL on mount/location change
+  // Only sync when on the search tab — prevents clearing the query when switching tabs
   useEffect(() => {
+    if (!location.pathname.startsWith('/search')) return;
     const params = new URLSearchParams(location.search);
     const q = params.get('q') || '';
     if (q !== query) {
       setQuery(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
+  }, [location.pathname, location.search]);
 
   // Handle live search with debouncing
   useEffect(() => {
     // Determine debounce time: faster for local search, slower for global API calls
-    const debounceTime = isLocalTab ? 150 : 1000;
+    const debounceTime = isLocalTab ? 250 : 1500;
 
     const timer = setTimeout(() => {
       // For global search, only trigger if query changed from URL to avoid infinite loops
@@ -81,10 +83,24 @@ export function SearchBar({
     setQuery('');
     // Use onSearchTypeChange to reset URL and State at once
     if (onSearchTypeChange) {
-      onSearchTypeChange('all', '');
+      onSearchTypeChange(searchType, '');
     } else {
       onSearch('', true);
-      navigate('/search/all');
+      navigate(`${location.pathname}`);
+    }
+  };
+
+  const handleQueryChange = (newValue: string) => {
+    setQuery(newValue);
+    // Navigate to /search/all whenever field is cleared by ANY method
+    // (Backspace, Ctrl+Backspace, Select+Delete, paste empty, etc.)
+    if (newValue === '') {
+      if (onSearchTypeChange) {
+        onSearchTypeChange(searchType, '');
+      } else {
+        onSearch('', true);
+        navigate(`${location.pathname}`);
+      }
     }
   };
 
@@ -97,7 +113,7 @@ export function SearchBar({
           placeholder={searchType === 'all' ? (t('search.placeholder.all') || 'Search all...') : (searchType === 'series' ? t('search.placeholder.series') : t('search.placeholder.movies'))}
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value);
+            handleQueryChange(e.target.value);
           }}
           className="pl-10 pr-10 bg-secondary border-border focus:border-primary focus:ring-primary/20"
         />

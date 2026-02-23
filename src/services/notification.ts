@@ -59,7 +59,7 @@ export function detectUnwatchedEpisodes(
             // Format episode key as "season-number"
             const episodeKey = `S${prevEpisode.season}E${prevEpisode.number}`;
             const isWatched = watchedEpisodes?.get(show.id)?.has(episodeKey);
-            if (daysSinceAir > 7 && !isWatched) {
+            if (daysSinceAir > 7 && daysSinceAir <= 30 && !isWatched) {
                 const uniqueKey = `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}-${prevEpisode.airdate}-${userId}`;
                 notifications.push({
                     id: `unwatched-${show.id}-${prevEpisode.season}-${prevEpisode.number}`,
@@ -103,7 +103,7 @@ export function detectInactiveSeries(
                 const daysSinceLastWatch = differenceInDays(today, lastWatched);
 
                 // Jika sudah 7+ hari tidak menonton
-                if (daysSinceLastWatch >= INACTIVE_DAYS) {
+                if (daysSinceLastWatch >= INACTIVE_DAYS && daysSinceLastWatch <= 30) {
                     // uniqueKey based on date to allow re-notification every 7 days
                     const weekNumber = Math.floor(daysSinceLastWatch / 7);
                     const uniqueKey = `inactive-${show.id}-week${weekNumber}-${userId}`;

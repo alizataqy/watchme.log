@@ -314,7 +314,7 @@ export function ShowCard({
                     {/* Next Unwatched Episode Banner — Watching tab only */}
                     {nextUnwatchedEpisode && !isUpcomingView && (
                         <div className="mt-1.5 flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/25 rounded-md">
-                            <PlayCircle className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <PlayCircle className="ml-1 h-3.5 w-3.5 text-primary shrink-0" />
                             <span className="text-xs font-semibold text-primary shrink-0">
                                 S{nextUnwatchedEpisode.season}E{nextUnwatchedEpisode.number}
                             </span>

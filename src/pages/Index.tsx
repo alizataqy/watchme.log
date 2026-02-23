@@ -122,9 +122,11 @@ const Index = () => {
 
   const searchRequestId = useRef(0);
   const recommendationsRequestId = useRef(0);
+  const lastSearchedQueryRef = useRef('');
 
   const handleSearch = useCallback(async (query: string, skipNavigate = false) => {
     const requestId = ++searchRequestId.current;
+    lastSearchedQueryRef.current = query; // Track last searched query to prevent duplicate triggers
     setLocalQuery(query);
 
     if (activeTab !== 'search') {
@@ -220,11 +222,10 @@ const Index = () => {
     const searchParams = new URLSearchParams(location.search);
     const query = searchParams.get('q') || '';
 
-    if (query && !localQuery && activeTab === 'search') {
+    if (query && query !== lastSearchedQueryRef.current && activeTab === 'search') {
       setLocalQuery(query);
       handleSearch(query);
     } else if (!query && localQuery && activeTab === 'search') {
-      // Clear state when URL query is removed
       setLocalQuery('');
       setSearchResults([]);
       setHasSearched(false);
@@ -396,6 +397,7 @@ const Index = () => {
   const filteredWatchlist = useFuzzySearch(watchlist, localQuery);
   const filteredWatched = useFuzzySearch(watched, localQuery);
   const filteredUpcoming = useFuzzySearch(upcomingShows, localQuery);
+  const filteredRecentlyAired = useFuzzySearch(recentlyAired, localQuery);
 
   const watchingSortFilter = useSortFilter(filteredWatching);
   const watchlistSortFilter = useSortFilter(filteredWatchlist);
@@ -599,7 +601,7 @@ const Index = () => {
             />
             {loadingUpcoming ? (
               <LoadingSpinner />
-            ) : upcomingShows.length === 0 && recentlyAired.length === 0 ? (
+            ) : filteredUpcoming.length === 0 && filteredRecentlyAired.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="upcoming" />
                 {shows.length > 0 && localQuery && (
@@ -608,13 +610,13 @@ const Index = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {upcomingShows.length > 0 && (
+                {filteredUpcoming.length > 0 && (
                   <div className="space-y-3">
                     <h2 className="text-sm font-semibold text-primary px-1 flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       {t('nav.upcoming')}
                     </h2>
-                    {upcomingShows.map((show) => (
+                    {filteredUpcoming.map((show) => (
                       <ShowCard
                         key={`${show.source}-${show.id}`}
                         show={show}
@@ -633,13 +635,13 @@ const Index = () => {
                   </div>
                 )}
 
-                {recentlyAired.length > 0 && (
+                {filteredRecentlyAired.length > 0 && (
                   <div className="space-y-3">
                     <h2 className="text-sm font-semibold px-1 flex items-center text-destructive gap-2">
                       <Clock className="h-4 w-4" />
                       {t('index.recentlyAired')}
                     </h2>
-                    {recentlyAired.map((show) => (
+                    {filteredRecentlyAired.map((show) => (
                       <ShowCard
                         key={`${show.source}-${show.id}`}
                         show={show}
