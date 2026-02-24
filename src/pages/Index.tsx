@@ -367,7 +367,6 @@ const Index = () => {
   ) => {
     const status = getShowStatus(showId, source);
 
-    // Update show status if needed (only for first episode being watched from watchlist)
     if (status === 'watchlist' && !allWatched) {
       try {
         await updateShowStatus(showId, 'watching', source);
@@ -376,11 +375,19 @@ const Index = () => {
       }
     }
 
-    // Toggle all episodes in bulk
     await toggleEpisodesBulk(showId, episodes, source);
 
-    // Show single toast
     const seasonNumber = episodes[0]?.season;
+    if (seasonNumber === undefined) {
+      toast({
+        title: allWatched ? t('toast.seasonUnchecked') : t('toast.seasonFinished'),
+        description: allWatched
+          ? t('toast.seasonUncheckedDescUnknown')
+          : t('toast.seasonFinishedDescUnknown'),
+      });
+      return;
+    }
+
     toast({
       title: allWatched ? t('toast.seasonUnchecked') : t('toast.seasonFinished'),
       description: allWatched
@@ -391,8 +398,6 @@ const Index = () => {
 
   const { upcomingShows, recentlyAired, isLoading: loadingUpcoming } = useUpcomingShows();
 
-  // Use fuzzy search for local tabs instead of simple includes()
-  // Must be called before any early returns (React Hooks rules)
   const filteredWatching = useFuzzySearch(watching, localQuery);
   const filteredWatchlist = useFuzzySearch(watchlist, localQuery);
   const filteredWatched = useFuzzySearch(watched, localQuery);

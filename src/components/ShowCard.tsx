@@ -221,17 +221,17 @@ export function ShowCard({
                             <div className="flex items-center gap-1 shrink-0">
                                 <div className="flex flex-col items-end gap-1">
                                     {show.rating?.average && isSearch && (
-                                        <div className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-1.5 py-0.5 rounded text-xs  font-medium flex items-center ">
+                                        <div className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-2 py-1 rounded text-xs  font-medium flex items-center ">
                                             <Star className="h-3 w-3 text-warning fill-warning" />
                                             {show.rating.average}
                                         </div>
                                     )}
                                     {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-                                        <div className="text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/90 backdrop-blur-sm px-1.5 py-0.5 rounded">
+                                        <div className="text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/90 backdrop-blur-sm px-2 py-1 rounded">
                                             {watchedCount}/{totalEpisodes}
                                         </div>
                                     )}
-                                    <div className="capitalize flex items-center bg-background/90 whitespace-nowrap backdrop-blur-sm px-1.5 py-0.5 rounded text-xs font-medium">
+                                    <div className="capitalize flex font-bold items-center bg-background/90 whitespace-nowrap backdrop-blur-sm px-2 py-1 rounded text-xs">
                                         {show.source == "tmdb" ? "Movie" : "TV Series"}
                                     </div>
                                 </div>
@@ -304,7 +304,7 @@ export function ShowCard({
                                 }
                             </p>
                             {!isMovie && (show._embedded?.nextepisode || show._embedded?.previousepisode) && (
-                                <p className="text-muted-foreground ml-6">
+                                <p className="text-muted-foreground font-bold">
                                     {show._embedded?.nextepisode ? t('showCard.next') : t('showCard.latest')}: S{(show._embedded?.nextepisode || show._embedded?.previousepisode)!.season}E{(show._embedded?.nextepisode || show._embedded?.previousepisode)!.number}: {(show._embedded?.nextepisode || show._embedded?.previousepisode)!.name}
                                 </p>
                             )}
@@ -633,7 +633,7 @@ export function ShowCard({
                                                         ? "bg-primary text-gray-200 dark:text-gray-800 hover:bg-primary/90 shadow-md"
                                                         : "bg-secondary text-gray-800 dark:text-gray-200 hover:bg-secondary/80"
                                                     )}
-                      `}
+                    `}
                                                 title={isFuture ? `${t('showCard.airing').replace('{date}', ep.airdate)}` : ep.name}
                                             >
 

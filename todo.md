@@ -96,3 +96,10 @@
 - [x] Auth (login, register, forgot password, reset password)
 - [x] Profile management (nama & password)
 - [x] React Router v7 future flags
+
+
+
+{BUG / ISSUES}
+
+-[ ] notif toast ketika belom ada episode (undefined) -> episode sudah tayang 5 hari yang lalu
+-[ ] 
