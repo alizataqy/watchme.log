@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Show, TrackedShow } from '@/types/show';
-import { Calendar, Star, Plus, Check, Eye, Clock, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
+import { Calendar, Star, Plus, Check, Eye, Clock, ChevronDown, ChevronUp, PlayCircle, Trash, CircleCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO, isAfter, differenceInDays, formatDistanceToNow } from 'date-fns';
@@ -211,7 +211,7 @@ export function ShowCard({
                                     {show.name}
                                 </h3>
                                 <div className="flex flex-wrap gap-1 mt-1">
-                                    {show.genres?.slice(0, 2).map((genre) => (
+                                    {show.genres?.slice().map((genre) => (
                                         <Badge key={genre} variant="secondary" className="text-[10px] px-1.5 py-0">
                                             {t(`genre.${genre}`) !== `genre.${genre}` ? t(`genre.${genre}`) : genre}
                                         </Badge>
@@ -313,7 +313,7 @@ export function ShowCard({
 
                     {/* Next Unwatched Episode Banner — Watching tab only */}
                     {nextUnwatchedEpisode && !isUpcomingView && (
-                        <div className="mt-1.5 flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/25 rounded-md">
+                        <div className="mt-1.5 flex items-center gap-1.5 px-2 py-2 bg-primary/10 border border-primary/25 rounded-md">
                             <PlayCircle className="ml-1 h-3.5 w-3.5 text-primary shrink-0" />
                             <span className="text-xs font-semibold text-primary shrink-0">
                                 S{nextUnwatchedEpisode.season}E{nextUnwatchedEpisode.number}
@@ -420,12 +420,17 @@ export function ShowCard({
                                         </AlertDialogTrigger>
                                         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                                             <AlertDialogHeader>
-                                                <AlertDialogTitle>{t('showCard.confirmDone')}</AlertDialogTitle>
+                                                <AlertDialogTitle>
+                                                    {t('showCard.confirmDone')}
+                                                </AlertDialogTitle>
                                                 <AlertDialogDescription dangerouslySetInnerHTML={{ __html: t('showCard.confirmMarkWatched').replace('{name}', show.name) }} />
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-                                                <AlertDialogAction onClick={(e) => { e.stopPropagation(); onMarkWatched?.(); }}>{t('showCard.yesDone')}</AlertDialogAction>
+                                                <AlertDialogAction onClick={(e) => { e.stopPropagation(); onMarkWatched?.(); }}>
+                                                    <CircleCheck className="h-3 w-3" />
+                                                    {t('showCard.yesDone')}
+                                                </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
@@ -484,6 +489,7 @@ export function ShowCard({
                                         variant="destructive"
                                         className="h-8 text-xs px-3 alert-dialog-trigger"
                                     >
+                                        <Trash className="h-3 w-3 mr-1" />
                                         {t('showCard.remove')}
                                     </Button>
                                 </AlertDialogTrigger>
@@ -498,6 +504,7 @@ export function ShowCard({
                                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                             onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
                                         >
+                                            <Trash className="h-3 w-3 mr-1" />
                                             {t('showCard.yesRemove')}
                                         </AlertDialogAction>
                                     </AlertDialogFooter>

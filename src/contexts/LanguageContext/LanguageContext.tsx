@@ -188,7 +188,7 @@ const translations: Translations = {
         'status.Running': 'Sedang Tayang',
         'status.Ended': 'Tamat',
         'status.To Be Determined': 'Belum Ditentukan',
-        'status.In Development': 'Dalam Pengembangan',
+        'status.In Development': 'TBA',
         'status.Canceled': 'Dibatalkan',
         'status.Returning Series': 'Serial Kembali',
         'status.Planned': 'Direncanakan',

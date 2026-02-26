@@ -144,17 +144,17 @@ export const SortFilterBar = ({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 max-h-64 overflow-y-auto">
-                                <DropdownMenuLabel>Filter Genre</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-center">Filter Genre</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {availableGenres.map((genre) => {
                                     const isActive = selectedGenres.includes(genre);
                                     return (
                                         <DropdownMenuItem
                                             key={genre}
-                                            className={`flex items-center gap-2 mb-2 cursor-pointer ${isActive ? 'bg-primary/15 text-primary font-medium' : ''}`}
+                                            className={`flex items-center gap-5 mb-2 cursor-pointer ${isActive ? 'bg-primary/15 text-primary font-medium' : ''}`}
                                             onSelect={(e) => { e.preventDefault(); toggleGenre(genre); }}
                                         >
-                                            <span className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors ${isActive ? 'bg-primary' : 'bg-transparent border border-muted-foreground/40'}`} />
+                                            <span className={`w-2 h-2 rounded-xs flex-shrink-0 transition-colors ${isActive ? 'bg-primary' : 'bg-transparent border border-muted-foreground/40'}`} />
                                             {genre}
                                         </DropdownMenuItem>
                                     );

@@ -115,6 +115,19 @@ const Detail = () => {
         return doc.body.textContent || "";
     };
 
+    const StatusMap: Record<string, string> = {
+        'In Development': 'TBA',
+        'To Be Determined': 'TBD',
+        'Running': 'Running',
+        'Ended': 'Ended',
+        'Released': 'Released',
+    };
+
+    const showStatus = show.status || '';
+    const finalStatus = StatusMap[showStatus]
+        ?? (t(`status.${showStatus}`) !== `status.${showStatus}` ? t(`status.${showStatus}`) : showStatus);
+
+
     return (
         <div className="min-h-screen bg-background pb-32">
             <SEO
@@ -144,12 +157,12 @@ const Detail = () => {
             </div>
 
             {/* Backdrop Area */}
-            <div className="h-[40vh] sm:h-[50vh] w-full relative overflow-hidden bg-secondary">
+            <div className="h-[40vh] sm:h-[70vh] w-full relative overflow-hidden bg-secondary">
                 {show.image?.original && (
                     <img
                         src={show.image.original}
                         alt={show.name}
-                        className="w-full h-full object-cover opacity-40"
+                        className="w-full h-auto object-cover opacity-40"
                     />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
@@ -230,7 +243,7 @@ const Detail = () => {
                                 ))}
                                 <div className="flex items-center gap-1.5">
                                     <Badge variant="outline" className="capitalize px-3 border-muted-foreground/30">
-                                        {show.status ? (t(`status.${show.status}`) !== `status.${show.status}` ? t(`status.${show.status}`) : show.status) : ''}
+                                        {finalStatus}
                                     </Badge>
                                 </div>
                             </div>
