@@ -221,19 +221,19 @@ export function ShowCard({
                             <div className="flex items-center gap-1 shrink-0">
                                 <div className="flex flex-col items-end gap-1">
                                     {show.rating?.average && isSearch && (
-                                        <div className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-2 py-1 rounded text-xs  font-medium flex items-center ">
+                                        <Badge variant='outline' className="bg-background/90 whitespace-nowrap backdrop-blur-sm px-2 py-1 rounded text-xs  font-medium flex items-center ">
                                             <Star className="h-3 w-3 text-warning fill-warning" />
                                             {show.rating.average}
-                                        </div>
+                                        </Badge>
                                     )}
                                     {showEpisodeTracking && totalEpisodes > 0 && !isMovie && (
-                                        <div className="text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/90 backdrop-blur-sm px-2 py-1 rounded">
+                                        <Badge variant='outline' className="text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/90 backdrop-blur-sm px-2 py-1 rounded">
                                             {watchedCount}/{totalEpisodes}
-                                        </div>
+                                        </Badge>
                                     )}
-                                    <div className="capitalize flex font-bold items-center bg-background/90 whitespace-nowrap backdrop-blur-sm px-2 py-1 rounded text-xs">
+                                    <Badge variant='outline' className="capitalize flex font-bold items-center bg-background/90 whitespace-nowrap backdrop-blur-sm px-2 py-1 rounded text-xs">
                                         {show.source == "tmdb" ? "Movie" : "TV Series"}
-                                    </div>
+                                    </Badge>
                                 </div>
                             </div>
                         </div>

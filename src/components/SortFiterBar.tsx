@@ -1,4 +1,4 @@
-import { ArrowUpDown, Filter, LayoutGrid } from "lucide-react";
+import { ArrowUpDown, Circle, Filter, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -151,11 +151,11 @@ export const SortFilterBar = ({
                                     return (
                                         <DropdownMenuItem
                                             key={genre}
-                                            className={`flex items-center gap-5 mb-2 cursor-pointer ${isActive ? 'bg-primary/15 text-primary font-medium' : ''}`}
+                                            className={`text-center mb-2 mx-1 justify-between flex ${isActive ? 'bg-primary/15 text-primary font-medium' : ''}`}
                                             onSelect={(e) => { e.preventDefault(); toggleGenre(genre); }}
                                         >
-                                            <span className={`w-2 h-2 rounded-xs flex-shrink-0 transition-colors ${isActive ? 'bg-primary' : 'bg-transparent border border-muted-foreground/40'}`} />
-                                            {genre}
+                                            {genre} 
+                                            <Circle className={`w-3 h-3  ${isActive ? 'bg-primary rounded-full' : 'bg-transparent'}`}/>
                                         </DropdownMenuItem>
                                     );
                                 })}

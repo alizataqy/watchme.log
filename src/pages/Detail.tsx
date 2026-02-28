@@ -115,17 +115,8 @@ const Detail = () => {
         return doc.body.textContent || "";
     };
 
-    const StatusMap: Record<string, string> = {
-        'In Development': 'TBA',
-        'To Be Determined': 'TBD',
-        'Running': 'Running',
-        'Ended': 'Ended',
-        'Released': 'Released',
-    };
-
     const showStatus = show.status || '';
-    const finalStatus = StatusMap[showStatus]
-        ?? (t(`status.${showStatus}`) !== `status.${showStatus}` ? t(`status.${showStatus}`) : showStatus);
+    const finalStatus = t(`status.${showStatus}`) !== `status.${showStatus}` ? t(`status.${showStatus}`) : showStatus;
 
 
     return (
@@ -152,7 +143,7 @@ const Detail = () => {
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <Link to="/" className="pointer-events-auto">
-                    <h1 className="text-xl font-bold text-gradient drop-shadow-md">WatchMe.log</h1>
+                    <img src="/favicon.ico" alt="logo" className="w-8 h-8 mr-5" />
                 </Link>
             </div>
 
@@ -233,7 +224,7 @@ const Detail = () => {
                                     <div className="flex items-center gap-1.5">
                                         <Star className="h-5 w-5 text-warning fill-warning" />
                                         <span className="font-bold text-lg text-foreground">{show.rating.average}</span>
-                                        <span className="text-xs">/ 10</span>
+                                        <span className="text-xs">/  10</span>
                                     </div>
                                 )}
                                 {show.genres.map((genre) => (
@@ -242,7 +233,7 @@ const Detail = () => {
                                     </Badge>
                                 ))}
                                 <div className="flex items-center gap-1.5">
-                                    <Badge variant="outline" className="capitalize px-3 border-muted-foreground/30">
+                                    <Badge variant="outline" className="capitalize py-1.5 px-3">
                                         {finalStatus}
                                     </Badge>
                                 </div>
