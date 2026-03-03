@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthProvider";
-import { useNotifications } from "@/hooks/useNotifications";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Detail from "./pages/Detail";
@@ -21,8 +21,6 @@ const queryClient = new QueryClient();
 
 // Component wrapper untuk initialize notifications di background
 const AppContent = () => {
-  // Initialize notification system (push notifications only, no UI)
-  useNotifications();
 
   return (
     <>
@@ -61,9 +59,11 @@ const App = () => (
       <AuthProvider>
         <LanguageProvider>
           <ShowProvider>
-            <TooltipProvider>
-              <AppContent />
-            </TooltipProvider>
+            <NotificationProvider>
+              <TooltipProvider>
+                <AppContent />
+              </TooltipProvider>
+            </NotificationProvider>
           </ShowProvider>
         </LanguageProvider>
       </AuthProvider>

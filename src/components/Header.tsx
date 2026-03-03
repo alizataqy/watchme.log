@@ -84,7 +84,7 @@ export const Header = ({
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" title={t('header.changeLanguage')}>
+                                <Button variant="link" size="icon" title={t('header.changeLanguage')}>
                                     <Languages className="h-[1.2rem] w-[1.2rem]" />
                                     <span className="sr-only">{t('header.changeLanguage')}</span>
                                 </Button>
@@ -99,6 +99,7 @@ export const Header = ({
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <ModeToggle />
+                        <NotificationBell />
                         <Button size="sm" variant="link" onClick={handleSignOut} title={t('header.signOut')}>
                             <LogOut className="h-5 w-5 text-destructive" />
                         </Button>

@@ -1,11 +1,11 @@
-import { Bell, BellRing, BellOff, RefreshCw, Check, Trash2 } from 'lucide-react';
+import { BellRing, Bell, BellOff, RefreshCw, Check, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from './ui/popover';
-import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationContext } from '@/contexts/NotificationContext';
 import { NotificationItem } from './NotificationItem';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
@@ -20,12 +20,17 @@ export function NotificationBell() {
         permissionGranted,
         requestPermission,
         refresh
-    } = useNotifications();
+    } = useNotificationContext();
+
+    const sortedNotifications = [...notifications].sort((a, b) => {
+        if (a.read !== b.read) return a.read ? 1 : -1;
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
 
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative group">
+                <Button variant="link" size="icon" className="relative group">
                     {!permissionGranted ? (
                         <BellOff className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     ) : unreadCount > 0 ? (
@@ -40,17 +45,12 @@ export function NotificationBell() {
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[420px] p-0 shadow-xl border-border/50" align="end">
-                <div className="flex flex-col gap-1 p-4 pb-3 bg-gradient-to-b from-background to-background/50">
+            <PopoverContent className="w-[400px] ml-5 p-2 shadow-xl border-border/50" align="end">
+                <div className="flex flex-col gap-1 p-4 pb-3">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="font-bold text-base flex items-center gap-2">
                                 Notifications
-                                {notifications.length > 0 && (
-                                    <Badge variant="secondary" className="text-xs font-normal">
-                                        {notifications.length}
-                                    </Badge>
-                                )}
                             </h3>
                             {unreadCount > 0 && (
                                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -59,9 +59,9 @@ export function NotificationBell() {
                             )}
                         </div>
                         <Button
-                            variant="ghost"
+                            variant="link"
                             size="icon"
-                            className="h-8 w-8 hover:bg-accent"
+                            className="h-8 w-8"
                             onClick={refresh}
                             title="Refresh notifications"
                         >
@@ -128,20 +128,20 @@ export function NotificationBell() {
                     </>
                 )}
 
-                <ScrollArea className="h-[min(500px,60vh)]">
+                <ScrollArea className="h-[min(400px,60vh)] rounded-md mt-2">
                     {notifications.length === 0 ? (
                         <div className="p-12 text-center">
                             <div className="inline-flex p-4 bg-muted/50 rounded-full mb-3">
-                                <Bell className="h-8 w-8 text-muted-foreground/50" />
+                                <BellOff className="h-8 w-8 text-muted-foreground/50" />
                             </div>
-                            <p className="font-medium text-sm mb-1">No notifications yet</p>
+                            <p className="font-medium text-sm mb-1">No notifications</p>
                             <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
                                 We'll notify you when there are upcoming episodes or unwatched shows
                             </p>
                         </div>
                     ) : (
                         <div className="divide-y divide-border/50">
-                            {notifications.map((notification) => (
+                            {sortedNotifications.map((notification) => (
                                 <NotificationItem
                                     key={notification.id}
                                     notification={notification}

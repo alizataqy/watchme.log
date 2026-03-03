@@ -1,8 +1,8 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Calendar, Clock, X, TrendingDown, Sparkles, Check } from 'lucide-react';
+import { Calendar, Clock, X, CalendarX, Sparkles, Check } from 'lucide-react';
 import { Notification } from '../types/show';
 import { Button } from './ui/button';
-import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationContext } from '@/contexts/NotificationContext';
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
 
@@ -11,7 +11,7 @@ interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification }: NotificationItemProps) {
-    const { markAsRead, clearNotification } = useNotifications();
+    const { markAsRead, clearNotification } = useNotificationContext();
 
     const handleMarkAsRead = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -45,7 +45,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
                 };
             case 'inactive':
                 return {
-                    icon: TrendingDown,
+                    icon: CalendarX,
                     iconColor: 'text-purple-500',
                     bgColor: 'bg-purple-500/10',
                     badgeVariant: 'outline' as const,
@@ -68,7 +68,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     return (
         <div
             className={cn(
-                'p-4 hover:bg-accent/50 transition-all duration-200 relative group border-l-2',
+                'p-4 hover:bg-accent/50 transition-all relative group',
                 !notification.read
                     ? 'bg-accent/30 border-l-primary'
                     : 'border-l-transparent hover:border-l-muted-foreground/20'

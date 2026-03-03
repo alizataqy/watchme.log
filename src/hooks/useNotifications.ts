@@ -65,10 +65,14 @@ export function useNotifications() {
         }
     }, [user]);
 
-    // Load from database on mount
+    // Load from database on mount, clear state on logout
     useEffect(() => {
         if (user) {
             loadNotificationsFromDb();
+        } else {
+            // User logged out — reset all notification state
+            setNotifications([]);
+            setUnreadCount(0);
         }
     }, [user, loadNotificationsFromDb]);
 
@@ -224,12 +228,13 @@ export function useNotifications() {
         await loadNotificationsFromDb();
     }, [notifications, user, loadNotificationsFromDb]);
 
-    // Auto-fetch saat mount dan set interval
+    // Auto-fetch saat mount dan set interval — hanya jika user login
     useEffect(() => {
+        if (!user) return; // jangan fetch sama sekali kalau belum/sudah logout
         fetchNotifications();
         const interval = setInterval(fetchNotifications, CHECK_INTERVAL);
         return () => clearInterval(interval);
-    }, [fetchNotifications]);
+    }, [user, fetchNotifications]);
 
     // Realtime subscription for notification_logs changes
     useEffect(() => {
