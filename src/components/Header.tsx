@@ -67,7 +67,7 @@ export const Header = ({
                     <div className="flex items-center justify-center gap-2 ">
                         <h1 className="text-wrap overflow-hidden text-primary flex items-center gap-1 ">
                             <img src="/favicon.ico" alt="logo" className="w-8 h-8" />
-                            <span className="text-sm font-bold">{user?.user_metadata?.full_name || user?.email}</span>
+                            <span className="text-sm font-bold truncate max-w-24">{user?.user_metadata?.full_name || user?.email}</span>
                         </h1>
                     </div>
                     <div className="flex items-center justify-enddisc gap-2">
@@ -78,7 +78,7 @@ export const Header = ({
                             onClick={() => navigate('/profile')}
                         >
                             <User className="h-4 w-4 text-primary" />
-                            <span className="hidden sm:inline truncate max-w-[120px] text-xs text-muted-foreground">
+                            <span className="hidden sm:inline truncate max-w-24 text-xs text-muted-foreground">
                                 {user?.user_metadata?.full_name || user?.email}
                             </span>
                         </Button>

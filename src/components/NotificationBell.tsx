@@ -45,11 +45,15 @@ export function NotificationBell() {
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] ml-5 p-2 shadow-xl border-border/50" align="end">
-                <div className="flex flex-col gap-1 p-4 pb-3">
+            <PopoverContent
+                className="w-[calc(100vw-2rem)] sm:w-96 p-2 shadow-xl border-border/50"
+                align="center"
+                collisionPadding={16}
+            >
+                <div className="flex flex-col gap-1 p-3 pb-2">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="font-bold text-base flex items-center gap-2">
+                            <h3 className="font-bold text-sm flex items-center gap-2">
                                 Notifications
                             </h3>
                             {unreadCount > 0 && (
@@ -70,7 +74,7 @@ export function NotificationBell() {
                     </div>
 
                     {(unreadCount > 0 || notifications.length > 0) && (
-                        <div className="flex gap-1.5 mt-2">
+                        <div className="flex gap-1.5 mt-1.5">
                             {unreadCount > 0 && (
                                 <Button
                                     variant="outline"
@@ -101,16 +105,16 @@ export function NotificationBell() {
 
                 {!permissionGranted && (
                     <>
-                        <div className="p-4 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-b">
+                        <div className="p-3 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-b">
                             <div className="flex gap-3">
-                                <div className="p-2 bg-primary/10 rounded-full h-fit">
-                                    <Bell className="h-5 w-5 text-primary" />
+                                <div className="p-2 bg-primary/10 rounded-full h-fit shrink-0">
+                                    <Bell className="h-4 w-4 text-primary" />
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium mb-1">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium mb-0.5">
                                         Enable Notifications
                                     </p>
-                                    <p className="text-xs text-muted-foreground mb-3">
+                                    <p className="text-xs text-muted-foreground mb-2">
                                         Get notified about upcoming episodes and unwatched shows
                                     </p>
                                     <Button
@@ -128,19 +132,19 @@ export function NotificationBell() {
                     </>
                 )}
 
-                <ScrollArea className="h-[min(400px,60vh)] rounded-md mt-2">
+                <ScrollArea className="h-[min(380px,55vh)] rounded-md">
                     {notifications.length === 0 ? (
-                        <div className="p-12 text-center">
+                        <div className="py-10 px-4 text-center">
                             <div className="inline-flex p-4 bg-muted/50 rounded-full mb-3">
-                                <BellOff className="h-8 w-8 text-muted-foreground/50" />
+                                <BellOff className="h-7 w-7 text-muted-foreground/50" />
                             </div>
                             <p className="font-medium text-sm mb-1">No notifications</p>
-                            <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
+                            <p className="text-xs text-muted-foreground max-w-[220px] mx-auto">
                                 We'll notify you when there are upcoming episodes or unwatched shows
                             </p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-border/50">
+                        <div className="divide-y divide-border/50 mt-2">
                             {sortedNotifications.map((notification) => (
                                 <NotificationItem
                                     key={notification.id}
