@@ -240,7 +240,8 @@ const Index = () => {
       setSearchType('all');
       navigate(`/search/all${location.search}`, { replace: true });
     }
-  }, [location.pathname, location.search, navigate, activeTab, handleSearch, localQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search, navigate, activeTab, handleSearch]);
 
 
   // Consolidate search and recommendation triggers
@@ -432,6 +433,8 @@ const Index = () => {
         isSearching={isSearching}
         searchType={searchType}
         onSearchTypeChange={handleSearchTypeChange}
+        query={localQuery}
+        onQueryChange={setLocalQuery}
         isLocalTab={activeTab !== 'search'}
         {...(activeTab === 'watching' ? {
           sortBy: watchingSortFilter.sortBy,

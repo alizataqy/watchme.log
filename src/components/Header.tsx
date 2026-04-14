@@ -30,6 +30,8 @@ interface HeaderProps {
     totalCount?: number;
     hideSort?: boolean;
     hideFilter?: boolean;
+    query?: string;
+    onQueryChange?: (val: string) => void;
 }
 
 export const Header = ({
@@ -47,7 +49,8 @@ export const Header = ({
     totalCount,
     hideSort,
     hideFilter,
-
+    query,
+    onQueryChange,
 }: HeaderProps) => {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
@@ -120,6 +123,8 @@ export const Header = ({
                     totalCount={totalCount}
                     hideSort={hideSort}
                     hideFilter={hideFilter}
+                    query={query}
+                    onQueryChange={onQueryChange}
                 />
             </div>
         </header>
