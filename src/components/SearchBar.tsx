@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -21,6 +21,9 @@ interface SearchBarProps {
   totalCount?: number | null;
   hideSort?: boolean;
   hideFilter?: boolean;
+  // Controlled props
+  query?: string;
+  onQueryChange?: (val: string) => void;
 }
 
 export function SearchBar({
@@ -38,68 +41,59 @@ export function SearchBar({
   totalCount = null,
   hideSort = true,
   hideFilter = true,
+  query = "",
+  onQueryChange = () => { },
 }: SearchBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [query, setQuery] = useState('');
   const { t } = useLanguage();
 
-  // Sync query from URL on mount/location change
-  // Only sync when on the search tab — prevents clearing the query when switching tabs
-  useEffect(() => {
-    if (!location.pathname.startsWith('/search')) return;
-    const params = new URLSearchParams(location.search);
-    const q = params.get('q') || '';
-    if (q !== query) {
-      setQuery(q);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, location.search]);
+
 
   // Handle live search with debouncing
   useEffect(() => {
     // Determine debounce time: faster for local search, slower for global API calls
-    const debounceTime = isLocalTab ? 250 : 1500;
+    const debounceTime = isLocalTab ? 0 : 300;
 
     const timer = setTimeout(() => {
-      // For global search, only trigger if query changed from URL to avoid infinite loops
+      // For global search, check if the query is already in the URL
+      // Use window.location.search to avoid making location a dependency of the effect
       if (!isLocalTab) {
-        const params = new URLSearchParams(location.search);
-        if (query === (params.get('q') || '')) return;
-      }
+        const params = new URLSearchParams(window.location.search);
+      if (query === (params.get('q') || '') || !query) return;
+    } else if (!query) {
+      return;
+    }
 
-      onSearch(query);
+    onSearch(query);
     }, debounceTime);
 
     return () => clearTimeout(timer);
-  }, [query, isLocalTab, onSearch, location.search]);
+  }, [query, isLocalTab, onSearch]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(query.trim());
   };
-
   const handleClear = () => {
-    setQuery('');
-    // Use onSearchTypeChange to reset URL and State at once
+    onQueryChange('');
+    onSearch('', false);
     if (onSearchTypeChange) {
-      onSearchTypeChange(searchType, '');
+      // Reset to search all without query
+      navigate('/search/all');
     } else {
-      onSearch('', true);
       navigate(`${location.pathname}`);
     }
   };
 
   const handleQueryChange = (newValue: string) => {
-    setQuery(newValue);
-    // Navigate to /search/all whenever field is cleared by ANY method
-    // (Backspace, Ctrl+Backspace, Select+Delete, paste empty, etc.)
+    onQueryChange(newValue);
+    // When clearing, trigger immediate navigation/reset instead of waiting for debounce
     if (newValue === '') {
+      onSearch('', false);
+      // For search results tab, ensure we land on the base search page
       if (onSearchTypeChange) {
-        onSearchTypeChange(searchType, '');
-      } else {
-        onSearch('', true);
-        navigate(`${location.pathname}`);
+        navigate('/search/all');
       }
     }
   };
