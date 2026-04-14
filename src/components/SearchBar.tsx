@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -43,6 +43,7 @@ export function SearchBar({
   const location = useLocation();
   const [query, setQuery] = useState('');
   const { t } = useLanguage();
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync query from URL on mount/location change
   // Only sync when on the search tab — prevents clearing the query when switching tabs
@@ -58,10 +59,15 @@ export function SearchBar({
 
   // Handle live search with debouncing
   useEffect(() => {
+    // Jika query mendadak kosong, jangan jalankan timer
+    if (query === '') return;
+
     // Determine debounce time: faster for local search, slower for global API calls
     const debounceTime = isLocalTab ? 250 : 1500;
 
-    const timer = setTimeout(() => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+
+    debounceTimerRef.current = setTimeout(() => {
       // For global search, only trigger if query changed from URL to avoid infinite loops
       if (!isLocalTab) {
         const params = new URLSearchParams(location.search);
@@ -71,16 +77,24 @@ export function SearchBar({
       onSearch(query);
     }, debounceTime);
 
-    return () => clearTimeout(timer);
-  }, [query, isLocalTab, onSearch, location.search]);
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, isLocalTab, location.search]); // keluarkan onSearch agar tidak re-trigger saat parent re-render
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Batalkan timer yang berjalan agar tidak double submit
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     onSearch(query.trim());
   };
 
   const handleClear = () => {
     setQuery('');
+    // Matikan debounce jika input kosong
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+
     // Use onSearchTypeChange to reset URL and State at once
     if (onSearchTypeChange) {
       onSearchTypeChange(searchType, '');
@@ -95,6 +109,9 @@ export function SearchBar({
     // Navigate to /search/all whenever field is cleared by ANY method
     // (Backspace, Ctrl+Backspace, Select+Delete, paste empty, etc.)
     if (newValue === '') {
+      // Matikan debounce jika input kosong
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+
       if (onSearchTypeChange) {
         onSearchTypeChange(searchType, '');
       } else {
