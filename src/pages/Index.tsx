@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { ShowCard } from '@/components/ShowCard';
 import { EmptyState } from '@/components/EmptyState';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ShowCardSkeleton } from '@/components/ShowCardSkeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useShowStorage } from '@/hooks/useShowStorage';
 import { useAuth } from '@/hooks/useAuth';
 import { SearchResult, Show, TrackedShow } from '@/types/show';
@@ -411,8 +412,15 @@ const Index = () => {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
+      <div className="min-h-screen container py-4">
+        <div className="mt-20 space-y-4">
+          <Skeleton className="h-10 w-full mb-8" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <ShowCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -542,7 +550,11 @@ const Index = () => {
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
             {isSearching || isLoadingRecs ? (
-              <LoadingSpinner />
+              <div className="space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ShowCardSkeleton key={i} />
+                ))}
+              </div>
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
 
@@ -608,7 +620,11 @@ const Index = () => {
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
             {loadingUpcoming ? (
-              <LoadingSpinner />
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <ShowCardSkeleton key={i} />
+                ))}
+              </div>
             ) : filteredUpcoming.length === 0 && filteredRecentlyAired.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="upcoming" />

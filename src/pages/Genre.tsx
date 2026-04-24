@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { ShowCard } from '@/components/ShowCard';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ShowCardSkeleton } from '@/components/ShowCardSkeleton';
 import { TMDB_GENRES, discoverMoviesByGenre } from '@/services/tmdb';
 import { TVMAZE_GENRES, getSeriesByGenre } from '@/services/tvmaze';
 import { SearchResult, Show } from '@/types/show';
@@ -210,8 +210,10 @@ const Genre = () => {
                 {view === 'results' && (
                     <div className="space-y-6">
                         {loading ? (
-                            <div className="flex justify-center py-12">
-                                <LoadingSpinner />
+                            <div className="space-y-3">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <ShowCardSkeleton key={i} />
+                                ))}
                             </div>
                         ) : results.length > 0 ? (
                             <div className="space-y-3">

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getShowDetails } from "@/services/tvmaze";
 import { getMovieDetails } from "@/services/tmdb";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { DetailSkeleton } from "@/components/DetailSkeleton";
 import { Show } from "@/types/show";
 import { format, parseISO } from "date-fns";
 import { id as localeId, enUS as localeEn } from "date-fns/locale";
@@ -67,11 +67,7 @@ const Detail = () => {
     }, [id, source]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <LoadingSpinner />
-            </div>
-        );
+        return <DetailSkeleton />;
     }
 
     if (!show) {
