@@ -34,7 +34,9 @@ const Genre = () => {
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const genres = mediaType === 'movie' ? TMDB_GENRES : TVMAZE_GENRES;
+    const genres = mediaType === 'movie' 
+        ? Object.entries(TMDB_GENRES).map(([id, name]) => ({ id: Number(id), name }))
+        : TVMAZE_GENRES.map(name => ({ id: name, name }));
 
     const handleMediaTypeSelect = (type: MediaType) => {
         setMediaType(type);

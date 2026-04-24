@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell, LayoutGrid, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { ShowCard } from '@/components/ShowCard';
@@ -9,7 +8,7 @@ import { ShowCardSkeleton } from '@/components/ShowCardSkeleton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useShowStorage } from '@/hooks/useShowStorage';
 import { useAuth } from '@/hooks/useAuth';
-import { SearchResult, Show, TrackedShow } from '@/types/show';
+import { SearchResult, Show, Episode } from '@/types/show';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { searchMovies, getTrendingMovies } from '@/services/tmdb';
@@ -31,6 +30,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSortFilter } from "@/hooks/useSortFilter";
 import { Onboarding } from "@/components/Onboarding";
+import { Bell, Calendar, CheckCircle } from 'lucide-react';
+
+interface TVMazeSearchItem {
+  show: {
+    id: number;
+    name: string;
+    summary: string | null;
+    image: { medium?: string; original?: string } | null;
+    rating: { average: number | null };
+    genres: string[];
+    status: string;
+    premiered: string | null;
+  }
+}
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -54,12 +67,9 @@ const Index = () => {
     updateShowStatus,
     toggleEpisode,
     toggleEpisodesBulk,
-    resetWatchedEpisodes,
     markAllEpisodesAsWatched,
     isInList,
     getShowStatus,
-    getShowDbId,
-    shows, // Need access to all shows for upcoming logic
   } = useShowStorage();
 
   const { toast } = useToast();
@@ -101,7 +111,6 @@ const Index = () => {
     if (!authLoading && !user) {
       navigate('/auth');
     } else if (user && !isMobile) {
-      // Check if modal has already been shown in this session
       const hasShownModal = sessionStorage.getItem('desktop-experience-modal-shown');
       if (!hasShownModal) {
         setShowDesktopModal(true);
@@ -127,7 +136,6 @@ const Index = () => {
       return;
     }
 
-    // Optimization: avoid duplicate parallel searches
     if (lastSearchRef.current?.query === query && lastSearchRef.current?.type === type) return;
     lastSearchRef.current = { query, type };
 
@@ -142,7 +150,7 @@ const Index = () => {
       } else {
         const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
         const json = await response.json();
-        data = json.map((item: any) => ({
+        data = json.map((item: TVMazeSearchItem) => ({
           show: {
             id: item.show.id,
             name: item.show.name,
@@ -187,7 +195,6 @@ const Index = () => {
     }
   }, [recommendations.length]);
 
-  // Sync state with URL
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const query = searchParams.get('q') || '';
@@ -286,9 +293,9 @@ const Index = () => {
     }
   };
 
-  const handleToggleSeasonBulk = async (showId: number | string, episodes: any[], allWatched: boolean, source: 'tvmaze' | 'tmdb') => {
+  const handleToggleSeasonBulk = async (showId: number | string, episodes: Episode[], allWatched: boolean, source: 'tvmaze' | 'tmdb') => {
     try {
-      await toggleEpisodesBulk(Number(showId), episodes, allWatched, source);
+      await toggleEpisodesBulk(Number(showId), episodes, source);
     } catch (error) {
       toast({
         title: t('common.error'),
@@ -298,24 +305,23 @@ const Index = () => {
     }
   };
 
-  const { upcomingShows, recentlyAiredShows, loading: loadingUpcoming } = useUpcomingShows();
+  const { upcomingShows, recentlyAired, isLoading: loadingUpcoming } = useUpcomingShows();
 
-  // Search in personal lists
-  const watchlistFuzzy = useFuzzySearch(watchlist, ['name'], localQuery);
-  const watchingFuzzy = useFuzzySearch(watching, ['name'], localQuery);
-  const watchedFuzzy = useFuzzySearch(watched, ['name'], localQuery);
-  const upcomingFuzzy = useFuzzySearch(upcomingShows, ['name'], localQuery);
-  const recentlyAiredFuzzy = useFuzzySearch(recentlyAiredShows, ['name'], localQuery);
+  const watchlistFuzzy = useFuzzySearch(watchlist, localQuery, { keys: ['name'] });
+  const watchingFuzzy = useFuzzySearch(watching, localQuery, { keys: ['name'] });
+  const watchedFuzzy = useFuzzySearch(watched, localQuery, { keys: ['name'] });
+  const upcomingFuzzy = useFuzzySearch(upcomingShows, localQuery, { keys: ['name'] });
+  const recentlyAiredFuzzy = useFuzzySearch(recentlyAired, localQuery, { keys: ['name'] });
 
   const watchingSortFilter = useSortFilter(watchingFuzzy);
   const watchlistSortFilter = useSortFilter(watchlistFuzzy);
   const watchedSortFilter = useSortFilter(watchedFuzzy);
 
-  const filteredWatching = watchingFuzzy;
-  const filteredWatchlist = watchlistFuzzy;
-  const filteredWatched = watchedFuzzy;
-  const filteredUpcoming = upcomingFuzzy;
-  const filteredRecentlyAired = recentlyAiredFuzzy;
+  const currentSortFilter = 
+    activeTab === 'watching' ? watchingSortFilter :
+    activeTab === 'watchlist' ? watchlistSortFilter :
+    activeTab === 'watched' ? watchedSortFilter : 
+    null;
 
   if (authLoading || isLoading) {
     return (
@@ -341,6 +347,13 @@ const Index = () => {
         onSearchTypeChange={handleSearchTypeChange}
         query={localQuery}
         onQueryChange={setLocalQuery}
+        isLocalTab={activeTab !== 'search' && activeTab !== 'upcoming'}
+        sortBy={currentSortFilter?.sortBy}
+        onSortChange={currentSortFilter?.onSortChange}
+        selectedGenres={currentSortFilter?.selectedGenres}
+        onGenreChange={currentSortFilter?.onGenreChange}
+        availableGenres={currentSortFilter?.availableGenres}
+        totalCount={currentSortFilter?.sortedAndFiltered.length}
       />
 
       <main className="container px-4 py-4">
@@ -348,30 +361,18 @@ const Index = () => {
           <div className="flex items-center justify-between mb-4">
             <TabsList className="grid grid-cols-4 w-full max-w-[400px]">
               <TabsTrigger value="search" className="text-xs sm:text-sm">
-                <SearchIcon className="h-4 w-4 mr-2 hidden sm:block" />
                 {t('tabs.search')}
               </TabsTrigger>
               <TabsTrigger value="watching" className="text-xs sm:text-sm">
-                <Eye className="h-4 w-4 mr-2 hidden sm:block" />
                 {t('tabs.watching')}
               </TabsTrigger>
               <TabsTrigger value="watchlist" className="text-xs sm:text-sm">
-                <Clock className="h-4 w-4 mr-2 hidden sm:block" />
                 {t('tabs.watchlist')}
               </TabsTrigger>
               <TabsTrigger value="upcoming" className="text-xs sm:text-sm">
-                <Calendar className="h-4 w-4 mr-2 hidden sm:block" />
                 {t('tabs.upcoming')}
               </TabsTrigger>
             </TabsList>
-            
-            {activeTab !== 'search' && activeTab !== 'upcoming' && (
-              <div className="hidden sm:block">
-                {activeTab === 'watching' && watchingSortFilter.renderControls()}
-                {activeTab === 'watchlist' && watchlistSortFilter.renderControls()}
-                {activeTab === 'watched' && watchedSortFilter.renderControls()}
-              </div>
-            )}
           </div>
 
           <TabsContent value="search" className="mt-0">
@@ -476,19 +477,19 @@ const Index = () => {
                   <ShowCardSkeleton key={i} />
                 ))}
               </div>
-            ) : filteredUpcoming.length === 0 && filteredRecentlyAired.length === 0 ? (
+            ) : upcomingFuzzy.length === 0 && recentlyAiredFuzzy.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="upcoming" />
               </div>
             ) : (
               <div className="space-y-8">
-                {filteredUpcoming.length > 0 && (
+                {upcomingFuzzy.length > 0 && (
                   <div className="space-y-3">
                     <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       {t('index.upcoming')}
                     </h2>
-                    {filteredUpcoming.map((show) => (
+                    {upcomingFuzzy.map((show) => (
                       <ShowCard
                         key={show.id}
                         show={show}
@@ -508,13 +509,13 @@ const Index = () => {
                   </div>
                 )}
 
-                {filteredRecentlyAired.length > 0 && (
+                {recentlyAiredFuzzy.length > 0 && (
                   <div className="space-y-3">
                     <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <CheckCircle className="h-4 w-4" />
                       {t('index.recentlyAired')}
                     </h2>
-                    {filteredRecentlyAired.map((show) => (
+                    {recentlyAiredFuzzy.map((show) => (
                       <ShowCard
                         key={show.id}
                         show={show}
@@ -542,9 +543,8 @@ const Index = () => {
               title="Watching"
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
-            {filteredWatching.length > 0 ? (
+            {watchingFuzzy.length > 0 ? (
               <div className="space-y-3">
-
                 {watchingSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
@@ -580,9 +580,8 @@ const Index = () => {
               title="Watchlist"
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
-            {filteredWatchlist.length > 0 ? (
+            {watchlistFuzzy.length > 0 ? (
               <div className="space-y-3">
-
                 {watchlistSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
@@ -618,9 +617,8 @@ const Index = () => {
               title="Watched"
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
-            {filteredWatched.length > 0 ? (
+            {watchedFuzzy.length > 0 ? (
               <div className="space-y-3">
-
                 {watchedSortFilter.sortedAndFiltered.map((show) => (
                   <ShowCard
                     key={show.id}
@@ -651,7 +649,7 @@ const Index = () => {
             )}
           </TabsContent>
         </Tabs>
-        {/* Desktop Experience Modal */}
+
         {!isMobile && (
           <Dialog open={showDesktopModal} onOpenChange={(open) => {
             setShowDesktopModal(open);
@@ -691,7 +689,6 @@ const Index = () => {
         <Onboarding open={showOnboarding} onOpenChange={setShowOnboarding} />
       </main>
 
-      {/* Mobile Bottom Navigation */}
       {isMobile && (
         <MobileNav
           activeTab={activeTab}
