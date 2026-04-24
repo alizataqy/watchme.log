@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell, LayoutGrid } from 'lucide-react';
+import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell, LayoutGrid, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { ShowCard } from '@/components/ShowCard';
 import { EmptyState } from '@/components/EmptyState';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ShowCardSkeleton } from '@/components/ShowCardSkeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useShowStorage } from '@/hooks/useShowStorage';
 import { useAuth } from '@/hooks/useAuth';
 import { SearchResult, Show, TrackedShow } from '@/types/show';
@@ -14,7 +15,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { searchMovies, getTrendingMovies } from '@/services/tmdb';
 import { getRecommendedSeries } from '@/services/tvmaze';
 import { searchUnified } from '@/services/aggregator';
-import { Calendar } from 'lucide-react';
 import { MobileNav } from '@/components/MobileNav';
 import SEO from '@/components/SEO';
 import { useFuzzySearch } from '@/hooks/useFuzzySearch';
@@ -31,10 +31,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSortFilter } from "@/hooks/useSortFilter";
 import { Onboarding } from "@/components/Onboarding";
-
-
-
-
 
 const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -111,160 +107,120 @@ const Index = () => {
         setShowDesktopModal(true);
       }
     }
+  }, [authLoading, user, navigate, isMobile]);
 
-    if (user && !authLoading && !isLoading) {
-      const hasOnboarded = user.user_metadata?.has_onboarded || localStorage.getItem('has_onboarded') === 'true';
-      if (!hasOnboarded && shows.length === 0) {
-        setShowOnboarding(true);
-      }
-    }
-  }, [user, authLoading, navigate, isMobile, isLoading, shows.length]);
+  const searchCache = useRef<Record<string, SearchResult[]>>({});
+  const lastSearchRef = useRef<{ query: string, type: string } | null>(null);
 
-  const searchRequestId = useRef(0);
-  const recommendationsRequestId = useRef(0);
-  const lastSearchedQueryRef = useRef('');
-
-  const handleSearch = useCallback(async (query: string, skipNavigate = false) => {
-    const requestId = ++searchRequestId.current;
-    lastSearchedQueryRef.current = query; // Track last searched query to prevent duplicate triggers
-    setLocalQuery(query);
-
-    if (activeTab !== 'search') {
-      return;
-    }
-
-    const pathMap = {
-      all: 'all',
-      series: 'tvseries',
-      movie: 'movies'
-    };
-
-    if (!query) {
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
       setSearchResults([]);
       setHasSearched(false);
-      if (!skipNavigate) {
-        navigate(`/search/${pathMap[searchType]}`, { replace: true });
-      }
       return;
     }
 
-    navigate(`/search/${pathMap[searchType]}?q=${encodeURIComponent(query)}`, { replace: true });
+    const type = searchType;
+    const cacheKey = `${type}-${query.toLowerCase().trim()}`;
+    if (searchCache.current[cacheKey]) {
+      setSearchResults(searchCache.current[cacheKey]);
+      setHasSearched(true);
+      return;
+    }
+
+    // Optimization: avoid duplicate parallel searches
+    if (lastSearchRef.current?.query === query && lastSearchRef.current?.type === type) return;
+    lastSearchRef.current = { query, type };
 
     setIsSearching(true);
     setHasSearched(true);
     try {
-      if (searchType === 'all') {
-        const results = await searchUnified(query);
-        if (requestId !== searchRequestId.current) return;
-        setSearchResults(results);
-      } else if (searchType === 'series') {
-        const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
-
-        if (requestId !== searchRequestId.current) return;
-
-        const results = data.map((r: SearchResult) => ({
-          ...r,
-          show: { ...r.show, source: 'tvmaze' as const }
-        }));
-        setSearchResults(results);
+      let data: SearchResult[] = [];
+      if (type === 'all') {
+        data = await searchUnified(query);
+      } else if (type === 'movie') {
+        data = await searchMovies(query);
       } else {
-        const results = await searchMovies(query);
-        if (requestId !== searchRequestId.current) return;
-        setSearchResults(results);
+        const response = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
+        const json = await response.json();
+        data = json.map((item: any) => ({
+          show: {
+            id: item.show.id,
+            name: item.show.name,
+            summary: item.show.summary,
+            image: item.show.image?.medium || item.show.image?.original,
+            rating: item.show.rating?.average,
+            genres: item.show.genres,
+            status: item.show.status,
+            premiered: item.show.premiered,
+            source: 'tvmaze' as const
+          }
+        }));
       }
+      searchCache.current[cacheKey] = data;
+      setSearchResults(data);
     } catch (error) {
-      if (requestId === searchRequestId.current) {
-        toast({
-          title: t('common.error'),
-          description: t('toast.errorSearch'),
-          variant: 'destructive',
-        });
-      }
+      console.error('Search error:', error);
+      toast({
+        title: t('common.error'),
+        description: t('common.error'),
+        variant: 'destructive',
+      });
     } finally {
-      if (requestId === searchRequestId.current) {
-        setIsSearching(false);
-      }
+      setIsSearching(false);
     }
-  }, [activeTab, searchType, toast, t, navigate]);
+  }, [toast, t, searchType]);
 
   const fetchRecommendations = useCallback(async () => {
-    const requestId = ++recommendationsRequestId.current;
+    if (recommendations.length > 0) return;
     setIsLoadingRecs(true);
     try {
-      if (searchType === 'all') {
-        const [series, movies] = await Promise.all([
-          getRecommendedSeries(),
-          getTrendingMovies()
-        ]);
-        if (requestId !== recommendationsRequestId.current) return;
-        setRecommendations([...series, ...movies].sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 20));
-      } else if (searchType === 'series') {
-        const results = await getRecommendedSeries();
-        if (requestId !== recommendationsRequestId.current) return;
-        setRecommendations(results);
-      } else {
-        const results = await getTrendingMovies();
-        if (requestId !== recommendationsRequestId.current) return;
-        setRecommendations(results);
-      }
+      const [series, movies] = await Promise.all([
+        getRecommendedSeries(),
+        getTrendingMovies()
+      ]);
+      const combined = [...series, ...movies].sort(() => Math.random() - 0.5).slice(0, 10);
+      setRecommendations(combined);
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      console.error('Recommendations error:', error);
     } finally {
-      if (requestId === recommendationsRequestId.current) {
-        setIsLoadingRecs(false);
-      }
+      setIsLoadingRecs(false);
     }
-  }, [searchType]);
+  }, [recommendations.length]);
 
+  // Sync state with URL
   useEffect(() => {
-    const path = location.pathname;
     const searchParams = new URLSearchParams(location.search);
     const query = searchParams.get('q') || '';
+    setLocalQuery(query);
 
-    if (query && query !== lastSearchedQueryRef.current && activeTab === 'search') {
-      setLocalQuery(query);
-      handleSearch(query);
-    } else if (!query && localQuery && activeTab === 'search') {
-      setLocalQuery('');
-      setSearchResults([]);
-      setHasSearched(false);
-    }
-
+    const path = location.pathname;
     if (path.startsWith('/search/')) {
-      const type = path.split('/').pop();
-      if (type === 'all') setSearchType('all');
-      else if (type === 'tvseries') setSearchType('series');
-      else if (type === 'movies') setSearchType('movie');
-    } else if (path === '/search') {
-      setSearchType('all');
-      navigate(`/search/all${location.search}`, { replace: true });
+      const type = path.split('/')[2];
+      const typeMap: Record<string, 'series' | 'movie' | 'all'> = {
+        all: 'all',
+        tvseries: 'series',
+        movies: 'movie'
+      };
+      setSearchType(typeMap[type] || 'all');
+
+      if (query) {
+        handleSearch(query);
+      } else {
+        setSearchResults([]);
+        setHasSearched(false);
+        fetchRecommendations();
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, location.search, navigate, activeTab, handleSearch]);
+  }, [location.pathname, location.search, handleSearch, fetchRecommendations]);
 
-
-  // Consolidate search and recommendation triggers
   useEffect(() => {
-    if (activeTab !== 'search') return;
-
-    if (hasSearched && localQuery) {
-      handleSearch(localQuery);
-    } else if (!hasSearched) {
+    if (activeTab === 'search' && !localQuery) {
       fetchRecommendations();
     }
-    // We only want to re-run this when the search type or recommended-source changes
-    // or when we first land on/return to the search tab.
-    // Adding handleSearch/fetchRecommendations to deps is safe as they are memoized.
-    // hasSearched/localQuery are omitted to avoid double-triggering during a normal search.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchType, activeTab, fetchRecommendations, handleSearch]);
+  }, [activeTab, localQuery, fetchRecommendations]);
 
   const handleAddToWatchlist = (show: Show) => {
-    addShow({
-      ...show,
-      trackStatus: 'watchlist',
-    });
+    addShow({ ...show, trackStatus: 'watchlist' });
     toast({
       title: t('toast.addedWatchlist'),
       description: `${show.name} ${t('toast.addedWatchlistDesc')}`,
@@ -276,11 +232,7 @@ const Index = () => {
       if (isInList(show.id, show.source)) {
         await markAllEpisodesAsWatched(show.id, show.source);
       } else {
-        await addShow({
-          ...show,
-          trackStatus: 'watched',
-        });
-        // If it's a new show being marked as watched directly, also mark all episodes
+        await addShow({ ...show, trackStatus: 'watched' });
         if (show.source === 'tvmaze') {
           await markAllEpisodesAsWatched(show.id, show.source);
         }
@@ -291,11 +243,27 @@ const Index = () => {
       });
     } catch (error) {
       toast({
-        title: 'Gagal Memperbarui',
-        description: 'Terjadi kesalahan saat menandai sudah ditonton.',
+        title: t('common.error'),
+        description: t('common.error'),
         variant: 'destructive',
       });
     }
+  };
+
+  const handleMarkWatching = async (show: Show) => {
+    addShow({ ...show, trackStatus: 'watching' });
+    toast({
+      title: t('toast.watching'),
+      description: `${show.name} ${t('toast.watchingDesc')}`,
+    });
+  };
+
+  const handleMoveToWatchlist = (show: Show) => {
+    updateShowStatus(show.id, 'watchlist', show.source);
+    toast({
+      title: t('toast.addedWatchlist'),
+      description: `${show.name} ${t('toast.addedWatchlistDesc')}`,
+    });
   };
 
   const handleRemove = (show: Show) => {
@@ -306,235 +274,105 @@ const Index = () => {
     });
   };
 
-  const handleMoveToWatchlist = (show: TrackedShow) => {
-    updateShowStatus(show.id, 'watchlist', show.source);
-    toast({
-      title: t('toast.moveToWatchlist'),
-      description: `${show.name} ${t('toast.moveToWatchlistDesc')}`,
-    });
-  };
-
-  const handleMarkWatching = async (show: Show) => {
+  const handleToggleEpisode = async (showId: number | string, season: number, number: number, name: string, airdate: string, source: 'tvmaze' | 'tmdb') => {
     try {
-      const currentStatus = getShowStatus(show.id, show.source);
-
-      if (isInList(show.id, show.source)) {
-        // If moving from watched to watching, reset episodes
-        if (currentStatus === 'watched' && show.source === 'tvmaze') {
-          await resetWatchedEpisodes(show.id, show.source);
-        }
-        await updateShowStatus(show.id, 'watching', show.source);
-      } else {
-        await addShow({
-          ...show,
-          trackStatus: 'watching',
-        });
-      }
-      toast({
-        title: t('toast.watching'),
-        description: `${show.name} ${t('toast.watchingDesc')}${currentStatus === 'watched' ? ' Episode direset.' : ''}`,
-      });
-      setActiveTab('watching');
+      await toggleEpisode(Number(showId), season, number, name, airdate, source);
     } catch (error) {
       toast({
-        title: 'Gagal Menyimpan',
-        description: 'Pastikan database Anda mendukung status "watching" (Check Constraint).',
+        title: t('common.error'),
+        description: t('common.error'),
         variant: 'destructive',
       });
     }
   };
 
-  const handleToggleEpisode = async (showId: number, season: number, episode: number, name: string, airdate: string, source: string = 'tvmaze') => {
-    const status = getShowStatus(showId, source);
-    if (status === 'watchlist') {
-      try {
-        await updateShowStatus(showId, 'watching', source);
-        toast({
-          title: 'Status Diperbarui',
-          description: `Acara dipindahkan ke "Watching" karena Anda mulai menonton episode.`,
-        });
-      } catch (error) {
-        console.error('Error updating status during toggle:', error);
-      }
-    }
-    toggleEpisode(showId, season, episode, name, airdate, source);
-  };
-
-  const handleToggleSeasonBulk = async (
-    showId: number,
-    episodes: { season: number; episode: number; episodeName: string; airdate: string }[],
-    allWatched: boolean,
-    source: string = 'tvmaze'
-  ) => {
-    const status = getShowStatus(showId, source);
-
-    if (status === 'watchlist' && !allWatched) {
-      try {
-        await updateShowStatus(showId, 'watching', source);
-      } catch (error) {
-        console.error('Error updating status during bulk toggle:', error);
-      }
-    }
-
-    await toggleEpisodesBulk(showId, episodes, source);
-
-    const seasonNumber = episodes[0]?.season;
-    if (seasonNumber === undefined) {
+  const handleToggleSeasonBulk = async (showId: number | string, episodes: any[], allWatched: boolean, source: 'tvmaze' | 'tmdb') => {
+    try {
+      await toggleEpisodesBulk(Number(showId), episodes, allWatched, source);
+    } catch (error) {
       toast({
-        title: allWatched ? t('toast.seasonUnchecked') : t('toast.seasonFinished'),
-        description: allWatched
-          ? t('toast.seasonUncheckedDescUnknown')
-          : t('toast.seasonFinishedDescUnknown'),
+        title: t('common.error'),
+        description: t('common.error'),
+        variant: 'destructive',
       });
-      return;
     }
-
-    toast({
-      title: allWatched ? t('toast.seasonUnchecked') : t('toast.seasonFinished'),
-      description: allWatched
-        ? t('toast.seasonUncheckedDesc').replace('{number}', String(seasonNumber))
-        : t('toast.seasonFinishedDesc').replace('{number}', String(seasonNumber)),
-    });
   };
 
-  const { upcomingShows, recentlyAired, isLoading: loadingUpcoming } = useUpcomingShows();
+  const { upcomingShows, recentlyAiredShows, loading: loadingUpcoming } = useUpcomingShows();
 
-  const filteredWatching = useFuzzySearch(watching, localQuery);
-  const filteredWatchlist = useFuzzySearch(watchlist, localQuery);
-  const filteredWatched = useFuzzySearch(watched, localQuery);
-  const filteredUpcoming = useFuzzySearch(upcomingShows, localQuery);
-  const filteredRecentlyAired = useFuzzySearch(recentlyAired, localQuery);
+  // Search in personal lists
+  const watchlistFuzzy = useFuzzySearch(watchlist, ['name'], localQuery);
+  const watchingFuzzy = useFuzzySearch(watching, ['name'], localQuery);
+  const watchedFuzzy = useFuzzySearch(watched, ['name'], localQuery);
+  const upcomingFuzzy = useFuzzySearch(upcomingShows, ['name'], localQuery);
+  const recentlyAiredFuzzy = useFuzzySearch(recentlyAiredShows, ['name'], localQuery);
 
-  const watchingSortFilter = useSortFilter(filteredWatching);
-  const watchlistSortFilter = useSortFilter(filteredWatchlist);
-  const watchedSortFilter = useSortFilter(filteredWatched);
+  const watchingSortFilter = useSortFilter(watchingFuzzy);
+  const watchlistSortFilter = useSortFilter(watchlistFuzzy);
+  const watchedSortFilter = useSortFilter(watchedFuzzy);
+
+  const filteredWatching = watchingFuzzy;
+  const filteredWatchlist = watchlistFuzzy;
+  const filteredWatched = watchedFuzzy;
+  const filteredUpcoming = upcomingFuzzy;
+  const filteredRecentlyAired = recentlyAiredFuzzy;
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
+      <div className="min-h-screen container py-4">
+        <div className="mt-20 space-y-4">
+          <Skeleton className="h-10 w-full mb-8" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <ShowCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <SEO
-        title="Home"
-        description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
-      />
-      {/* Header */}
-      <Header
-        onSearch={handleSearch}
+    <div className="min-h-screen bg-background pb-20">
+      <Header 
+        onSearch={handleSearch} 
         isSearching={isSearching}
         searchType={searchType}
         onSearchTypeChange={handleSearchTypeChange}
         query={localQuery}
         onQueryChange={setLocalQuery}
-        isLocalTab={activeTab !== 'search'}
-        {...(activeTab === 'watching' ? {
-          sortBy: watchingSortFilter.sortBy,
-          onSortChange: watchingSortFilter.onSortChange,
-          selectedGenres: watchingSortFilter.selectedGenres,
-          onGenreChange: watchingSortFilter.onGenreChange,
-          availableGenres: watchingSortFilter.availableGenres,
-          totalCount: watchingSortFilter.sortedAndFiltered.length,
-        } : activeTab === 'watchlist' ? {
-          sortBy: watchlistSortFilter.sortBy,
-          onSortChange: watchlistSortFilter.onSortChange,
-          selectedGenres: watchlistSortFilter.selectedGenres,
-          onGenreChange: watchlistSortFilter.onGenreChange,
-          availableGenres: watchlistSortFilter.availableGenres,
-          totalCount: watchlistSortFilter.sortedAndFiltered.length,
-        } : activeTab === 'watched' ? {
-          sortBy: watchedSortFilter.sortBy,
-          onSortChange: watchedSortFilter.onSortChange,
-          selectedGenres: watchedSortFilter.selectedGenres,
-          onGenreChange: watchedSortFilter.onGenreChange,
-          availableGenres: watchedSortFilter.availableGenres,
-          totalCount: watchedSortFilter.sortedAndFiltered.length,
-        } : activeTab === 'search' ? {
-          totalCount: hasSearched ? searchResults.length : recommendations.length,
-          hideSort: true,
-          hideFilter: true,
-          isUpcomingTab: false,
-        } : activeTab === 'upcoming' ? {
-          isUpcomingTab: true,
-          hideSort: true,
-          hideFilter: true,
-          totalCount: null
-        } : {
-          hideSort: true,
-          hideFilter: true,
-          totalCount: 0,
-          isUpcomingTab: false,
-        })}
       />
 
-      {/* Main Content */}
-      <main className={`container py-4 ${isMobile ? 'pb-20' : ''}`}>
+      <main className="container px-4 py-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {isMobile ? (
-            // Mobile Bottom Navigation Tabs
-            <MobileNav
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              counts={{
-                watching: watching.length,
-                watchlist: watchlist.length,
-                upcoming: upcomingShows.length,
-                watched: watched.length
-              }}
-            />
-          ) : (
-            // Desktop Tabs
-            <TabsList className="w-full grid grid-cols-5 mb-8">
-              <TabsTrigger value="search" className="flex items-center gap-1.5">
-                <SearchIcon className="h-4 w-4" />
-                <span>{t('nav.search')}</span>
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="grid grid-cols-4 w-full max-w-[400px]">
+              <TabsTrigger value="search" className="text-xs sm:text-sm">
+                <SearchIcon className="h-4 w-4 mr-2 hidden sm:block" />
+                {t('tabs.search')}
               </TabsTrigger>
-              <TabsTrigger value="watchlist" className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                <span>{t('nav.watchlist')}</span>
-                {watchlist.length > 0 && (
-                  <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
-                    {watchlist.length}
-                  </span>
-                )}
+              <TabsTrigger value="watching" className="text-xs sm:text-sm">
+                <Eye className="h-4 w-4 mr-2 hidden sm:block" />
+                {t('tabs.watching')}
               </TabsTrigger>
-              <TabsTrigger value="watching" className="flex items-center gap-1.5">
-                <Eye className="h-4 w-4" />
-                <span>{t('nav.watching')}</span>
-                {watching.length > 0 && (
-                  <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
-                    {watching.length}
-                  </span>
-                )}
+              <TabsTrigger value="watchlist" className="text-xs sm:text-sm">
+                <Clock className="h-4 w-4 mr-2 hidden sm:block" />
+                {t('tabs.watchlist')}
               </TabsTrigger>
-              <TabsTrigger value="upcoming" className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                <span>{t('nav.upcoming')}</span>
-                {upcomingShows.length > 0 && (
-                  <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
-                    {upcomingShows.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="watched" className="flex items-center gap-1.5">
-                <CheckCircle className="h-4 w-4" />
-                <span>{t('nav.watched')}</span>
-                {watched.length > 0 && (
-                  <span className="bg-primary text-primary-foreground text-xs px-1.5 rounded-full">
-                    {watched.length}
-                  </span>
-                )}
+              <TabsTrigger value="upcoming" className="text-xs sm:text-sm">
+                <Calendar className="h-4 w-4 mr-2 hidden sm:block" />
+                {t('tabs.upcoming')}
               </TabsTrigger>
             </TabsList>
-          )}
+            
+            {activeTab !== 'search' && activeTab !== 'upcoming' && (
+              <div className="hidden sm:block">
+                {activeTab === 'watching' && watchingSortFilter.renderControls()}
+                {activeTab === 'watchlist' && watchlistSortFilter.renderControls()}
+                {activeTab === 'watched' && watchedSortFilter.renderControls()}
+              </div>
+            )}
+          </div>
 
           <TabsContent value="search" className="mt-0">
             <SEO
@@ -542,10 +380,31 @@ const Index = () => {
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
             {isSearching || isLoadingRecs ? (
-              <LoadingSpinner />
+              <div className="space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ShowCardSkeleton key={i} />
+                ))}
+              </div>
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
-
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-sm font-medium text-muted-foreground">Results</h2>
+                  <div className="flex gap-2">
+                    {(['all', 'series', 'movie'] as const).map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => handleSearchTypeChange(type)}
+                        className={`text-xs px-2 py-1 rounded-md transition-colors ${
+                          searchType === type 
+                            ? 'bg-primary text-primary-foreground font-medium' 
+                            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
+                      >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 {searchResults.map((result) => (
                   <ShowCard
                     key={`${result.show.source}-${result.show.id}`}
@@ -560,77 +419,83 @@ const Index = () => {
                   />
                 ))}
               </div>
-            ) : !hasSearched && recommendations.length > 0 ? (
-              <div className="space-y-3">
-                <div className="px-1 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                    {t('index.recommendations').replace('{type}', searchType === 'all' ? 'TV Series & Movies' : (searchType === 'series' ? 'TV Series' : 'Movie'))}
-                  </h2>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 gap-1.5"
-                    onClick={() => navigate('/genre')}
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                    Genre
-                  </Button>
-                </div>
-
-                {recommendations.map((result) => (
-                  <ShowCard
-                    key={`${result.show.source}-${result.show.id}`}
-                    show={result.show}
-                    isInList={isInList(result.show.id, result.show.source)}
-                    isSearch={true}
-                    currentStatus={getShowStatus(result.show.id, result.show.source)}
-                    onAddToWatchlist={() => handleAddToWatchlist(result.show)}
-                    onMarkWatched={() => handleMarkWatched(result.show)}
-                    onMarkWatching={() => handleMarkWatching(result.show)}
-                    onRemove={() => handleRemove(result.show)}
-                  />
-                ))}
+            ) : hasSearched ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <EmptyState type="search" />
+                <p className="mt-4 text-sm text-muted-foreground">{t('index.noResults').replace('{query}', localQuery)}</p>
               </div>
             ) : (
-              !hasSearched && <EmptyState type="search" />
-            )}
-            {hasSearched && searchResults.length === 0 && !isSearching && (
-              <div className="text-center py-12 text-muted-foreground">
-                {t('index.noResults')}
+              <div className="space-y-6">
+                {recommendations.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="text-sm font-medium text-muted-foreground">{t('index.recommendations')}</h2>
+                      <div className="flex gap-2">
+                        {(['all', 'series', 'movie'] as const).map((type) => (
+                          <button
+                            key={type}
+                            onClick={() => handleSearchTypeChange(type)}
+                            className={`text-xs px-2 py-1 rounded-md transition-colors ${
+                              searchType === type 
+                                ? 'bg-primary text-primary-foreground font-medium' 
+                                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                            }`}
+                          >
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {recommendations.map((result) => (
+                      <ShowCard
+                        key={`${result.show.source}-${result.show.id}`}
+                        show={result.show}
+                        isInList={isInList(result.show.id, result.show.source)}
+                        isSearch={true}
+                        currentStatus={getShowStatus(result.show.id, result.show.source)}
+                        onAddToWatchlist={() => handleAddToWatchlist(result.show)}
+                        onMarkWatched={() => handleMarkWatched(result.show)}
+                        onMarkWatching={() => handleMarkWatching(result.show)}
+                        onRemove={() => handleRemove(result.show)}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>
 
-          <TabsContent value="upcoming" className="animate-fade-in outline-none">
+          <TabsContent value="upcoming" className="mt-0">
             <SEO
-              title="Upcoming"
+              title="Upcoming & Recently Aired"
               description="Pantau progres nonton film dan serial TV kamu dengan WatchMe.log. Kelola watchlist dengan mudah dan dapatkan notifikasi tayang."
             />
             {loadingUpcoming ? (
-              <LoadingSpinner />
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <ShowCardSkeleton key={i} />
+                ))}
+              </div>
             ) : filteredUpcoming.length === 0 && filteredRecentlyAired.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <EmptyState type="upcoming" />
-                {shows.length > 0 && localQuery && (
-                  <p className="mt-4 text-sm text-muted-foreground">{t('index.noSchedule').replace('{query}', localQuery)}</p>
-                )}
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {filteredUpcoming.length > 0 && (
                   <div className="space-y-3">
-                    <h2 className="text-sm font-semibold text-primary px-1 flex items-center gap-2">
+                    <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      {t('nav.upcoming')}
+                      {t('index.upcoming')}
                     </h2>
                     {filteredUpcoming.map((show) => (
                       <ShowCard
-                        key={`${show.source}-${show.id}`}
+                        key={show.id}
                         show={show}
                         isInList={true}
                         currentStatus={getShowStatus(show.id, show.source)}
                         watchedEpisodes={watchedEpisodes[show.dbId!] || []}
+                        showEpisodeTracking={true}
                         onMarkWatched={() => handleMarkWatched(show)}
                         onMarkWatching={() => handleMarkWatching(show)}
                         onRemove={() => handleRemove(show)}
@@ -645,17 +510,18 @@ const Index = () => {
 
                 {filteredRecentlyAired.length > 0 && (
                   <div className="space-y-3">
-                    <h2 className="text-sm font-semibold px-1 flex items-center text-destructive gap-2">
-                      <Clock className="h-4 w-4" />
+                    <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" />
                       {t('index.recentlyAired')}
                     </h2>
                     {filteredRecentlyAired.map((show) => (
                       <ShowCard
-                        key={`${show.source}-${show.id}`}
+                        key={show.id}
                         show={show}
                         isInList={true}
                         currentStatus={getShowStatus(show.id, show.source)}
                         watchedEpisodes={watchedEpisodes[show.dbId!] || []}
+                        showEpisodeTracking={true}
                         onMarkWatched={() => handleMarkWatched(show)}
                         onMarkWatching={() => handleMarkWatching(show)}
                         onRemove={() => handleRemove(show)}
