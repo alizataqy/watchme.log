@@ -18,7 +18,7 @@ export const DetailSkeleton = () => {
       <div className="container px-4 -mt-20 relative z-10">
         <div className="flex flex-col sm:flex-row gap-6">
           <Skeleton className="h-[240px] w-[160px] rounded-2xl border-4 border-background shadow-2xl shrink-0 mx-auto sm:mx-0" />
-          
+
           <div className="flex-1 space-y-4 text-center sm:text-left pt-4">
             <Skeleton className="h-8 w-3/4 mx-auto sm:mx-0" />
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
@@ -27,8 +27,8 @@ export const DetailSkeleton = () => {
               <Skeleton className="h-6 w-16 rounded-full" />
             </div>
             <div className="flex items-center justify-center sm:justify-start gap-4">
-               <Skeleton className="h-6 w-20" />
-               <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-6 w-20" />
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@ export const DetailSkeleton = () => {
             <Skeleton className="h-10 flex-1 rounded-full" />
             <Skeleton className="h-10 flex-1 rounded-full" />
           </div>
-          
+
           <div className="space-y-4">
             <Skeleton className="h-6 w-32" />
             <div className="space-y-2">
