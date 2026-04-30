@@ -22,7 +22,7 @@ export const searchUnified = async (query: string): Promise<SearchResult[]> => {
     const searchPromise = (async () => {
         try {
             const [tvmazeResults, tmdbMovieResults] = await Promise.all([
-                fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`)
+                fetch(`/api/tvmaze/search/shows?q=${encodeURIComponent(query)}`)
                     .then(res => res.json())
                     .catch(() => []),
                 searchMovies(query)
