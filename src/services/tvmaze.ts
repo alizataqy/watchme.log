@@ -1,6 +1,6 @@
 import { SearchResult, Show } from "@/types/show";
 
-const BASE_URL = 'https://api.tvmaze.com';
+const BASE_URL = '/api/tvmaze';
 
 interface TVMazeCastItem {
   person: {
@@ -21,8 +21,7 @@ export const getShowDetails = async (id: number, includeCast: boolean = true): P
     const embeds = ['nextepisode', 'previousepisode'];
     if (includeCast) embeds.push('cast');
 
-    const embedQuery = embeds.map(e => `embed[]=${e}`).join('&');
-    const response = await fetch(`${BASE_URL}/shows/${id}?${embedQuery}`);
+    const response = await fetch(`${BASE_URL}/shows/${id}`);
     const data = await response.json();
 
     return {
