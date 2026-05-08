@@ -1,6 +1,15 @@
 import { SearchResult } from "@/types/show";
 import { searchMovies } from "./tmdb";
 
+const isServer = typeof window === 'undefined';
+
+const getTvMazeUrl = (endpoint: string) => {
+  if (isServer) {
+    return `https://api.tvmaze.com${endpoint}`;
+  }
+  return `/api/tvmaze${endpoint}`;
+};
+
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 const searchCache = new Map<string, { results: SearchResult[]; timestamp: number }>();
@@ -22,7 +31,7 @@ export const searchUnified = async (query: string): Promise<SearchResult[]> => {
     const searchPromise = (async () => {
         try {
             const [tvmazeResults, tmdbMovieResults] = await Promise.all([
-                fetch(`/api/tvmaze/search/shows?q=${encodeURIComponent(query)}`)
+                fetch(getTvMazeUrl(`/search/shows?q=${encodeURIComponent(query)}`))
                     .then(res => res.json())
                     .catch(() => []),
                 searchMovies(query)

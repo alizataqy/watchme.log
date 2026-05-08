@@ -1,7 +1,15 @@
 import { SearchResult, Show } from "@/types/show";
 
-// TMDB_API_KEY is now handled by the backend proxy
-const BASE_URL = '/api/tmdb';
+const isServer = typeof window === 'undefined';
+const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+
+const getFetchUrl = (endpoint: string) => {
+    if (isServer) {
+        const separator = endpoint.includes('?') ? '&' : '?';
+        return `https://api.themoviedb.org/3${endpoint}${separator}api_key=${TMDB_API_KEY}`;
+    }
+    return `/api/tmdb${endpoint}`;
+};
 
 interface TmdbItem {
     id: number;
@@ -70,7 +78,7 @@ export const discoverMoviesByGenre = async (genreId: number): Promise<SearchResu
     // if (!TMDB_API_KEY) return [];
 
     try {
-        const response = await fetch(`${BASE_URL}/discover/movie?with_genres=${genreId}&sort_by=popularity.desc`);
+        const response = await fetch(getFetchUrl(`/discover/movie?with_genres=${genreId}&sort_by=popularity.desc`));
         const data = await response.json();
 
         return (data.results || []).map((movie: TmdbItem) => ({
@@ -104,7 +112,7 @@ export const searchMovies = async (query: string): Promise<SearchResult[]> => {
 
     try {
         const [res1] = await Promise.all([
-            fetch(`${BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=1`),
+            fetch(getFetchUrl(`/search/movie?query=${encodeURIComponent(query)}&page=1`)),
         ]);
 
         const [data1] = await Promise.all([res1.json()]);
@@ -143,7 +151,7 @@ export const getTrendingMovies = async (): Promise<SearchResult[]> => {
 
     try {
         const response = await fetch(
-            `${BASE_URL}/trending/movie/day`
+            getFetchUrl(`/trending/movie/day`)
         );
         const data = await response.json();
 
@@ -177,7 +185,7 @@ export const getMovieDetails = async (id: number): Promise<Show | null> => {
     // API key check is now handled by the backend proxy
 
     try {
-        const response = await fetch(`${BASE_URL}/movie/${id}`);
+        const response = await fetch(getFetchUrl(`/movie/${id}`));
         const movie: TmdbMovieDetailResponse = await response.json();
 
         if (movie.success === false) return null;

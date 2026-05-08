@@ -467,14 +467,23 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-    const [language, setLanguage] = useState<Language>(() => {
-        const savedLang = localStorage.getItem('app-language');
-        return (savedLang === 'id' || savedLang === 'en') ? savedLang : 'id';
-    });
+    // Always initialize with the server default ('id') to prevent hydration mismatch
+    const [language, setLanguage] = useState<Language>('id');
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        localStorage.setItem('app-language', language);
-    }, [language]);
+        setIsMounted(true);
+        const savedLang = localStorage.getItem('app-language');
+        if (savedLang === 'id' || savedLang === 'en') {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isMounted) {
+            localStorage.setItem('app-language', language);
+        }
+    }, [language, isMounted]);
 
     const t = (key: string) => {
         return translations[language][key] || key;

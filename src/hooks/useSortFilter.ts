@@ -5,9 +5,12 @@ import { useState, useMemo } from 'react';
 const STORAGE_KEY = 'watchme-sort-preferece';
 
 export const useSortFilter = (shows: TrackedShow[]) => {
-    const [sortBy, setSortBy] = useState<SortOption>(
-        () => (localStorage.getItem(STORAGE_KEY) as SortOption) || 'added-newest'
-    );
+    const [sortBy, setSortBy] = useState<SortOption>(() => {
+        if (typeof window !== 'undefined') {
+            return (localStorage.getItem(STORAGE_KEY) as SortOption) || 'added-newest';
+        }
+        return 'added-newest';
+    });
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
 
     const handleSortChange = (sort: SortOption) => {

@@ -3,10 +3,16 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContext } from './AuthContext';
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [session, setSession] = useState<Session | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+interface AuthProviderProps {
+    children: ReactNode;
+    initialUser?: User | null;
+    initialSession?: Session | null;
+}
+
+export function AuthProvider({ children, initialUser = null, initialSession = null }: AuthProviderProps) {
+    const [user, setUser] = useState<User | null>(initialUser);
+    const [session, setSession] = useState<Session | null>(initialSession);
+    const [isLoading, setIsLoading] = useState(!initialUser);
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(

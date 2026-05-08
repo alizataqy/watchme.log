@@ -7,280 +7,280 @@
   <!-- Static Pages -->
   <url>
     <loc>https://watchme-log.vercel.app/</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>1</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/auth</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/reset-password</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/genre</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>1</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/profile</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/watching</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/watched</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/watchlist</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/search</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/upcoming</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/53063?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/43?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/2091?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/62119?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/46627?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/65771?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/263?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/798?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/42184?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/52353?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/12135?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/240?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/84?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/2459?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/572?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/82705?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/215?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/76568?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/731?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/6657?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/4022?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/10260?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/8833?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/60339?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/26534?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/72615?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/82367?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/8566?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://watchme-log.vercel.app/show/76569?source=tvmaze</loc>
-    <lastmod>2026-02-23</lastmod>
+    <loc>https://watchme-log.vercel.app/show/4189?source=tvmaze</loc>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/550?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/603?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/13?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/680?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/157336?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/27205?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/278?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/238?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/424?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/129?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/19404?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/372058?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/496243?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/122?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://watchme-log.vercel.app/show/497?source=tmdb</loc>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

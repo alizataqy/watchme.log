@@ -5,13 +5,27 @@ import { TrackedShow, TrackedShowRow, TVMazeEpisode, Episode, SeasonReview } fro
 import { isAfter, parseISO } from 'date-fns';
 import { ShowContext } from './context';
 
-export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+interface ShowProviderProps {
+    children: ReactNode;
+    initialShows?: TrackedShow[];
+    initialWatchedEpisodes?: Record<string, { season: number; episode: number }[]>;
+    initialLastWatchedDates?: Record<number, Date>;
+    initialSeasonReviews?: Record<string, SeasonReview[]>;
+}
+
+export const ShowProvider: React.FC<ShowProviderProps> = ({ 
+    children,
+    initialShows = [],
+    initialWatchedEpisodes = {},
+    initialLastWatchedDates = {},
+    initialSeasonReviews = {}
+}) => {
     const { user } = useAuth();
-    const [shows, setShows] = useState<TrackedShow[]>([]);
-    const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, { season: number; episode: number }[]>>({});
-    const [lastWatchedDates, setLastWatchedDates] = useState<Record<number, Date>>({});
-    const [seasonReviews, setSeasonReviews] = useState<Record<string, SeasonReview[]>>({});
-    const [isLoading, setIsLoading] = useState(true);
+    const [shows, setShows] = useState<TrackedShow[]>(initialShows);
+    const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, { season: number; episode: number }[]>>(initialWatchedEpisodes);
+    const [lastWatchedDates, setLastWatchedDates] = useState<Record<number, Date>>(initialLastWatchedDates);
+    const [seasonReviews, setSeasonReviews] = useState<Record<string, SeasonReview[]>>(initialSeasonReviews);
+    const [isLoading, setIsLoading] = useState(initialShows.length === 0);
     const lastFetchRef = useRef<{ userId: string; timestamp: number } | null>(null);
 
     const fetchShows = useCallback(async () => {
@@ -116,11 +130,24 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [user]); // Include user for better stability and to avoid lint warnings
 
+    const lastUserIdRef = useRef<string | undefined>(user?.id);
+
     useEffect(() => {
-        if (user?.id) {
+        // Skip the initial fetch ONLY if we already have data from SSR
+        // If initialShows is empty but we have a user, we should fetch to be sure
+        if (!lastFetchRef.current && user?.id && initialShows.length > 0) {
+            lastFetchRef.current = { userId: user.id, timestamp: Date.now() };
+            lastUserIdRef.current = user.id;
+            setIsLoading(false);
+            return;
+        }
+
+        // Fetch if user ID has changed OR if we haven't fetched yet for this user
+        if (user?.id && (user.id !== lastUserIdRef.current || !lastFetchRef.current)) {
+            lastUserIdRef.current = user.id;
             fetchShows();
         }
-    }, [user?.id, fetchShows]);
+    }, [user?.id, fetchShows, initialShows.length]);
 
     useEffect(() => {
         if (!user?.id) return;

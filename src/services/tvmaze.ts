@@ -1,6 +1,13 @@
 import { SearchResult, Show } from "@/types/show";
 
-const BASE_URL = '/api/tvmaze';
+const isServer = typeof window === 'undefined';
+
+const getFetchUrl = (endpoint: string) => {
+  if (isServer) {
+    return `https://api.tvmaze.com${endpoint}`;
+  }
+  return `/api/tvmaze${endpoint}`;
+};
 
 interface TVMazeCastItem {
   person: {
@@ -21,7 +28,7 @@ export const getShowDetails = async (id: number, includeCast: boolean = true): P
     const embeds = ['nextepisode', 'previousepisode'];
     if (includeCast) embeds.push('cast');
 
-    const response = await fetch(`${BASE_URL}/shows/${id}`);
+    const response = await fetch(getFetchUrl(`/shows/${id}`));
     const data = await response.json();
 
     return {
@@ -55,7 +62,7 @@ export const getSeriesByGenre = async (genre: string): Promise<SearchResult[]> =
     // For a "Genre" view, searching by genre name often works reasonably well on TVMaze search endpoint
     // or we can fetch a curated list.
     // Strategy: Use the /search/shows?q=genre endpoint which often returns shows matching that tag
-    const response = await fetch(`${BASE_URL}/search/shows?q=${encodeURIComponent(genre)}`);
+    const response = await fetch(getFetchUrl(`/search/shows?q=${encodeURIComponent(genre)}`));
     const data = await response.json() as { score: number; show: Show }[];
 
     if (!Array.isArray(data)) return [];
@@ -83,7 +90,7 @@ export const getRecommendedSeries = async (): Promise<SearchResult[]> => {
   try {
     // Fetch today's schedule for US to get relevant/popular shows
     // This is much faster than fetching the full show index
-    const response = await fetch(`${BASE_URL}/schedule?country=US`);
+    const response = await fetch(getFetchUrl(`/schedule?country=US`));
     const data = await response.json();
 
     const showsMap = new Map<number, Show>();
