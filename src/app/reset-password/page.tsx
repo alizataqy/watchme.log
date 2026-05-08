@@ -1,15 +1,15 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Lock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { ModeToggle } from '@/components/ModeToggle';
-import SEO from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 
-const ResetPassword = () => {
+export default function ResetPasswordPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +17,7 @@ const ResetPassword = () => {
     const [isValidSession, setIsValidSession] = useState(false);
 
     const { toast } = useToast();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     useEffect(() => {
         // Check if there's a valid recovery session
@@ -31,12 +31,12 @@ const ResetPassword = () => {
                     description: 'Link reset password sudah kadaluarsa atau tidak valid',
                     variant: 'destructive',
                 });
-                setTimeout(() => navigate('/auth'), 2000);
+                setTimeout(() => router.push('/auth'), 2000);
             }
         };
 
         checkSession();
-    }, [navigate, toast]);
+    }, [router, toast]);
 
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -67,7 +67,7 @@ const ResetPassword = () => {
                 description: 'Password berhasil diubah. Silakan login dengan password baru',
             });
 
-            setTimeout(() => navigate('/auth'), 2000);
+            setTimeout(() => router.push('/auth'), 2000);
         } catch (err) {
             const error = err as Error;
             toast({
@@ -83,10 +83,6 @@ const ResetPassword = () => {
     if (!isValidSession) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-                <SEO
-                    title="Reset Password"
-                    description="Reset password akun WatchMe.log"
-                />
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
@@ -94,10 +90,6 @@ const ResetPassword = () => {
 
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
-            <SEO
-                title="Reset Password"
-                description="Reset password akun WatchMe.log"
-            />
             <div className="absolute top-4 right-4">
                 <ModeToggle />
             </div>
@@ -162,7 +154,7 @@ const ResetPassword = () => {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => navigate('/auth')}
+                            onClick={() => router.push('/auth')}
                             className="w-full"
                             disabled={isLoading}
                         >
@@ -173,6 +165,4 @@ const ResetPassword = () => {
             </div>
         </div>
     );
-};
-
-export default ResetPassword;
+}

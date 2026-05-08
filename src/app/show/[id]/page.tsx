@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Star, Calendar, Clock, Info, ExternalLink, Users, MessageSquare } from "lucide-react";
+"use client";
+
+import { useEffect, useState, use } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Star, Calendar, Info, ExternalLink, Users, MessageSquare } from "lucide-react";
 import { ReviewDialog } from "@/components/ReviewDialog";
-import { useShowContext } from "@/contexts/ShowContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getShowDetails } from "@/services/tvmaze";
@@ -16,15 +18,14 @@ import { useToast } from "@/hooks/use-toast";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
-import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
-
-const Detail = () => {
-    const { id } = useParams();
-    const [searchParams] = useSearchParams();
+export default function DetailPage() {
+    const params = useParams();
+    const id = params?.id as string;
+    const searchParams = useSearchParams();
     const source = searchParams.get("source") || "tvmaze";
-    const navigate = useNavigate();
+    const router = useRouter();
     const { toast } = useToast();
     const isMobile = useIsMobile();
     const { t, language } = useLanguage();
@@ -36,12 +37,11 @@ const Detail = () => {
     const { addShow, isInList, getShowStatus, removeShow, watching, watchlist, watched, shows, seasonReviews } = useShowStorage();
     const isMovie = source === "tmdb";
 
-    // Missing states for MobileNav
-    const activeTab = "search"; // Default for detail page context
+    const activeTab = "search";
     const { upcomingShows } = useUpcomingShows();
 
     const setActiveTab = (tab: string) => {
-        navigate(tab === 'watching' ? '/' : `/${tab}`);
+        router.push(tab === 'watching' ? '/' : `/${tab}`);
     };
 
     useEffect(() => {
@@ -74,7 +74,7 @@ const Detail = () => {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4">
                 <p className="text-muted-foreground">{t('detail.notFound')}</p>
-                <Button onClick={() => navigate(-1)}>
+                <Button onClick={() => router.back()}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     {t('common.back')}
                 </Button>
@@ -107,6 +107,7 @@ const Detail = () => {
     };
 
     const stripHtml = (html: string) => {
+        if (typeof window === 'undefined') return html; // Fallback for SSR if needed
         const doc = new DOMParser().parseFromString(html, "text/html");
         return doc.body.textContent || "";
     };
@@ -114,31 +115,19 @@ const Detail = () => {
     const showStatus = show.status || '';
     const finalStatus = t(`status.${showStatus}`) !== `status.${showStatus}` ? t(`status.${showStatus}`) : showStatus;
 
-
     return (
         <div className="min-h-screen bg-background pb-32">
-            <SEO
-                title={show.name}
-                description={show.summary ? stripHtml(show.summary).substring(0, 160) : `Informasi detail tentang ${show.name}`}
-                image={show.image?.original || show.image?.medium}
-                url={`https://watchme-log.vercel.app/${isMovie ? 'movie' : 'show'}/${id}?source=${source}`}
-                type={isMovie ? 'movie' : 'tv-series'}
-                genres={show.genres}
-                rating={show.rating?.average}
-                releaseDate={show.premiered}
-                status={show.status}
-            />
             {/* Header Branding */}
             <div className="fixed top-0 left-0 right-0 z-50 p-4 flex items-center justify-between pointer-events-none bg-background/95 backdrop-blur-sm rounded-b-lg">
                 <Button
                     variant="ghost"
                     size="icon"
                     className="pointer-events-auto hover:bg-background/80"
-                    onClick={() => navigate(-1)}
+                    onClick={() => router.back()}
                 >
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <Link to="/" className="pointer-events-auto">
+                <Link href="/" className="pointer-events-auto">
                     <img src="/favicon.ico" alt="logo" className="w-8 h-8 mr-5" />
                 </Link>
             </div>
@@ -406,6 +395,4 @@ const Detail = () => {
             />
         </div>
     );
-};
-
-export default Detail;
+}

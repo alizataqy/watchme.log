@@ -1,45 +1,38 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Loader2, User as UserIcon, Lock, ArrowLeft, Mail } from "lucide-react";
-import SEO from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import { useShowStorage } from '@/hooks/useShowStorage';
-import { Show } from "@/types/show";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
-import { showBrowserNotification } from "@/services/browserNotification";
-import { saveNotification } from "@/services/notificationDb";
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
-
-const Profile = () => {
-    const { user, updateProfile, updatePassword, updateEmail, isLoading: authLoading } = useAuth();
+export default function ProfilePage() {
+    const { user, updateProfile, updatePassword, isLoading: authLoading } = useAuth();
     const { toast } = useToast();
-    const navigate = useNavigate();
+    const router = useRouter();
     const isMobile = useIsMobile();
     const { t } = useLanguage();
 
     const [fullName, setFullName] = useState("");
     const [password, setPassword] = useState("");
-    const [oldPassword, setOldPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-    const [activeTab, setActiveTabState] = useState('profile');
+    const [activeTab] = useState('profile');
 
     const { upcomingShows } = useUpcomingShows();
 
     const setActiveTab = (tab: string) => {
-        navigate(tab === 'watching' ? '/' : `/${tab}`);
+        router.push(tab === 'watching' ? '/' : `/${tab}`);
     };
     const {
         watchlist,
@@ -47,15 +40,13 @@ const Profile = () => {
         watched,
     } = useShowStorage();
 
-
-
     useEffect(() => {
         if (!authLoading && !user) {
-            navigate("/auth");
+            router.push("/auth");
         } else if (user) {
             setFullName(user.user_metadata?.full_name || "");
         }
-    }, [user, authLoading, navigate]);
+    }, [user, authLoading, router]);
 
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -131,11 +122,9 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <SEO title={t('profile.title')} description="Atur profile WatchMe.log Anda." />
-
             <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
                 <div className="container py-4 flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-xl font-bold text-gradient">{t('profile.header')}</h1>
@@ -280,6 +269,4 @@ const Profile = () => {
             )}
         </div>
     );
-};
-
-export default Profile;
+}

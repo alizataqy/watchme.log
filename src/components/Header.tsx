@@ -3,7 +3,7 @@ import { User, LogOut, Film, Languages } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { ModeToggle } from "./ModeToggle";
 import {
     DropdownMenu,
@@ -53,12 +53,12 @@ export const Header = ({
     onQueryChange,
 }: HeaderProps) => {
     const { user, signOut } = useAuth();
-    const navigate = useNavigate();
+    const router = useRouter();
     const { language, setLanguage, t } = useLanguage();
 
     const handleSignOut = async () => {
         await signOut();
-        navigate('/auth');
+        router.push('/auth');
     };
 
 
@@ -78,7 +78,7 @@ export const Header = ({
                             variant="link"
                             size="sm"
                             className="flex items-center gap-2 px-2 h-9"
-                            onClick={() => navigate('/profile')}
+                            onClick={() => router.push('/profile')}
                         >
                             <User className="h-4 w-4 text-primary" />
                             <span className="hidden sm:inline truncate max-w-24 text-xs text-muted-foreground">

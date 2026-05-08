@@ -10,7 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
+
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 
 
@@ -44,7 +44,7 @@ export const SortFilterBar = ({
     hideFilter = false,
 }: SortFilterBarProps) => {
     const { t } = useLanguage();
-    const navigate = useNavigate();
+
     const toggleGenre = (genre: string) => {
         if (selectedGenres.includes(genre)) {
             onGenreChange(selectedGenres.filter((g) => g !== genre));

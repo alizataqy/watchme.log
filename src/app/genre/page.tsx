@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+"use client";
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Tv, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { ShowCard } from '@/components/ShowCard';
 import { ShowCardSkeleton } from '@/components/ShowCardSkeleton';
 import { TMDB_GENRES, discoverMoviesByGenre } from '@/services/tmdb';
@@ -11,7 +11,6 @@ import { TVMAZE_GENRES, getSeriesByGenre } from '@/services/tvmaze';
 import { SearchResult, Show } from '@/types/show';
 import { useShowStorage } from '@/hooks/useShowStorage';
 import { useToast } from '@/hooks/use-toast';
-import SEO from '@/components/SEO';
 import { MobileNav } from '@/components/MobileNav';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUpcomingShows } from '@/hooks/useUpcomingShows';
@@ -20,8 +19,8 @@ import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 type GenreView = 'selection' | 'genres' | 'results';
 type MediaType = 'movie' | 'series' | null;
 
-const Genre = () => {
-    const navigate = useNavigate();
+export default function GenrePage() {
+    const router = useRouter();
     const { toast } = useToast();
     const [view, setView] = useState<GenreView>('selection');
     const [mediaType, setMediaType] = useState<MediaType>(null);
@@ -31,7 +30,7 @@ const Genre = () => {
 
     const activeTab = "search";
     const setActiveTab = (tab: string) => {
-        navigate(tab === 'watching' ? '/' : `/${tab}`);
+        router.push(tab === 'watching' ? '/' : `/${tab}`);
     };
 
     const isMobile = useIsMobile();
@@ -41,7 +40,6 @@ const Genre = () => {
     const {
         addShow, isInList, getShowStatus, removeShow, watching, watchlist, watched,
         markAllEpisodesAsWatched,
-        updateShowStatus
     } = useShowStorage();
 
     const handleTypeSelect = (type: MediaType) => {
@@ -84,7 +82,7 @@ const Genre = () => {
             setView('selection');
             setMediaType(null);
         } else {
-            navigate(-1);
+            router.back();
         }
     };
 
@@ -130,11 +128,6 @@ const Genre = () => {
 
     return (
         <div className="min-h-screen bg-background pb-20">
-            <SEO
-                title="Genre"
-                description="Temukan film dan serial TV berdasarkan genre favoritmu."
-            />
-
             {/* Header */}
             <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40">
                 <div className="container flex items-center h-14 px-4 gap-2">
@@ -253,6 +246,4 @@ const Genre = () => {
             )}
         </div>
     );
-};
-
-export default Genre;
+}

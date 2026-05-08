@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Show, TrackedShow } from '@/types/show';
 import { Calendar, Star, Plus, Check, Eye, Clock, ChevronDown, ChevronUp, PlayCircle, Trash, CircleCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ import { ReviewDialog } from './ReviewDialog';
 import { useShowContext } from '@/contexts/ShowContext';
 import { SeasonReview } from '@/types/show';
 import { MessageSquare } from 'lucide-react';
+import { string } from 'zod';
 
 interface Episode {
     season: number;
@@ -66,7 +68,7 @@ export function ShowCard({
     const [showEpisodes, setShowEpisodes] = useState(false);
     const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
     const [activeSeasonReview, setActiveSeasonReview] = useState<number | undefined>(undefined);
-    const navigate = useNavigate();
+    const router = useRouter();
     const { seasonReviews } = useShowContext();
     const { t, language } = useLanguage();
 
@@ -96,8 +98,10 @@ export function ShowCard({
         ) {
             return;
         }
-        navigate(`/show/${show.id}?source=${show.source || 'tvmaze'}`);
+        router.push(`/show/${show.id}?source=${show.source || 'tvmaze'}`);
     };
+
+    
 
     const loadEpisodes = (e: React.MouseEvent) => {
         e.stopPropagation();

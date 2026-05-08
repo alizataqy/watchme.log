@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 import { SortFilterBar, SortOption } from './SortFiterBar';
 
@@ -44,8 +44,8 @@ export function SearchBar({
   query = "",
   onQueryChange = () => { },
 }: SearchBarProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
   const { t } = useLanguage();
 
 
@@ -80,9 +80,9 @@ export function SearchBar({
     onSearch('', false);
     if (onSearchTypeChange) {
       // Reset to search all without query
-      navigate('/search/all');
+      router.push('/search/all');
     } else {
-      navigate(`${location.pathname}`);
+      router.push(`${pathname}`);
     }
   };
 
@@ -93,7 +93,7 @@ export function SearchBar({
       onSearch('', false);
       // For search results tab, ensure we land on the base search page
       if (onSearchTypeChange) {
-        navigate('/search/all');
+        router.push('/search/all');
       }
     }
   };

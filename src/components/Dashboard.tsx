@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Clock, Eye, Search as SearchIcon, CheckCircle, Star, Bell, LayoutGrid } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
@@ -69,8 +71,9 @@ const Index = () => {
 
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isMobile = useIsMobile();
   const { t } = useLanguage();
 
@@ -81,13 +84,13 @@ const Index = () => {
     return ['watchlist', 'upcoming', 'watched'].includes(p) ? p : 'watching';
   };
 
-  const activeTab = getTabFromPath(location.pathname);
+  const activeTab = getTabFromPath(pathname);
 
   const setActiveTab = (tab: string) => {
     if (tab === 'search') {
-      navigate('/search/all');
+      router.push('/search/all');
     } else {
-      navigate(tab === 'watching' ? '/watching' : `/${tab}`);
+      router.push(tab === 'watching' ? '/watching' : `/${tab}`);
     }
   };
 
@@ -99,12 +102,12 @@ const Index = () => {
     };
     const q = queryOverride !== undefined ? queryOverride : localQuery;
     const queryParam = q ? `?q=${encodeURIComponent(q)}` : '';
-    navigate(`/search/${pathMap[type]}${queryParam}`);
+    router.push(`/search/${pathMap[type]}${queryParam}`);
   };
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
+      router.push('/auth');
     } else if (user && !isMobile) {
       // Check if modal has already been shown in this session
       const hasShownModal = sessionStorage.getItem('desktop-experience-modal-shown');
@@ -119,7 +122,7 @@ const Index = () => {
         setShowOnboarding(true);
       }
     }
-  }, [user, authLoading, navigate, isMobile, isLoading, shows.length]);
+  }, [user, authLoading, router, isMobile, isLoading, shows.length]);
 
   const searchRequestId = useRef(0);
   const recommendationsRequestId = useRef(0);
@@ -144,12 +147,12 @@ const Index = () => {
       setSearchResults([]);
       setHasSearched(false);
       if (!skipNavigate) {
-        navigate(`/search/${pathMap[searchType]}`, { replace: true });
+        router.replace(`/search/${pathMap[searchType]}`);
       }
       return;
     }
 
-    navigate(`/search/${pathMap[searchType]}?q=${encodeURIComponent(query)}`, { replace: true });
+    router.replace(`/search/${pathMap[searchType]}?q=${encodeURIComponent(query)}`);
 
     setIsSearching(true);
     setHasSearched(true);
@@ -187,7 +190,7 @@ const Index = () => {
         setIsSearching(false);
       }
     }
-  }, [activeTab, searchType, toast, t, navigate]);
+  }, [activeTab, searchType, toast, t, router]);
 
   const fetchRecommendations = useCallback(async () => {
     const requestId = ++recommendationsRequestId.current;
@@ -219,8 +222,7 @@ const Index = () => {
   }, [searchType]);
 
   useEffect(() => {
-    const path = location.pathname;
-    const searchParams = new URLSearchParams(location.search);
+    const path = pathname;
     const query = searchParams.get('q') || '';
 
     if (query && query !== lastSearchedQueryRef.current && activeTab === 'search') {
@@ -239,10 +241,10 @@ const Index = () => {
       else if (type === 'movies') setSearchType('movie');
     } else if (path === '/search') {
       setSearchType('all');
-      navigate(`/search/all${location.search}`, { replace: true });
+      router.replace(`/search/all${window.location.search}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, location.search, navigate, activeTab, handleSearch]);
+  }, [pathname, searchParams, router, activeTab, handleSearch]);
 
 
   // Consolidate search and recommendation triggers
@@ -583,7 +585,7 @@ const Index = () => {
                     variant="secondary"
                     size="sm"
                     className="h-8 gap-1.5"
-                    onClick={() => navigate('/genre')}
+                    onClick={() => router.push('/genre')}
                   >
                     <LayoutGrid className="h-3.5 w-3.5" />
                     Genre

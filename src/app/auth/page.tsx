@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Film, Mail, Lock, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,14 +17,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { ModeToggle } from '@/components/ModeToggle';
-import SEO from '@/components/SEO';
 
 const authSchema = z.object({
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
 });
 
-const Auth = () => {
+export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +34,7 @@ const Auth = () => {
 
   const { signIn, signUp, signInWithOAuth, resetPassword } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const validate = () => {
     try {
@@ -74,7 +75,7 @@ const Auth = () => {
         title: 'Berhasil Masuk',
         description: 'Selamat datang kembali!',
       });
-      navigate('/watching');
+      router.push('/watching');
     }
   };
 
@@ -101,7 +102,7 @@ const Auth = () => {
         title: 'Berhasil Daftar',
         description: 'Akun berhasil dibuat. Silakan masuk.',
       });
-      navigate('/watching');
+      router.push('/watching');
     }
   };
 
@@ -151,10 +152,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
-      <SEO
-        title="Login"
-        description="Masuk atau daftar ke WatchMe.log untuk mulai melacak film dan serial TV favoritmu secara gratis."
-      />
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
@@ -368,6 +365,4 @@ const Auth = () => {
       </Dialog>
     </div>
   );
-};
-
-export default Auth;
+}
