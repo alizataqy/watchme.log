@@ -30,12 +30,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const query = Object.fromEntries(urlObj.searchParams);
-  const searchParams = new URLSearchParams(query);
+  const searchParams = new URLSearchParams();
+  
+  // Copy all search params from incoming request, preserving duplicates
+  urlObj.searchParams.forEach((value, key) => {
+    searchParams.append(key, value);
+  });
+  
   searchParams.append('api_key', TMDB_API_KEY);
 
-  if (actualPath.startsWith('movie/') && !actualPath.includes('/', 6)) {
-    searchParams.append('append_to_response', 'credits');
+  if (/^movie\/\d+$/.test(actualPath)) {
+    if (!searchParams.has('append_to_response')) {
+      searchParams.append('append_to_response', 'credits');
+    }
   }
 
   const queryString = searchParams.toString();

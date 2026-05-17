@@ -22,17 +22,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const query = Object.fromEntries(urlObj.searchParams);
   const searchParams = new URLSearchParams();
   
-  if (actualPath.startsWith('shows/') && !actualPath.includes('/')) {
-    searchParams.append('embed[]', 'nextepisode');
-    searchParams.append('embed[]', 'previousepisode');
-    searchParams.append('embed[]', 'cast');
-  }
+  // Copy all search params from incoming request, preserving duplicates (like embed[])
+  urlObj.searchParams.forEach((value, key) => {
+    searchParams.append(key, value);
+  });
 
-  for (const [key, value] of Object.entries(query)) {
-    searchParams.append(key, value as string);
+  // If it's a show detail request and embeds are not already present, add them
+  if (/^shows\/\d+$/.test(actualPath)) {
+    if (!searchParams.has('embed[]')) {
+      searchParams.append('embed[]', 'nextepisode');
+      searchParams.append('embed[]', 'previousepisode');
+      searchParams.append('embed[]', 'cast');
+    }
   }
 
   const queryString = searchParams.toString();
