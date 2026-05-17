@@ -1,7 +1,7 @@
 import { SearchResult, Show } from "@/types/show";
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '';
-const BASE_URL = 'https://api.themoviedb.org/3';
+// TMDB_API_KEY is now handled by the backend proxy
+const BASE_URL = '/api/tmdb';
 
 interface TmdbItem {
     id: number;
@@ -67,12 +67,10 @@ const getGenresFromIds = (ids: number[]): string[] => {
 };
 
 export const discoverMoviesByGenre = async (genreId: number): Promise<SearchResult[]> => {
-    if (!TMDB_API_KEY) return [];
+    // if (!TMDB_API_KEY) return [];
 
     try {
-        const response = await fetch(
-            `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc`
-        );
+        const response = await fetch(`${BASE_URL}/discover/movie?with_genres=${genreId}&sort_by=popularity.desc`);
         const data = await response.json();
 
         return (data.results || []).map((movie: TmdbItem) => ({
@@ -102,11 +100,11 @@ export const discoverMoviesByGenre = async (genreId: number): Promise<SearchResu
 };
 
 export const searchMovies = async (query: string): Promise<SearchResult[]> => {
-    if (!query || !TMDB_API_KEY) return [];
+    if (!query) return [];
 
     try {
         const [res1] = await Promise.all([
-            fetch(`${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1`),
+            fetch(`${BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=1`),
         ]);
 
         const [data1] = await Promise.all([res1.json()]);
@@ -141,11 +139,11 @@ export const searchMovies = async (query: string): Promise<SearchResult[]> => {
 
 
 export const getTrendingMovies = async (): Promise<SearchResult[]> => {
-    if (!TMDB_API_KEY) return [];
+    // if (!TMDB_API_KEY) return [];
 
     try {
         const response = await fetch(
-            `${BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}`
+            `${BASE_URL}/trending/movie/day`
         );
         const data = await response.json();
 
@@ -176,12 +174,10 @@ export const getTrendingMovies = async (): Promise<SearchResult[]> => {
 };
 
 export const getMovieDetails = async (id: number): Promise<Show | null> => {
-    if (!TMDB_API_KEY) return null;
+    // API key check is now handled by the backend proxy
 
     try {
-        const response = await fetch(
-            `${BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits`
-        );
+        const response = await fetch(`${BASE_URL}/movie/${id}`);
         const movie: TmdbMovieDetailResponse = await response.json();
 
         if (movie.success === false) return null;
