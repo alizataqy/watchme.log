@@ -2,11 +2,13 @@ import { useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContext } from './AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.clear();
         // Optional: clear session storage as well
         sessionStorage.clear();
+        queryClient.clear();
     };
 
     const updateProfile = async (data: { full_name?: string; avatar_url?: string; has_onboarded?: boolean }) => {

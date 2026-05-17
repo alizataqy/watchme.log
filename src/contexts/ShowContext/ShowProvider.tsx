@@ -117,10 +117,8 @@ export const ShowProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [user]); // Include user for better stability and to avoid lint warnings
 
     useEffect(() => {
-        if (user?.id) {
-            fetchShows();
-        }
-    }, [user?.id, fetchShows]);
+        fetchShows();
+    }, [user, fetchShows]);
 
     useEffect(() => {
         if (!user?.id) return;
