@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, User as UserIcon, Lock, ArrowLeft, Mail } from "lucide-react";
+import { Loader2, User as UserIcon, Lock, ArrowLeft, Mail, Copy, Check, Tv, ExternalLink, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -19,6 +19,7 @@ import { useUpcomingShows } from "@/hooks/useUpcomingShows";
 import { showBrowserNotification } from "@/services/browserNotification";
 import { saveNotification } from "@/services/notificationDb";
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 
 const Profile = () => {
@@ -34,7 +35,71 @@ const Profile = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [copiedUserId, setCopiedUserId] = useState(false);
+    const [syncToken, setSyncToken] = useState("");
     const [activeTab, setActiveTabState] = useState('profile');
+
+    const SYNC_SECRET = 'wml_secure_sync_vault_2026';
+
+    const generateSecureSyncToken = async (payload: { at: string; rt: string; u: string }): Promise<string> => {
+        try {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.digest('SHA-256', enc.encode(SYNC_SECRET));
+            const key = await crypto.subtle.importKey('raw', keyMaterial, { name: 'AES-GCM' }, false, ['encrypt']);
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const data = enc.encode(JSON.stringify({ ...payload, exp: Date.now() + 30 * 24 * 3600 * 1000 }));
+            const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+
+            const combined = new Uint8Array(iv.length + encrypted.byteLength);
+            combined.set(iv, 0);
+            combined.set(new Uint8Array(encrypted), iv.length);
+
+            let binary = '';
+            for (let i = 0; i < combined.length; i++) {
+                binary += String.fromCharCode(combined[i]);
+            }
+            return `wml_sec_${btoa(binary)}`;
+        } catch (err) {
+            console.error('Failed to encrypt sync token:', err);
+            return '';
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            supabase.auth.getSession().then(async ({ data }) => {
+                if (data.session) {
+                    const token = await generateSecureSyncToken({
+                        at: data.session.access_token,
+                        rt: data.session.refresh_token,
+                        u: user.id
+                    });
+                    setSyncToken(token);
+                }
+            });
+        }
+    }, [user]);
+
+    const handleCopySyncToken = async () => {
+        const { data } = await supabase.auth.getSession();
+        let token = syncToken;
+        if (data.session) {
+            token = await generateSecureSyncToken({
+                at: data.session.access_token,
+                rt: data.session.refresh_token,
+                u: user.id
+            });
+            setSyncToken(token);
+        }
+        if (!token) return;
+        navigator.clipboard.writeText(token);
+        setCopiedUserId(true);
+        toast({
+            title: t('profile.userIdCopied'),
+            description: t('profile.userIdCopiedDesc'),
+        });
+        setTimeout(() => setCopiedUserId(false), 2500);
+    };
 
     const { upcomingShows } = useUpcomingShows();
 
@@ -183,6 +248,58 @@ const Profile = () => {
                                 </Button>
                             </CardFooter>
                         </form>
+                    </Card>
+
+                    {/* Netflix Extension Auto-Sync Section */}
+                    <Card className="glass-card border-none shadow-xl relative overflow-hidden bg-gradient-to-br from-purple-950/20 via-background to-pink-950/20 border border-purple-500/20">
+                        <CardHeader>
+                            <CardTitle className="text-xl flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Tv className="h-5 w-5 text-primary" />
+                                    <span>{t('profile.syncSection')}</span>
+                                </div>
+                                <span className="text-xs px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center gap-1 font-semibold">
+                                    <Sparkles className="w-3 h-3" /> Auto Scrobbler
+                                </span>
+                            </CardTitle>
+                            <CardDescription>
+                                {t('profile.syncSectionDesc')}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="userIdSync">{t('profile.userIdLabel')}</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="userIdSync"
+                                        type="password"
+                                        value={syncToken || user.id}
+                                        readOnly
+                                        className="font-mono text-xs bg-secondary/50 border-white/10 tracking-widest"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleCopySyncToken}
+                                        className="gap-2 shrink-0 border-primary/30 hover:bg-primary/10"
+                                    >
+                                        {copiedUserId ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                                        <span className="hidden sm:inline">{t('profile.copySyncKey')}</span>
+                                    </Button>
+                                </div>
+                            </div>
+                            
+                            <div className="rounded-lg bg-black/20 p-3.5 border border-white/5 space-y-2 text-xs text-muted-foreground">
+                                <p className="font-semibold text-foreground flex items-center gap-1.5">
+                                    <span>💡</span> {t('profile.extensionGuide')}
+                                </p>
+                                <ol className="list-decimal list-inside space-y-1 pl-1">
+                                    <li>Pasang ekstensi <b>WatchMe.log Scrobbler</b> di browser Anda (Chrome / Brave / Edge).</li>
+                                    <li>Buka popup ekstensi lalu tempel <b>User ID</b> di atas.</li>
+                                    <li>Tonton film/series di platform streaming favoritmu (Netflix, Disney+, Prime Video, Crunchyroll, Bstation, Vidio, Viu, YouTube, dll.) — status episode otomatis tercatat di WatchMe.log saat progres tontonan mencapai batas durasi (default 80%)!</li>
+                                </ol>
+                            </div>
+                        </CardContent>
                     </Card>
 
                     {/* Email Section */}

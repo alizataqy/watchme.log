@@ -1,0 +1,222 @@
+/* WatchMe.log — Universal In-Player Toast / HUD */
+/* Polished according to /better-ui, /better-colors, and /emil-design-eng */
+
+:root {
+  --wml-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --wml-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --wml-ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.watchme-scrobbler-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 2147483647;
+
+  /* Concentric border radius: outer 12px = inner 8px + 4px delta */
+  border-radius: 12px;
+  padding: 10px 12px 10px 12px;
+
+  /* Frosted Obsidian Glassmorphism */
+  background: rgba(10, 14, 22, 0.94);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 14px 34px -4px rgba(0, 0, 0, 0.7),
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  color: #F8FAFC;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 270px;
+  max-width: 360px;
+  pointer-events: auto;
+  user-select: none;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  /* Subtle enter/exit offset (Emil Kowalski /better-ui) */
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  visibility: hidden;
+
+  /* Fast subtle exit */
+  transition:
+    transform 160ms var(--wml-ease-in),
+    opacity 130ms var(--wml-ease-in),
+    visibility 160ms;
+}
+
+/* Enter state: Responsive spring deceleration */
+.watchme-scrobbler-toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+  transition:
+    transform 240ms var(--wml-ease-spring),
+    opacity 180ms var(--wml-ease-out),
+    visibility 0ms;
+}
+
+/* Precision Status Icon (Refined 32x32px badge with concentric 8px radius) */
+.watchme-scrobbler-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #34D399;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.watchme-scrobbler-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Content Area */
+.watchme-scrobbler-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+  flex-grow: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.watchme-scrobbler-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.watchme-scrobbler-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #94A3B8;
+}
+
+.watchme-scrobbler-separator {
+  color: #475569;
+  font-size: 9px;
+}
+
+.watchme-scrobbler-platform {
+  display: inline-block;
+  padding: 0.5px 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #94A3B8;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.watchme-scrobbler-badge {
+  display: inline-block;
+  padding: 0.5px 5px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: #34D399;
+  border-radius: 4px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.watchme-scrobbler-msg {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+}
+
+.watchme-scrobbler-sub {
+  font-size: 11px;
+  color: #94A3B8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* Close Button (Conforms to /better-ui: scale(0.96) on press) */
+.watchme-scrobbler-close {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 1px;
+  transition:
+    color 120ms var(--wml-ease-out),
+    background-color 120ms var(--wml-ease-out),
+    transform 100ms var(--wml-ease-out);
+}
+
+.watchme-scrobbler-close:hover {
+  color: #F8FAFC;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.watchme-scrobbler-close:active {
+  transform: scale(0.96);
+}
+
+.watchme-scrobbler-close svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Hairline Countdown Progress Bar */
+.watchme-scrobbler-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1.5px;
+  background: #10B981;
+  width: 100%;
+  transform-origin: left;
+  transition: transform 5000ms linear;
+  pointer-events: none;
+}
+
+.watchme-scrobbler-toast:not(.show) .watchme-scrobbler-progress {
+  transform: scaleX(1);
+  transition: none;
+}
+
+.watchme-scrobbler-toast.show .watchme-scrobbler-progress {
+  transform: scaleX(0);
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .watchme-scrobbler-toast {
+    transition: opacity 150ms ease-out !important;
+    transform: none !important;
+  }
+  .watchme-scrobbler-progress {
+    display: none !important;
+  }
+}

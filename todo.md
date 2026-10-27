@@ -96,6 +96,7 @@
 - [x] Auth (login, register, forgot password, reset password)
 - [x] Profile management (nama & password)
 - [x] React Router v7 future flags
+- [x] Netflix Auto-Scrobbler Browser Extension (Chrome/Brave/Edge) & Profile Sync Key
 
 
 

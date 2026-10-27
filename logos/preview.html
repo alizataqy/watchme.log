@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WatchMe.log — Logo Iterations Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 2.5rem;
+    transition: background-color 0.25s, color 0.25s;
+    background: #090D16;
+    color: #F8FAFC;
+  }
+  body.light { background: #f8fafc; color: #0f172a; }
+  body.dark { background: #090D16; color: #F8FAFC; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  body.light .header { border-bottom-color: rgba(0, 0, 0, 0.1); }
+
+  .title-group h1 { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.5px; }
+  .title-group p { font-size: 0.95rem; opacity: 0.75; margin-top: 0.35rem; }
+
+  .toggle {
+    padding: 0.65rem 1.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  body.light .toggle { border-color: rgba(0, 0, 0, 0.2); background: rgba(0, 0, 0, 0.05); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    background: #111827;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+  }
+  body.light .card { background: #ffffff; border-color: rgba(0,0,0,0.08); box-shadow: 0 14px 40px rgba(0,0,0,0.06); }
+
+  .card-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    min-height: 240px;
+    background: #0B0F17;
+  }
+  body.light .card-img { background: #f1f5f9; }
+
+  .card-img img {
+    max-width: 180px;
+    max-height: 180px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25));
+  }
+
+  .card-info {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  body.light .card-info { border-top-color: rgba(0,0,0,0.08); }
+
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-desc {
+    font-size: 0.88rem;
+    opacity: 0.75;
+    line-height: 1.5;
+  }
+
+  .section-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  body.light .section-title { border-bottom-color: rgba(0, 0, 0, 0.1); }
+
+  .favicon-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    background: #111827;
+    padding: 2.25rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  body.light .favicon-strip { background: #ffffff; border-color: rgba(0,0,0,0.08); }
+
+  .favicon-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .favicon-col-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .favicon-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-end;
+  }
+  .favicon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .favicon-item img {
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .favicon-item span {
+    font-size: 0.72rem;
+    opacity: 0.6;
+    font-family: monospace;
+  }
+</style>
+</head>
+<body class="dark">
+  <div class="header">
+    <div class="title-group">
+      <h1>WatchMe.log — Logo Refinements (Phase 3: Refine)</h1>
+      <p>Berdasarkan Concept 1 (The Prismatic Shutter) dengan penghapusan elemen circle di belakangnya</p>
+    </div>
+    <button class="toggle" onclick="document.body.classList.toggle('dark'); document.body.classList.toggle('light'); this.textContent = document.body.classList.contains('dark') ? '☀️ Light Mode' : '🌙 Dark Mode';">☀️ Light Mode</button>
+  </div>
+
+  <h2 class="section-title">Selected Logo — Iteration 2 (Pure Transparent Vector)</h2>
+  <div class="grid" style="grid-template-columns: minmax(280px, 480px);">
+    <!-- Iteration 2 -->
+    <div class="card">
+      <div class="card-img">
+        <img src="iterations/iteration-2.svg" alt="Iteration 2: Pure Transparent Vector">
+      </div>
+      <div class="card-info">
+        <div class="card-title">Iteration 2: Pure Transparent Vector (No Outer Box)</div>
+        <div class="card-desc">Vektor transparan murni tanpa background squircle gelap dan tanpa lingkaran glow belakang. Siap melayang langsung di navbar, cover canvas, atau latar belakang apa pun.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Icon Size Check (64px, 32px, 16px)</h2>
+  <div class="favicon-strip" style="grid-template-columns: minmax(220px, 360px);">
+    <div class="favicon-col">
+      <div class="favicon-col-label">Iteration 2: Transparent Mark</div>
+      <div class="favicon-row">
+        <div class="favicon-item"><img src="iterations/iteration-2.svg" width="64" height="64"><span>64px</span></div>
+        <div class="favicon-item"><img src="iterations/iteration-2.svg" width="32" height="32"><span>32px</span></div>
+        <div class="favicon-item"><img src="iterations/iteration-2.svg" width="16" height="16"><span>16px</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

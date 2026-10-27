@@ -1,0 +1,92 @@
+{
+  "manifest_version": 3,
+  "name": "WatchMe.log — Universal Auto Scrobbler",
+  "version": "2.0.0",
+  "description": "Otomatis mencatat episode yang kamu tonton di Netflix, Disney+, Prime Video, HBO (Max), IDLIX, Apple TV+, Crunchyroll, Vidio, Viu, dll. ke WatchMe.log.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "WatchMe.log Universal Scrobbler"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.netflix.com/*",
+    "*://*.disneyplus.com/*",
+    "*://*.hotstar.com/*",
+    "*://*.primevideo.com/*",
+    "*://*.amazon.com/*",
+    "*://*.max.com/*",
+    "*://*.hbomax.com/*",
+    "*://*.apple.com/*",
+    "*://*.idlix.lat/*",
+    "*://*.idlix.today/*",
+    "*://*.idlixplus.com/*",
+    "*://*.idlixofficial.co/*",
+    "*://*.idlixprime.com/*",
+    "*://*.idlix.top/*",
+    "*://*.idlix.org/*",
+    "*://*.crunchyroll.com/*",
+    "*://*.bilibili.tv/*",
+    "*://*.bilibili.com/*",
+    "*://*.vidio.com/*",
+    "*://*.viu.com/*",
+    "*://*.wetv.vip/*",
+    "*://*.iq.com/*",
+    "https://api.tvmaze.com/*",
+    "https://*.supabase.co/*",
+    "https://hpglyofqqqisgtaaildo.supabase.co/*",
+    "http://localhost:5173/*",
+    "https://watchme-log.vercel.app/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.netflix.com/*",
+        "*://*.disneyplus.com/*",
+        "*://*.hotstar.com/*",
+        "*://*.primevideo.com/*",
+        "*://*.amazon.com/*",
+        "*://*.max.com/*",
+        "*://*.hbomax.com/*",
+        "*://*.apple.com/*",
+        "*://*.idlix.lat/*",
+        "*://*.idlix.today/*",
+        "*://*.idlixplus.com/*",
+        "*://*.idlixofficial.co/*",
+        "*://*.idlixprime.com/*",
+        "*://*.idlix.top/*",
+        "*://*.idlix.org/*",
+        "*://*.crunchyroll.com/*",
+        "*://*.bilibili.tv/*",
+        "*://*.bilibili.com/*",
+        "*://*.vidio.com/*",
+        "*://*.viu.com/*",
+        "*://*.wetv.vip/*",
+        "*://*.iq.com/*",
+        "http://localhost:5173/*",
+        "https://watchme-log.vercel.app/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

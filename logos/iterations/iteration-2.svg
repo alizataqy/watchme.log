@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Iteration 2: Transparent Background (No background squircle or glow, floating mark) -->
+  <g id="icon" transform="translate(256, 256)">
+    <!-- Facet 1: Top Shutter Wing (Silver White) -->
+    <path d="M -110 -150 L 50 -60 L -20 40 L -140 -80 Z" fill="#E2E8F0"/>
+
+    <!-- Facet 2: Forward Play Apex (Electric Brand Blue & Pure White) -->
+    <path d="M 50 -60 L 170 0 L 50 60 L -20 40 Z" fill="#3B82F6"/>
+    <path d="M 50 -60 L 170 0 L 50 10 L 15 -18 Z" fill="#FFFFFF"/>
+
+    <!-- Facet 3: Bottom Shutter Wing (Slate Steel) -->
+    <path d="M -110 150 L -140 80 L -20 -40 L 50 60 Z" fill="#64748B"/>
+
+    <!-- Core Focal Aperture Cutout -->
+    <circle cx="0" cy="0" r="38" fill="#090D16"/>
+    <circle cx="0" cy="0" r="14" fill="#3B82F6"/>
+  </g>
+</svg>

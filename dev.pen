@@ -1,0 +1,788 @@
+{
+  "version": "2.21",
+  "children": [
+    {
+      "type": "frame",
+      "id": "a1Ml4f",
+      "x": 0,
+      "y": 0,
+      "name": "WatchMe Log - Portfolio Cover (1700x1000)",
+      "clip": true,
+      "width": 1700,
+      "height": 1000,
+      "fill": "#090C13",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "cbHrp",
+          "x": 100,
+          "y": 145,
+          "name": "Left Column",
+          "width": 880,
+          "layout": "vertical",
+          "gap": 28,
+          "children": [
+            {
+              "type": "frame",
+              "id": "byCM1",
+              "name": "Brand Row",
+              "gap": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "NnZ5B",
+                  "name": "Logo Box",
+                  "width": 52,
+                  "height": 52,
+                  "fill": "#090D16",
+                  "cornerRadius": 14,
+                  "stroke": "#1E293B",
+                  "strokeWidth": 1.5,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000060",
+                    "offset": {
+                      "x": 0,
+                      "y": 4
+                    },
+                    "blur": 10
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "x9OK1t",
+                      "name": "Prismatic Shutter",
+                      "width": 30,
+                      "height": 30,
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "path",
+                          "id": "WkPeQ",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Top Wing",
+                          "geometry": "M-110-150l160 90-70 100-120-120z",
+                          "viewBox": [
+                            -150,
+                            -160,
+                            330,
+                            320
+                          ],
+                          "fill": "#E2E8F0",
+                          "width": 30,
+                          "height": 30
+                        },
+                        {
+                          "type": "path",
+                          "id": "KJImp",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Play Apex Blue",
+                          "geometry": "M50-60l120 60-120 60-70-20z",
+                          "viewBox": [
+                            -150,
+                            -160,
+                            330,
+                            320
+                          ],
+                          "fill": "#3B82F6",
+                          "width": 30,
+                          "height": 30
+                        },
+                        {
+                          "type": "path",
+                          "id": "Rqivu",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Play Apex White",
+                          "geometry": "M50-60l120 60-120 10-35-28z",
+                          "viewBox": [
+                            -150,
+                            -160,
+                            330,
+                            320
+                          ],
+                          "fill": "#FFFFFF",
+                          "width": 30,
+                          "height": 30
+                        },
+                        {
+                          "type": "path",
+                          "id": "g0Xiq",
+                          "x": 0,
+                          "y": 0,
+                          "name": "Bottom Wing",
+                          "geometry": "M-110 150l-30-70 120-120 70 100z",
+                          "viewBox": [
+                            -150,
+                            -160,
+                            330,
+                            320
+                          ],
+                          "fill": "#64748B",
+                          "width": 30,
+                          "height": 30
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HclOO",
+                  "name": "Brand Text",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "AkfiD",
+                      "name": "Brand Main",
+                      "fill": "#FFFFFF",
+                      "content": "WatchMe",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "900",
+                      "letterSpacing": -0.8
+                    },
+                    {
+                      "type": "text",
+                      "id": "mWEm0",
+                      "name": "Brand Suffix",
+                      "fill": "#8EA2C6",
+                      "content": ".log",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "900",
+                      "letterSpacing": -0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NBXgb",
+              "name": "Headline Group",
+              "width": 760,
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "PtUF9",
+                  "name": "Headline 1",
+                  "fill": "#FFFFFF",
+                  "content": "Track Every Show.",
+                  "lineHeight": 1.08,
+                  "fontFamily": "Inter",
+                  "fontSize": 64,
+                  "fontWeight": "900",
+                  "letterSpacing": -2
+                },
+                {
+                  "type": "text",
+                  "id": "UQqvE",
+                  "name": "Headline 2",
+                  "fill": "#F1F5F9",
+                  "content": "Log Every Episode.",
+                  "lineHeight": 1.08,
+                  "fontFamily": "Inter",
+                  "fontSize": 64,
+                  "fontWeight": "900",
+                  "letterSpacing": -2
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "cmIDs",
+              "name": "Description",
+              "fill": "#8692A6",
+              "textGrowth": "fixed-width",
+              "width": 720,
+              "content": "An offline-resilient media tracker engineered for series and cinema. Log multi-season progress episode by episode with instant optimistic updates, live airdate alerts, and cloud sync.",
+              "lineHeight": 1.6,
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "VJcUL",
+              "name": "Tech Stack Row",
+              "fill": "#0F141F",
+              "cornerRadius": 8,
+              "stroke": "#ffffff12",
+              "strokeWidth": 1,
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "V2Fgx",
+                  "name": "Tech Next.js",
+                  "fill": "#0F141F",
+                  "cornerRadius": 8,
+                  "stroke": "#ffffff12",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "hyUfh",
+                      "name": "Icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "code",
+                      "library": "lucide",
+                      "fill": "#7E8B9F"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oQQcA",
+                      "name": "Label",
+                      "fill": "#E2E8F0",
+                      "content": "React + Vite",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TEZhw",
+                  "name": "Tech TypeScript",
+                  "fill": "#0F141F",
+                  "cornerRadius": 8,
+                  "stroke": "#ffffff12",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "C1EJ6",
+                      "name": "Icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "file-code",
+                      "library": "lucide",
+                      "fill": "#7E8B9F"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wD9I2",
+                      "name": "Label",
+                      "fill": "#E2E8F0",
+                      "content": "TypeScript",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "F2mD5",
+                  "name": "Tech Tailwind CSS",
+                  "fill": "#0F141F",
+                  "cornerRadius": 8,
+                  "stroke": "#ffffff12",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "ugEeC",
+                      "name": "Icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "palette",
+                      "library": "lucide",
+                      "fill": "#7E8B9F"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KhWDu",
+                      "name": "Label",
+                      "fill": "#E2E8F0",
+                      "content": "Tailwind CSS",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZMJ3h",
+                  "name": "Tech TMDb API",
+                  "fill": "#0F141F",
+                  "cornerRadius": 8,
+                  "stroke": "#ffffff12",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "MzHI3",
+                      "name": "Icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "database",
+                      "library": "lucide",
+                      "fill": "#7E8B9F"
+                    },
+                    {
+                      "type": "text",
+                      "id": "E4kQsv",
+                      "name": "Label",
+                      "fill": "#E2E8F0",
+                      "content": "TMDb API",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "edTj3",
+                  "name": "Tech Vercel Edge",
+                  "fill": "#0F141F",
+                  "cornerRadius": 8,
+                  "stroke": "#ffffff12",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "yB758",
+                      "name": "Icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "database",
+                      "library": "lucide",
+                      "fill": "#7E8B9F"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uNLEN",
+                      "name": "Label",
+                      "fill": "#E2E8F0",
+                      "content": "Supabase",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Jcx63",
+              "name": "Architecture Cards",
+              "width": "fill_container",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Y9GQrL",
+                  "name": "Card 1",
+                  "width": "fill_container",
+                  "fill": "#0D121B",
+                  "cornerRadius": 12,
+                  "stroke": "#ffffff0f",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": [
+                    16,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qZln1",
+                      "name": "Title",
+                      "fill": "#F8FAFC",
+                      "content": "Interactive Episode Grid",
+                      "lineHeight": 1.3,
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ETMXp",
+                      "name": "Desc",
+                      "fill": "#7E8B9F",
+                      "content": "Multi-season numeric toggles with instant watch-state updates.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "JNokA",
+                  "name": "Card 2",
+                  "width": "fill_container",
+                  "fill": "#0D121B",
+                  "cornerRadius": 12,
+                  "stroke": "#ffffff0f",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": [
+                    16,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nE2yn",
+                      "name": "Title",
+                      "fill": "#F8FAFC",
+                      "content": "Unified Media Watchlist",
+                      "lineHeight": 1.3,
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "d1nA1D",
+                      "name": "Desc",
+                      "fill": "#7E8B9F",
+                      "content": "Categorized under Watching, Watchlist, Upcoming, and Watched.",
+                      "lineHeight": 1.5,
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Htidb",
+              "name": "Architecture Cards Row 2",
+              "width": "fill_container",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vr3f4",
+                  "name": "Card 3",
+                  "width": "fill_container",
+                  "fill": "#0D121B",
+                  "cornerRadius": 12,
+                  "stroke": "#ffffff0f",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": [
+                    16,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yHGa9",
+                      "name": "Title",
+                      "fill": "#F8FAFC",
+                      "content": "Air Date Notifications",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "IJsLr",
+                      "name": "Desc",
+                      "fill": "#7E8B9F",
+                      "content": "Live episode release alerts, premiere sync, and countdowns.",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wB9dY",
+                  "name": "Card 4",
+                  "width": "fill_container",
+                  "fill": "#0D121B",
+                  "cornerRadius": 12,
+                  "stroke": "#ffffff0f",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": [
+                    16,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XU0a8",
+                      "name": "Title",
+                      "fill": "#F8FAFC",
+                      "content": "Personal Ratings & Reviews",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Hyzc0",
+                      "name": "Desc",
+                      "fill": "#7E8B9F",
+                      "content": "Personal star ratings, episode notes, and watch profile metrics.",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "K0cUxa",
+              "name": "Engineering Highlights Bar",
+              "width": "fill_container",
+              "fill": "#0B0F18",
+              "cornerRadius": 12,
+              "stroke": "#ffffff0f",
+              "strokeWidth": 1,
+              "padding": [
+                14,
+                20
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "kz6Ph",
+                  "name": "Stat Column",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sxMgJ",
+                      "name": "Stat Label",
+                      "fill": "#64748B",
+                      "content": "STATE ENGINE",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "iN1uM",
+                      "name": "Stat Value",
+                      "fill": "#CBD5E1",
+                      "content": "TanStack Query Cache",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IDPWS",
+                  "name": "Stat Column",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "d7B5K",
+                      "name": "Stat Label",
+                      "fill": "#64748B",
+                      "content": "SECURITY",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xyiga",
+                      "name": "Stat Value",
+                      "fill": "#CBD5E1",
+                      "content": "Supabase RLS Protected",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "MX3ZI",
+                  "name": "Stat Column",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Br3KX",
+                      "name": "Stat Label",
+                      "fill": "#64748B",
+                      "content": "DATA SOURCE",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sgUY2",
+                      "name": "Stat Value",
+                      "fill": "#CBD5E1",
+                      "content": "TMDb & TVMaze Dual Sync",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "e7yxtb",
+                  "name": "Stat Column",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NjaG6",
+                      "name": "Stat Label",
+                      "fill": "#64748B",
+                      "content": "EXPERIENCE",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "w1OnC",
+                      "name": "Stat Value",
+                      "fill": "#CBD5E1",
+                      "content": "PWA & Offline Ready",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "aUc7P",
+          "x": 1160,
+          "y": 54,
+          "name": "Phone Mockup Outer",
+          "clip": true,
+          "width": 413,
+          "height": 892,
+          "fill": "#080B10",
+          "cornerRadius": 50,
+          "stroke": "#ffffff1f",
+          "strokeWidth": 1.5,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#000000B0",
+            "offset": {
+              "x": 0,
+              "y": 30
+            },
+            "blur": 60
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "knCrZ",
+              "x": 8,
+              "y": 8,
+              "name": "Screen Container",
+              "clip": true,
+              "width": 397,
+              "height": 876,
+              "fill": "#090D16",
+              "cornerRadius": 42,
+              "layout": "none",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "MnVF0",
+                  "x": 0,
+                  "y": 0,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "watchme-log.vercel.app_watching(iPhone%2012%20Pro).png",
+                    "mode": "cover"
+                  },
+                  "width": 397,
+                  "height": 876
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "fileToken": "354ff053-f4ea-4f42-8e4b-284dad2c0526"
+}
