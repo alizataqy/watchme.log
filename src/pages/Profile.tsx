@@ -1,29 +1,22 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, User as UserIcon, Lock, ArrowLeft, Mail, Copy, Check, Tv, ExternalLink, Sparkles } from "lucide-react";
+import { Loader2, User as UserIcon, Lock, ArrowLeft, Mail, Copy, Check, Tv, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import { useShowStorage } from '@/hooks/useShowStorage';
-import { Show } from "@/types/show";
 import { useUpcomingShows } from "@/hooks/useUpcomingShows";
-import { showBrowserNotification } from "@/services/browserNotification";
-import { saveNotification } from "@/services/notificationDb";
 import { useLanguage } from "@/contexts/LanguageContext/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 
-
 const Profile = () => {
-    const { user, updateProfile, updatePassword, updateEmail, isLoading: authLoading } = useAuth();
+    const { user, updateProfile, updatePassword, isLoading: authLoading } = useAuth();
     const { toast } = useToast();
     const navigate = useNavigate();
     const isMobile = useIsMobile();
@@ -31,13 +24,12 @@ const Profile = () => {
 
     const [fullName, setFullName] = useState("");
     const [password, setPassword] = useState("");
-    const [oldPassword, setOldPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
     const [copiedUserId, setCopiedUserId] = useState(false);
     const [syncToken, setSyncToken] = useState("");
-    const [activeTab, setActiveTabState] = useState('profile');
+    const activeTab = 'profile';
 
     const SYNC_SECRET = 'wml_secure_sync_vault_2026';
 

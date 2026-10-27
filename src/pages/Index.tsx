@@ -143,6 +143,7 @@ const Index = () => {
     if (!query) {
       setSearchResults([]);
       setHasSearched(false);
+      fetchRecommendations();
       if (!skipNavigate) {
         navigate(`/search/${pathMap[searchType]}`, { replace: true });
       }
@@ -230,6 +231,7 @@ const Index = () => {
       setLocalQuery('');
       setSearchResults([]);
       setHasSearched(false);
+      fetchRecommendations();
     }
 
     if (path.startsWith('/search/')) {

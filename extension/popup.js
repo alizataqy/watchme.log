@@ -52,9 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return JSON.parse(dec.decode(decrypted));
   }
 
-  // ==========================================================================
-  // WAI-ARIA Accessible Tab Navigation
-  // ==========================================================================
   function activateTab(targetBtn) {
     const tabName = targetBtn.dataset.tab;
 
@@ -129,9 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ==========================================================================
-  // Threshold Slider Dynamic Background & Pill
-  // ==========================================================================
   function updateSliderBackground(val) {
     const percentage = ((val - thresholdInput.min) / (thresholdInput.max - thresholdInput.min)) * 100;
     thresholdInput.style.background = `linear-gradient(to right, #6366F1 0%, #6366F1 ${percentage}%, rgba(255,255,255,0.08) ${percentage}%, rgba(255,255,255,0.08) 100%)`;
@@ -144,14 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSliderBackground(val);
   });
 
-  // ==========================================================================
-  // Initial Data Load
-  // ==========================================================================
   chrome.storage.sync.get(
     ['userId', 'accessToken', 'scrobbleThreshold', 'userEmail'],
     (items) => {
       if (items.userId) {
-        // Safe placeholder to avoid exposing raw JWT tokens on screen
         userIdInput.placeholder = items.userEmail ? `Terhubung (${items.userEmail})` : 'Akun sudah terhubung';
       }
 
@@ -164,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSliderBackground(80);
       }
 
-      // Check initial connection status without notification toast
       if (items.userId || items.accessToken) {
         testConnection({
           userId: items.userId,
@@ -174,12 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   );
 
-  // ==========================================================================
-  // Form Submit & Connection Testing
-  // ==========================================================================
   configForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    showAlert('', ''); // hide previous alert
+    showAlert('', '');
 
     const rawInput = userIdInput.value.trim();
     const threshold = Number(thresholdInput.value);
@@ -339,9 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ==========================================================================
-  // Feedback Alerts
-  // ==========================================================================
   function showAlert(msg, type) {
     if (alertTimeout) {
       clearTimeout(alertTimeout);
@@ -361,7 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
     alertBox.className = `alert-box ${type}`;
     alertBox.innerHTML = `<span>${iconSvg}</span><span>${escapeHtml(msg)}</span>`;
 
-    // Auto-dismiss success alert after 4.5s
     if (type === 'success') {
       alertTimeout = setTimeout(() => {
         showAlert('', '');
@@ -369,9 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ==========================================================================
-  // History Rendering & Clear Action
-  // ==========================================================================
   function renderHistory() {
     chrome.storage.local.get(['recentScrobbles'], (res) => {
       const list = res.recentScrobbles || [];

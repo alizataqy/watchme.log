@@ -78,21 +78,16 @@ export function SearchBar({
   const handleClear = () => {
     onQueryChange('');
     onSearch('', false);
-    if (onSearchTypeChange) {
-      // Reset to search all without query
+    if (!isLocalTab) {
       navigate('/search/all');
-    } else {
-      navigate(`${location.pathname}`);
     }
   };
 
   const handleQueryChange = (newValue: string) => {
     onQueryChange(newValue);
-    // When clearing, trigger immediate navigation/reset instead of waiting for debounce
     if (newValue === '') {
       onSearch('', false);
-      // For search results tab, ensure we land on the base search page
-      if (onSearchTypeChange) {
+      if (!isLocalTab) {
         navigate('/search/all');
       }
     }

@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-type Language = 'id' | 'en';
+import React, { useState, useEffect } from 'react';
+import { Language, LanguageContext } from './context';
+export * from './context';
+export * from './useLanguage';
 
 type Translations = {
     [key in Language]: {
@@ -59,6 +60,8 @@ const translations: Translations = {
         'profile.toast.passwordShortDesc': 'Password minimal 6 karakter.',
         'profile.toast.passwordSuccess': 'Password diperbarui',
         'profile.toast.passwordSuccessDesc': 'Password Anda telah berhasil diperbarui.',
+        'profile.toast.passwordError': 'Gagal memperbarui password',
+        'profile.emailPlaceholder': 'email@example.com',
         'profile.syncSection': 'Ekstensi Browser & Universal Auto-Sync Streaming',
         'profile.syncSectionDesc': 'Hubungkan browser extension untuk mencatat tontonan otomatis dari Netflix, Disney+, Prime Video, Crunchyroll, Vidio, Viu, YouTube, dll.',
         'profile.userIdLabel': 'User ID (Sync Key)',
@@ -289,6 +292,7 @@ const translations: Translations = {
         'profile.toast.passwordSuccess': 'Password updated',
         'profile.toast.passwordSuccessDesc': 'Your password has been successfully updated.',
         'profile.toast.passwordError': 'Failed to update password',
+        'profile.emailPlaceholder': 'email@example.com',
         'profile.syncSection': 'Browser Extension & Universal Streaming Auto-Sync',
         'profile.syncSectionDesc': 'Connect the browser extension to automatically scrobble shows from Netflix, Disney+, Prime Video, Crunchyroll, Vidio, Viu, YouTube, and more.',
         'profile.userIdLabel': 'User ID (Sync Key)',
@@ -471,14 +475,6 @@ const translations: Translations = {
 
 };
 
-interface LanguageContextType {
-    language: Language;
-    setLanguage: (lang: Language) => void;
-    t: (key: string) => string;
-}
-
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
     const [language, setLanguage] = useState<Language>(() => {
         const savedLang = localStorage.getItem('app-language');
@@ -498,12 +494,4 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
             {children}
         </LanguageContext.Provider>
     );
-};
-
-export const useLanguage = () => {
-    const context = useContext(LanguageContext);
-    if (context === undefined) {
-        throw new Error('useLanguage must be used within a LanguageProvider');
-    }
-    return context;
 };
